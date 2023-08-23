@@ -1,0 +1,41 @@
+{
+	"name": "ki-anfragen-api",
+	"version": "0.1.0",
+	"description": "",
+	"main": "dist/index.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "tsx watch ./src/index.ts",
+		"build": "mkdir -p dist && node esbuild.config.cjs",
+		"start": "node dist/index.js"
+	},
+	"keywords": [],
+	"author": "ff6347 <hash@ff6347.email>",
+	"license": "MIT",
+	"devDependencies": {
+		"@technologiestiftung/semantic-release-config": "1.2.3",
+		"@types/node": "20.5.3",
+		"@typescript-eslint/eslint-plugin": "6.4.1",
+		"@typescript-eslint/parser": "6.4.1",
+		"esbuild": "0.19.2",
+		"eslint": "8.47.0",
+		"eslint-config-prettier": "9.0.0",
+		"eslint-plugin-prettier": "5.0.0",
+		"glob": "10.3.3",
+		"prettier": "3.0.2",
+		"semantic-release": "21.0.9",
+		"tsx": "3.12.7",
+		"typescript": "5.1.6"
+	},
+	"prettier": {
+		"tabWidth": 2,
+		"semi": true,
+		"singleQuote": false,
+		"useTabs": true,
+		"printWidth": 80
+	},
+	"dependencies": {
+		"fastify": "4.21.0"
+	}
+}

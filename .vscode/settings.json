@@ -17,7 +17,16 @@
     "titleBar.activeForeground": "#e7e7e7",
     "titleBar.inactiveBackground": "#0f49c399",
     "titleBar.inactiveForeground": "#e7e7e799",
-    "commandCenter.border": "#e7e7e799"
+    "commandCenter.border": "#e7e7e799",
+    "editorGroup.border": "#185ded",
+    "panel.border": "#185ded",
+    "sideBar.border": "#185ded",
+    "statusBar.border": "#0f49c3",
+    "statusBar.debuggingBackground": "#c3890f",
+    "statusBar.debuggingBorder": "#c3890f",
+    "statusBar.debuggingForeground": "#15202b",
+    "tab.activeBorder": "#185ded",
+    "titleBar.border": "#0f49c3"
   },
   "peacock.color": "#0f49c3"
 }
