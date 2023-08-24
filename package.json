@@ -39,6 +39,7 @@
 		"printWidth": 80
 	},
 	"dependencies": {
+		"@fastify/cors": "8.3.0",
 		"@supabase/supabase-js": "2.33.1",
 		"common-tags": "1.8.2",
 		"fastify": "4.21.0",

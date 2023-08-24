@@ -1,6 +1,7 @@
 /* eslint-disable indent */
 // ESM
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import { S } from "fluent-json-schema";
 import { ResponseDetail } from "./lib/common.js";
 import { createPrompt } from "./lib/create-prompt.js";
@@ -9,7 +10,7 @@ import supabase from "./lib/supabase.js";
 
 const bodySchema = S.object().prop("query", S.string()).required(["query"]);
 
-export function buildServer({
+export async function buildServer({
 	OPENAI_MODEL,
 	OPENAI_KEY,
 }: {
@@ -18,6 +19,9 @@ export function buildServer({
 }) {
 	const fastify = Fastify({
 		logger: true,
+	});
+	await fastify.register(cors, {
+		origin: "*",
 	});
 
 	fastify.post<{
