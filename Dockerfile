@@ -1,10 +1,29 @@
-FROM node:lts-alpine
-ENV NODE_ENV=production
+
+FROM node:20.5.1-bookworm-slim AS build
 WORKDIR /usr/src/app
-COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
-RUN npm install --production --silent && mv node_modules ../
+RUN apt-get update && apt-get install -y python3 build-essential
 COPY . .
-EXPOSE 3000
+RUN npm ci && npm run build
+
+FROM node:20.5.1-bookworm-slim
+
+ARG PORT=8080
+ENV PORT $PORT
+
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app/dist /usr/src/app/package.json /usr/src/app/package-lock.json ./
+RUN apt-get update && apt-get install -y python3 build-essential && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN
+RUN npm ci --production
+
+
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
 RUN chown -R node /usr/src/app
 USER node
-CMD ["npm", "start"]
+
+EXPOSE 8080
+ENTRYPOINT ["/tini", "--"]
+CMD ["node", "index.js"]
