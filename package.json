@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "tsx watch ./src/index.ts",
+		"dev": "nodemon",
 		"build": "mkdir -p dist && node esbuild.config.cjs",
 		"start": "node dist/index.js"
 	},
@@ -15,6 +15,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@technologiestiftung/semantic-release-config": "1.2.3",
+		"@types/common-tags": "1.8.1",
 		"@types/node": "20.5.3",
 		"@typescript-eslint/eslint-plugin": "6.4.1",
 		"@typescript-eslint/parser": "6.4.1",
@@ -23,6 +24,7 @@
 		"eslint-config-prettier": "9.0.0",
 		"eslint-plugin-prettier": "5.0.0",
 		"glob": "10.3.3",
+		"nodemon": "3.0.1",
 		"prettier": "3.0.2",
 		"semantic-release": "21.0.9",
 		"tsx": "3.12.7",
@@ -36,6 +38,11 @@
 		"printWidth": 80
 	},
 	"dependencies": {
-		"fastify": "4.21.0"
+		"@supabase/supabase-js": "2.33.1",
+		"common-tags": "1.8.2",
+		"fastify": "4.21.0",
+		"fluent-json-schema": "4.1.1",
+		"gpt3-tokenizer": "1.1.5",
+		"openai": "4.2.0"
 	}
 }
