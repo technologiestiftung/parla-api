@@ -1,0 +1,54 @@
+GET http://localhost:8080
+
+HTTP/1.1 200  - OK
+content-type: text/plain; charset=utf-8
+content-length: 2
+date: Thu, 24 Aug 2023 11:37:05 GMT
+connection: close
+###
+GET http://localhost:8080/health
+###
+POST http://localhost:8080/vector-search
+Content-Type: application/json
+
+{"query":"Wie begründet sich die deutlich ungleiche Besoldung von Ärtzt:innen am Landesinstitut für gerichtliche und soziale Medizin Berlin sowie am Institut für Rechtsmedizin der Charité?"}
+
+HTTP/1.1 201  - Created
+content-type: application/json; charset=utf-8
+content-length: 19465
+date: Thu, 24 Aug 2023 11:37:43 GMT
+connection: close
+###
+POST http://localhost:8080/vector-search
+Content-Type: application/json
+
+{"query":"Wie bewertet der Berliner Senat das private Engagement, bei dem Ehrenamtliche Berliner Gewässer von Müll und Schrott befreien?"}
+
+HTTP/1.1 201  - Created
+content-type: application/json; charset=utf-8
+content-length: 972
+date: Thu, 24 Aug 2023 10:41:53 GMT
+connection: close
+###
+POST http://localhost:8080/vector-search
+Content-Type: application/json
+
+{"query":
+				"Wie viel Personen sind 2021 bisher insgesamt aus der Republik Polen in Deutschland eingereist und haben in Berlin einen Asylantrag gestellt? Wie viel davon waren Frauen, wie viel Männer, wie viel Kinder? Welche Staatsangehörigkeit hatten die Personen?"}
+
+HTTP/1.1 201  - Created
+content-type: application/json; charset=utf-8
+content-length: 972
+date: Thu, 24 Aug 2023 10:41:53 GMT
+connection: close
+###
+POST http://localhost:8080/vector-search
+Content-Type: application/json
+
+{"query":"Wie ist der aktuelle Stand der Planungen der Fußgängerüberwege am Jacques-Offenbach-Platz in Mahlsdorf?"}
+
+HTTP/1.1 201  - Created
+content-type: application/json; charset=utf-8
+content-length: 22889
+date: Thu, 24 Aug 2023 10:52:19 GMT
+connection: close
