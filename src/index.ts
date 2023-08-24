@@ -17,7 +17,7 @@ async function main() {
 		}
 		if (!OPENAI_KEY) throw new EnvError("OPENAI_KEY");
 
-		const server = buildServer({ OPENAI_MODEL, OPENAI_KEY });
+		const server = await buildServer({ OPENAI_MODEL, OPENAI_KEY });
 
 		server.listen({ port: PORT, host: "0.0.0.0" }, function (err) {
 			if (err) {
