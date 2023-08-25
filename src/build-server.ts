@@ -22,6 +22,9 @@ export async function buildServer({
 	});
 	await fastify.register(cors, {
 		origin: (origin, cb) => {
+			if (process.env.NODE_ENV === "test") {
+				return cb(null, true);
+			}
 			if (!origin) {
 				cb(new Error("Not allowed"), false);
 				return;
