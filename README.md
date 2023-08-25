@@ -6,60 +6,66 @@
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-# {repo-template}
+# _>ki.anfragen (api)_
 
-## TODO (after you generated the repo)
-
-- [ ] Review the content of the README.md and adjust to your liking
-- [ ] Read the README.md till the end and adjust the content licensing,
-      logos, etc (I know you stopped at tbd...)
-- [ ] Adjust the file [.github/CODEOWNERS](./.github/CODEOWNERS)
-- [ ] Adjust the files under [.github/ISSUE_TEMPLATE](./.github/ISSUE_TEMPLATE)
-- [ ] If you use staging and main branches use this template for [.github/renovate.json](./.github/renovate.json)
-
-```json
-{
-	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["github>technologiestiftung/renovate-config"],
-	"baseBranches": ["staging"]
-}
-```
-
-- [ ] Do you want to honor all kinds of contributions? Use [all-contributors](https://allcontributors.org/)
-
-```bash
-npx all-contributors-cli check
-npx all-contributors-cli add ff6347 doc
-```
-
-You can use it on GitHub just by commenting on PRs and issues:
-
-```plain
-@all-contributors please add @ff6347 for infrastructure, tests and code
-```
-
-- [ ] Add your project description
-- [ ] Get fancy shields at https://shields.io
+This is a the api for the explorational project _>ki.anfragen_. This is not production ready. Currently we explore if we can make the parliamentary documentation provided by the "The Abgeordnetenhaus" of Berlin as open data https://www.parlament-berlin.de/dokumente/open-data more accessible by embedding all the data and do search it using vector similarity search. The project is heavily based on [this example](https://github.com/supabase-community/nextjs-openai-doc-search) from the supabase community. Built with [Fastify](https://fastify.dev/) and deployed to [render.com](https://render.com) using [docker](https://www.docker.com/).
 
 ## Prerequisites
 
-tbd...
+- docker
+- vercel.com account
+- supabase.com account
+- running instance of the related frontend https://github.com/technologiestiftung/ki-anfragen-frontend
+- running supabase project. Source can be found here https://github.com/technologiestiftung/ki-anfragen-supabase
+- Populated database. Using these tools https://github.com/technologiestiftung/ki-anfragen-data-extractor
+
+## Needed Environment Variables
+
+See also `.envrc.sample`. (Might be more up to date).
+
+```plain
+SUPABASE_URL="http://localhost:54321"
+SUPABASE_ANON_KEY="ey..."
+# Get your key at https://platform.openai.com/account/api-keys
+OPENAI_KEY="sk-UY..."
+# in dev we can use a lesser version to save some coins
+# OPENAI_MODEL="gpt-3.5-turbo-16k"
+# OPENAI_MODEL=gpt-4
+OPENAI_MODEL=gpt-3.5-turbo
+PORT="8080"
+```
+
+Hint. We use `direnv` for development environment variables. See https://direnv.net/
 
 ## Installation
 
-tbd...
+```bash
+npm ci
+```
 
-## Usage or Deployment
+## Deployment
 
-tbd...
+Currently we deploy using docker on render.com.
+
+- Go to render.com
+- allow render to access your github repository
+- create a new web service (type should be docker)
+- populate the environment variables
+- deploy
 
 ## Development
 
-tbd...
+```bash
+npm run dev
+```
+
+Edit the files in `src`
 
 ## Tests
 
-tbd...
+```bash
+npm t
+```
 
 ## Contributing
 
@@ -83,12 +89,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-## Content Licensing
-
-Texts and content available as [CC BY](https://creativecommons.org/licenses/by/3.0/de/).
-
-Illustrations by {MARIA_MUSTERFRAU}, all rights reserved.
 
 ## Credits
 
@@ -119,3 +119,9 @@ Illustrations by {MARIA_MUSTERFRAU}, all rights reserved.
 </table>
 
 ## Related Projects
+
+- https://github.com/technologiestiftung/ki-anfragen-frontend
+- https://github.com/technologiestiftung/ki-anfragen-data-extractor
+- https://github.com/technologiestiftung/ki-anfragen-supabase
+- https://github.com/technologiestiftung/oeffentliches-gestalten-gpt-search
+- https://github.com/supabase-community/nextjs-openai-doc-search
