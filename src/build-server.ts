@@ -21,6 +21,7 @@ export async function buildServer({
 		logger: true,
 	});
 	fastify.register((app, options, next) => {
+		app.register(cors, { origin: "*" });
 		app.get("/", async (_request, reply) => {
 			reply.status(200).send("OK");
 		});
@@ -28,6 +29,7 @@ export async function buildServer({
 	});
 	fastify.register(
 		(app, options, next) => {
+			app.register(cors, { origin: "*" });
 			app.get("/", async (_request, reply) => {
 				reply.status(200).send("OK");
 			});
