@@ -21,7 +21,27 @@ export async function buildServer({
 		logger: true,
 	});
 	await fastify.register(cors, {
-		origin: "*",
+		origin: (origin, cb) => {
+			console.log(origin);
+			const hostname = new URL(origin as string).hostname;
+			if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
+				//  Request from localhost will pass
+				cb(null, true);
+				return;
+			}
+			// match hosstname based on regex
+			if (
+				hostname.match(
+					/cors-requester.vercel.app|ki-anfragen-frontend.*?.vercel.app|ki-anfragen.citylab-berlin.org/,
+				)
+			) {
+				//  Request from localhost will pass
+				cb(null, true);
+				return;
+			}
+			// Generate an error on other origins, disabling access
+			cb(new Error("Not allowed"), false);
+		},
 	});
 
 	fastify.post<{
