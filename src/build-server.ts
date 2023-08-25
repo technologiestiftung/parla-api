@@ -30,8 +30,11 @@ export async function buildServer({
 				return;
 			}
 			const hostname = new URL(origin as string).hostname;
-			if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
-				//  Request from localhost will pass
+			if (
+				(hostname.includes("localhost") || hostname.includes("127.0.0.1")) &&
+				process.env.NODE_ENV === "development"
+			) {
+				//  Request from localhost will pass if node_env is development
 				cb(null, true);
 				return;
 			}
