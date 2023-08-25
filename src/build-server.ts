@@ -22,7 +22,11 @@ export async function buildServer({
 	});
 	await fastify.register(cors, {
 		origin: (origin, cb) => {
-			if (process.env.NODE_ENV === "test") cb(null, true);
+			if (!origin) {
+				cb(null, true);
+				return;
+			}
+			console.info(origin);
 			const hostname = new URL(origin as string).hostname;
 			if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
 				//  Request from localhost will pass
