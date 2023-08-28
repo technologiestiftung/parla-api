@@ -47,6 +47,12 @@ export async function buildServer({
 			app.register(cors, {
 				origin: (origin, cb) => {
 					if (
+						process.env.DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS ===
+						"FOR_REAL_REAL"
+					) {
+						return cb(null, true);
+					}
+					if (
 						process.env.NODE_ENV === "test" ||
 						process.env.NODE_ENV === "development"
 					) {
