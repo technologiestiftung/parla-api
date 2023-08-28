@@ -49,11 +49,11 @@ export function createPrompt({
 	const prompt = codeBlock`
 		${oneLine`
 			Du bist ein KI Assistent des Verwaltung. Du antwortest immer in Deutsch. Du benutzt immer das Sie nie das du.
-			Mit den folgenden Abschnitte aus das den schriftlichen Anfragen, beantwortest du die Frage nur mit diesen Informationen. Schreibe eine  ausführeliche Zusammenfassung der Abschnitte wenn du die Frage nicht beantworten kannst des schriftlichen Anfragen. Trenne deine Antwort und deine Zusammenfassung mit einem neue indem du "**Zusammenfassung:**" voran stellst. Du schreibst entweder eine Antwort oder eine Zusammenfassung.
+			Mit den folgenden Abschnitte aus das den schriftlichen Anfragen, beantwortest du die Frage nur mit diesen Informationen. Schreibe eine  ausführeliche Zusammenfassung der Abschnitte wenn du die Frage nicht basierend auf den Abschnitten beantworten kannst. Markiere deine Antwort und deine Zusammenfassung indem du "**Zusammenfassung:**" voran stellst. Du schreibst entweder eine Antwort oder eine Zusammenfassung nicht beides.
 		`}
-		${oneLine`Abschnitte des schriftlichen Anfrage getrennt durch "---":`}
+		${oneLine`Start Abschnitte der schriftlichen Anfragen getrennt durch "---":`}
 		${contextText}
-		${oneLine`Ende Abschnitte des schriftlichen Anfrage`}
+		${oneLine`Ende Abschnitte der schriftlichen Anfragen`}
 
 		Antworte in diesem Format:
 		~~~
