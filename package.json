@@ -5,8 +5,9 @@
 	"main": "dist/index.js",
 	"type": "module",
 	"scripts": {
-		"test": "npx tsx src/app.test.ts",
+		"test": "NODE_ENV=test npx tsx src/app.test.ts",
 		"dev": "nodemon",
+		"dev:cors": "NODE_ENV=none nodemon",
 		"build": "mkdir -p dist && node esbuild.config.cjs",
 		"start": "node dist/index.js"
 	},
@@ -37,6 +38,21 @@
 		"singleQuote": false,
 		"useTabs": true,
 		"printWidth": 80
+	},
+	"nodemonConfig": {
+		"restartable": "rs",
+		"verbose": true,
+		"execMap": {
+			"js": "node --harmony"
+		},
+		"exec": "tsx ./src/index.ts",
+		"watch": [
+			"src"
+		],
+		"env": {
+			"NODE_ENV": "development"
+		},
+		"ext": "ts,json"
 	},
 	"dependencies": {
 		"@fastify/cors": "8.3.0",
