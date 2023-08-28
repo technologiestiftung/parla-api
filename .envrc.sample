@@ -9,3 +9,5 @@ export OPENAI_KEY="sk-UY..."
 export OPENAI_MODEL="gpt-3.5-turbo-16k"
 # OPENAI_MODEL=gpt-4
 export PORT="8080"
+# should be one of "debug", "info", "warning", "error", "critical"
+export LOG_LEVEL="info"
