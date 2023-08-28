@@ -1,7 +1,7 @@
 # shellcheck disable=SC2148
 # This is production environment variables
 export SUPABASE_URL="http://localhost:54321"
-export SUPABASE_ANON_KEY="ey..."
+export SUPABASE_SERVICE_ROLE_KEY="ey..."
 # Get your key at https://platform.openai.com/account/api-keys
 export OPENAI_KEY="sk-UY..."
 # in dev we can use a lesser version to save some coins
