@@ -17,8 +17,13 @@ export async function buildServer({
 	OPENAI_MODEL: string;
 	OPENAI_KEY: string;
 }) {
+	const NODE_ENV = process.env.NODE_ENV ?? "none";
+	const LOG_LEVEL = process.env.LOG_LEVEL ?? "info";
 	const fastify = Fastify({
-		logger: true,
+		logger: {
+			level: LOG_LEVEL,
+		},
+		disableRequestLogging: NODE_ENV === "development" ? false : true,
 	});
 	fastify.register((app, options, next) => {
 		app.register(cors, { origin: "*" });
@@ -173,7 +178,6 @@ export async function buildServer({
 				const {
 					data: [{ embedding }],
 				} = await embeddingResponse.json();
-
 				// 4. make the similarity search
 				const { error: matchSectionError, data: docSections } =
 					await supabase.rpc("match_parsed_dokument_sections", {
