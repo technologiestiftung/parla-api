@@ -284,7 +284,10 @@ export async function buildServer({
 				// START ----------------------------------------------------------------
 				// TODO: This is only for testing purpose and can be removed
 				const { error: matchSectionErrorLarge, data: docSectionsLarge } =
-					await supabase.rpc("match_parsed_dokument_sections_large", {
+					// TODO: This only exisits on the remote db
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					//@ts-ignore
+					await supabase.rpc("match_parsed_dokument_sections_large_clone", {
 						embedding,
 						match_threshold: 0.85,
 						match_count: 5,

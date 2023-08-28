@@ -199,6 +199,7 @@ export interface Database {
           embedding: string | null
           heading: string | null
           id: number
+          page: number | null
           parsed_document_id: number | null
           token_count: number | null
         }
@@ -207,6 +208,7 @@ export interface Database {
           embedding?: string | null
           heading?: string | null
           id?: number
+          page?: number | null
           parsed_document_id?: number | null
           token_count?: number | null
         }
@@ -215,6 +217,7 @@ export interface Database {
           embedding?: string | null
           heading?: string | null
           id?: number
+          page?: number | null
           parsed_document_id?: number | null
           token_count?: number | null
         }
@@ -233,6 +236,7 @@ export interface Database {
           embedding: string | null
           heading: string | null
           id: number
+          page: number | null
           parsed_document_id: number | null
           token_count: number | null
         }
@@ -241,6 +245,7 @@ export interface Database {
           embedding?: string | null
           heading?: string | null
           id?: number
+          page?: number | null
           parsed_document_id?: number | null
           token_count?: number | null
         }
@@ -249,6 +254,7 @@ export interface Database {
           embedding?: string | null
           heading?: string | null
           id?: number
+          page?: number | null
           parsed_document_id?: number | null
           token_count?: number | null
         }
