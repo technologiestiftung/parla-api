@@ -1,7 +1,9 @@
 ![](https://img.shields.io/badge/Built%20with%20%E2%9D%A4%EF%B8%8F-at%20Technologiestiftung%20Berlin-blue)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # _>ki.anfragen (api)_
@@ -23,7 +25,7 @@ See also `.envrc.sample`. (Might be more up to date).
 
 ```plain
 SUPABASE_URL="http://localhost:54321"
-SUPABASE_ANON_KEY="ey..."
+SUPABASE_SERVICE_ROLE_KEY="ey..."
 # Get your key at https://platform.openai.com/account/api-keys
 OPENAI_KEY="sk-UY..."
 # in dev we can use a lesser version to save some coins
@@ -31,6 +33,8 @@ OPENAI_KEY="sk-UY..."
 # OPENAI_MODEL=gpt-4
 OPENAI_MODEL=gpt-3.5-turbo
 PORT="8080"
+NODE_ENV="development"
+LOG_LEVEL="info"
 ```
 
 Hint. We use `direnv` for development environment variables. See https://direnv.net/
