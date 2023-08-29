@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.2.0...v1.3.0) (2023-08-29)
+
+
+### Features
+
+* **body schema:** Extend schema with params ([e7095af](https://github.com/technologiestiftung/ki-anfragen-api/commit/e7095afc0ce68a3fffbb31222901e5245cbee9eb))
+* **search parameters:** Add opts to tweak request ([cf26f9e](https://github.com/technologiestiftung/ki-anfragen-api/commit/cf26f9e5fc1d2bd1925873e5dba10e8ad9b880ac))
+
 # [1.2.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.1.0...v1.2.0) (2023-08-28)
 
 
