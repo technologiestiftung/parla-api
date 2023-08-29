@@ -4,6 +4,8 @@ type Section = Database["public"]["Tables"]["parsed_document_sections"]["Row"];
 type Pdf = Database["public"]["Tables"]["dokument"]["Row"];
 type Doc = Database["public"]["Tables"]["parsed_documents"]["Row"];
 
+export type Model = "gpt-4" | "gpt-3.5-turbo" | "gpt-3.5-turbo-16k";
+
 interface Gpt {
 	id: string;
 	object: string;
