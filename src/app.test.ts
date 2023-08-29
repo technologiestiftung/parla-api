@@ -1,5 +1,5 @@
 import { InjectOptions } from "fastify";
-import { buildServer } from "./build-server.js";
+import { buildServer } from "./lib/build-server.js";
 import assert from "node:assert/strict";
 
 const test = async () => {
