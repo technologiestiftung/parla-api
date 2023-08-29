@@ -48,8 +48,8 @@ export async function buildServer({
 						process.env.DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS ===
 						"FOR_REAL_REAL"
 					) {
-						console.info("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
-						app.log.info("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
+						console.warn("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
+						app.log.warn("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
 						return cb(null, true);
 					}
 					if (
@@ -137,14 +137,13 @@ export async function buildServer({
 					openai_model,
 				} = request.body;
 
-				console.log("query", query);
-
-				console.log("temperature", temperature);
-				console.log("match_threshold", match_threshold);
-				console.log("num_probes", num_probes);
-				console.log("match_count", match_count);
-				console.log("min_content_length", min_content_length);
-				console.log("openai_model", openai_model);
+				app.log.info("query", query);
+				app.log.info("temperature", temperature);
+				app.log.info("match_threshold", match_threshold);
+				app.log.info("num_probes", num_probes);
+				app.log.info("match_count", match_count);
+				app.log.info("min_content_length", min_content_length);
+				app.log.info("openai_model", openai_model);
 				// 2. moderate content
 				// Moderate the content to comply with OpenAI T&C
 				const sanitizedQuery = query.trim();
@@ -223,8 +222,6 @@ export async function buildServer({
 						matchSectionError,
 					);
 				}
-				console.log("embedding", embedding);
-				console.log("docSections", docSections);
 
 				const { error: sectionsError, data: sections } = await supabase
 					.from("parsed_document_sections")
