@@ -1,6 +1,6 @@
 // needs fasitfy
 // https://fastify.dev/docs/latest/Guides/Getting-Started
-import { buildServer } from "./build-server.js";
+import { buildServer } from "./lib/build-server.js";
 import { EnvError } from "./lib/errors.js";
 
 async function main() {

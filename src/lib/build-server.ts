@@ -2,19 +2,17 @@
 // ESM
 import Fastify from "fastify";
 import cors from "@fastify/cors";
-import { S } from "fluent-json-schema";
-import { ResponseDetail } from "./lib/common.js";
-import { createPrompt } from "./lib/create-prompt.js";
-import { ApplicationError, EnvError, UserError } from "./lib/errors.js";
-import supabase from "./lib/supabase.js";
-
-const bodySchema = S.object().prop("query", S.string()).required(["query"]);
+import { Model, ResponseDetail } from "./common.js";
+import { createPrompt } from "./create-prompt.js";
+import { ApplicationError, EnvError, UserError } from "./errors.js";
+import supabase from "./supabase.js";
+import { bodySchema } from "./json-schemas.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
 	OPENAI_KEY,
 }: {
-	OPENAI_MODEL: string;
+	OPENAI_MODEL: Model;
 	OPENAI_KEY: string;
 }) {
 	const NODE_ENV = process.env.NODE_ENV ?? "none";
@@ -46,6 +44,14 @@ export async function buildServer({
 		(app, options, next) => {
 			app.register(cors, {
 				origin: (origin, cb) => {
+					if (
+						process.env.DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS ===
+						"FOR_REAL_REAL"
+					) {
+						console.warn("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
+						app.log.warn("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
+						return cb(null, true);
+					}
 					if (
 						process.env.NODE_ENV === "test" ||
 						process.env.NODE_ENV === "development"
@@ -84,6 +90,12 @@ export async function buildServer({
 			app.post<{
 				Body: {
 					query: string;
+					temperature: number;
+					match_threshold: number;
+					num_probes: number;
+					match_count: number;
+					min_content_length: number;
+					openai_model: Model;
 				};
 			}>("/", { schema: { body: bodySchema } }, async (request, reply) => {
 				let MAX_CONTENT_TOKEN_LENGTH = 1500;
@@ -115,7 +127,23 @@ export async function buildServer({
 						break;
 					}
 				}
-				const { query } = request.body;
+				const {
+					query,
+					temperature,
+					match_threshold,
+					num_probes,
+					match_count,
+					min_content_length,
+					openai_model,
+				} = request.body;
+
+				app.log.info("query", query);
+				app.log.info("temperature", temperature);
+				app.log.info("match_threshold", match_threshold);
+				app.log.info("num_probes", num_probes);
+				app.log.info("match_count", match_count);
+				app.log.info("min_content_length", min_content_length);
+				app.log.info("openai_model", openai_model);
 				// 2. moderate content
 				// Moderate the content to comply with OpenAI T&C
 				const sanitizedQuery = query.trim();
@@ -178,13 +206,15 @@ export async function buildServer({
 				const {
 					data: [{ embedding }],
 				} = await embeddingResponse.json();
+
 				// 4. make the similarity search
 				const { error: matchSectionError, data: docSections } =
 					await supabase.rpc("match_parsed_dokument_sections", {
 						embedding,
-						match_threshold: 0.85,
-						match_count: 5,
-						min_content_length: 50,
+						match_threshold,
+						match_count,
+						min_content_length,
+						num_probes,
 					});
 				if (matchSectionError) {
 					throw new ApplicationError(
@@ -192,6 +222,7 @@ export async function buildServer({
 						matchSectionError,
 					);
 				}
+
 				const { error: sectionsError, data: sections } = await supabase
 					.from("parsed_document_sections")
 					.select("content,id,parsed_document_id")
@@ -281,119 +312,7 @@ export async function buildServer({
 				const json = await response.json();
 				responseDetail.gpt = json;
 
-				// START ----------------------------------------------------------------
-				// TODO: This is only for testing purpose and can be removed
-				const { error: matchSectionErrorLarge, data: docSectionsLarge } =
-					await supabase.rpc("match_parsed_dokument_sections_large", {
-						embedding,
-						match_threshold: 0.85,
-						match_count: 5,
-						min_content_length: 50,
-					});
-				if (matchSectionErrorLarge) {
-					throw new ApplicationError(
-						"Failed to match page sections large",
-						matchSectionErrorLarge,
-					);
-				}
-
-				const { error: sectionsErrorLarge, data: sectionsLarge } =
-					await supabase
-						.from("parsed_document_sections_large")
-						.select("content,id,parsed_document_id")
-						.in(
-							"id",
-							docSectionsLarge.map((section) => section.id),
-						);
-
-				if (sectionsErrorLarge) {
-					throw new ApplicationError(
-						"Failed to match pages to pageSections Large",
-						sectionsErrorLarge,
-					);
-				}
-				const responseDetailLarge: ResponseDetail = {
-					sections: sectionsLarge.map((section) => {
-						const docSection = docSectionsLarge.find(
-							(sec) => section.id === sec.id,
-						);
-						return {
-							similarity: docSection?.similarity ?? 0,
-							...section,
-						};
-					}),
-				};
-
-				const { error: docsLargeError, data: docsLarge } = await supabase
-					.from("parsed_documents")
-					.select("*")
-					.in(
-						"id",
-						sectionsLarge.map((section) => section.parsed_document_id),
-					);
-				if (docsLargeError) {
-					throw new ApplicationError("Failed to match docsSections to docs");
-				}
-				responseDetailLarge.sections.forEach((section) => {
-					section.parsed_documents = docsLarge.filter(
-						(doc) => doc.id === section.parsed_document_id,
-					);
-				});
-				const { error: pdfErrorLarge, data: pdfsLarge } = await supabase
-					.from("dokument")
-					.select("*")
-					.in(
-						"id",
-						docsLarge.map((doc) => doc.dokument_id),
-					);
-				if (pdfErrorLarge) {
-					throw new ApplicationError("Failed to match docs to pdfs large");
-				}
-
-				responseDetailLarge.sections.forEach((section) => {
-					section.pdfs = pdfsLarge.filter(
-						(pdf) =>
-							section.parsed_documents
-								?.map((doc) => doc.dokument_id)
-								.includes(pdf.id),
-					);
-				});
-
-				const completionOptionsLarge = createPrompt({
-					sections: responseDetailLarge.sections,
-					MAX_CONTENT_TOKEN_LENGTH,
-					OPENAI_MODEL,
-					sanitizedQuery,
-					MAX_TOKENS,
-				});
-
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				//@ts-ignore
-				const responseLarge = await fetch(
-					"https://api.openai.com/v1/chat/completions",
-					{
-						method: "POST",
-						headers: {
-							Authorization: `Bearer ${OPENAI_KEY}`,
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify(completionOptionsLarge),
-					},
-				);
-
-				if (responseLarge.status !== 200) {
-					throw new ApplicationError(
-						"Failed to create completion for question",
-						responseLarge,
-					);
-				}
-				const jsonLarge = await responseLarge.json();
-				responseDetailLarge.gpt = jsonLarge;
-				// END ----------------------------------------------------------------
-
-				reply
-					.status(201)
-					.send([responseDetail, responseDetailLarge] as ResponseDetail[]);
+				reply.status(201).send([responseDetail] as ResponseDetail[]);
 			});
 
 			next();

@@ -11,3 +11,6 @@ export OPENAI_MODEL="gpt-3.5-turbo-16k"
 export PORT="8080"
 # should be one of "debug", "info", "warning", "error", "critical"
 export LOG_LEVEL="info"
+# This is only for testing purpose and should not be allowed in production
+# for real real!
+export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"
