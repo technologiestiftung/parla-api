@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.3.0...v1.4.0) (2023-08-30)
+
+
+### Features
+
+* **response:** add more detail to response ([fc29f16](https://github.com/technologiestiftung/ki-anfragen-api/commit/fc29f16d71e6743d22f83d71598b482b4507376a))
+
 # [1.3.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.2.0...v1.3.0) (2023-08-29)
 
 
