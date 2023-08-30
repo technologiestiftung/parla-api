@@ -2,7 +2,7 @@
 // ESM
 import Fastify from "fastify";
 import cors from "@fastify/cors";
-import { Model, ResponseDetail } from "./common.js";
+import { Body, Model, ResponseDetail } from "./common.js";
 import { createPrompt } from "./create-prompt.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
 import supabase from "./supabase.js";
@@ -88,15 +88,7 @@ export async function buildServer({
 				},
 			});
 			app.post<{
-				Body: {
-					query: string;
-					temperature: number;
-					match_threshold: number;
-					num_probes: number;
-					match_count: number;
-					min_content_length: number;
-					openai_model: Model;
-				};
+				Body: Body;
 			}>("/", { schema: { body: bodySchema } }, async (request, reply) => {
 				let MAX_CONTENT_TOKEN_LENGTH = 1500;
 				const MAX_TOKENS = 2048;
@@ -225,7 +217,7 @@ export async function buildServer({
 
 				const { error: sectionsError, data: sections } = await supabase
 					.from("parsed_document_sections")
-					.select("content,id,parsed_document_id")
+					.select("content,id,parsed_document_id,page,token_count")
 					.in(
 						"id",
 						docSections.map((section) => section.id),
@@ -311,6 +303,8 @@ export async function buildServer({
 				}
 				const json = await response.json();
 				responseDetail.gpt = json;
+				responseDetail.requestBody = request.body;
+				responseDetail.completionOptions = completionOptions;
 
 				reply.status(201).send([responseDetail] as ResponseDetail[]);
 			});
