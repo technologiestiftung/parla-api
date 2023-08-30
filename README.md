@@ -63,6 +63,8 @@ npm run dev
 
 Edit the files in `src`
 
+See also the swagger documentation at http://localhost:8080/documentation/static/index.html
+
 ## Tests
 
 ```bash

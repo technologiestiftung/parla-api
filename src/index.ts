@@ -1,12 +1,13 @@
 // needs fasitfy
 // https://fastify.dev/docs/latest/Guides/Getting-Started
 import { buildServer } from "./lib/build-server.js";
+import { Model } from "./lib/common.js";
 import { EnvError } from "./lib/errors.js";
 
 async function main() {
 	try {
 		const PORT = parseInt(process.env.PORT ?? "8080");
-		const OPENAI_MODEL = process.env.OPENAI_MODEL;
+		const OPENAI_MODEL = process.env.OPENAI_MODEL as Model;
 		const OPENAI_KEY = process.env.OPENAI_KEY;
 
 		if (!PORT) {
@@ -18,7 +19,8 @@ async function main() {
 		if (!OPENAI_KEY) throw new EnvError("OPENAI_KEY");
 
 		const server = await buildServer({ OPENAI_MODEL, OPENAI_KEY });
-
+		await server.ready();
+		server.swagger();
 		server.listen({ port: PORT, host: "0.0.0.0" }, function (err) {
 			if (err) {
 				server.log.error(err);
