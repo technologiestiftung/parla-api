@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.4.0...v1.4.1) (2023-09-01)
+
+
+### Bug Fixes
+
+* **logging:** Logging needs first the object ([794680f](https://github.com/technologiestiftung/ki-anfragen-api/commit/794680f9e0200e8fcd63ac16641ed6ba15fe08db))
+
 # [1.4.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.3.0...v1.4.0) (2023-08-30)
 
 
