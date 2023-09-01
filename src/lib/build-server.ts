@@ -31,6 +31,8 @@ export async function buildServer({
 		},
 	};
 
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
 	await fastify.register(fastifySwagger, {
 		mode: "dynamic",
 		openapi: {
@@ -99,7 +101,7 @@ export async function buildServer({
 						return cb(null, true);
 					}
 					if (!origin) {
-						app.log.warn("No origin");
+						app.log.warn("No origin in request");
 						cb(new Error("Not allowed"), false);
 						return;
 					}
@@ -172,13 +174,13 @@ export async function buildServer({
 						openai_model,
 					} = request.body;
 
-					app.log.info("query", query);
-					app.log.info("temperature", temperature);
-					app.log.info("match_threshold", match_threshold);
-					app.log.info("num_probes", num_probes);
-					app.log.info("match_count", match_count);
-					app.log.info("min_content_length", min_content_length);
-					app.log.info("openai_model", openai_model);
+					app.log.info({ query });
+					app.log.info({ temperature });
+					app.log.info({ match_threshold });
+					app.log.info({ num_probes });
+					app.log.info({ match_count });
+					app.log.info({ min_content_length });
+					app.log.info({ openai_model });
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
 					const sanitizedQuery = query.trim();
@@ -362,7 +364,7 @@ export async function buildServer({
 
 	fastify.setErrorHandler(function (error, request, reply) {
 		if (error instanceof EnvError) {
-			this.log.error(error);
+			this.log.error(error, "Env variable is not defined");
 			reply.status(500).send("Env variable is not defined");
 		} else if (error instanceof ApplicationError) {
 			// Log error
