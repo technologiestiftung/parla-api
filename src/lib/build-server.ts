@@ -1,12 +1,14 @@
 /* eslint-disable indent */
 // ESM
-import Fastify from "fastify";
 import cors from "@fastify/cors";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
+import Fastify from "fastify";
 import { Body, Model, ResponseDetail } from "./common.js";
 import { createPrompt } from "./create-prompt.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
+import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
 import supabase from "./supabase.js";
-import { bodySchema } from "./json-schemas.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -23,18 +25,56 @@ export async function buildServer({
 		},
 		disableRequestLogging: NODE_ENV === "development" ? false : true,
 	});
+	const defaultOptions = {
+		schema: {
+			response: healthSchema,
+		},
+	};
+
+	await fastify.register(fastifySwagger, {
+		mode: "dynamic",
+		openapi: {
+			info: {
+				title: String,
+				description: String,
+				version: String,
+			},
+			externalDocs: Object,
+
+			components: Object,
+		},
+	});
+	await fastify.register(fastifySwaggerUi, {
+		routePrefix: "/documentation",
+		initOAuth: {},
+		uiConfig: {
+			docExpansion: "full",
+			deepLinking: false,
+		},
+		uiHooks: {
+			onRequest: function (request, reply, next) {
+				next();
+			},
+			preHandler: function (request, reply, next) {
+				next();
+			},
+		},
+		staticCSP: true,
+		transformStaticCSP: (header) => header,
+	});
 	fastify.register((app, options, next) => {
 		app.register(cors, { origin: "*" });
-		app.get("/", async (_request, reply) => {
-			reply.status(200).send("OK");
+		app.get("/", defaultOptions, async (_request, reply) => {
+			reply.status(200).send({ message: "OK" });
 		});
 		next();
 	});
 	fastify.register(
 		(app, options, next) => {
 			app.register(cors, { origin: "*" });
-			app.get("/", async (_request, reply) => {
-				reply.status(200).send("OK");
+
+			app.get("/", defaultOptions, async (_request, reply) => {
+				reply.status(200).send({ message: "OK" });
 			});
 			next();
 		},
@@ -89,225 +129,231 @@ export async function buildServer({
 			});
 			app.post<{
 				Body: Body;
-			}>("/", { schema: { body: bodySchema } }, async (request, reply) => {
-				let MAX_CONTENT_TOKEN_LENGTH = 1500;
-				const MAX_TOKENS = 2048;
-				// set MAX_CONTENT_LENGTH based on the openai model
-				// models we use
-				// - gpt-4 has max tokens length of 8192
-				// - gpt-3.5-turbo has max tokens length of 4096
-				// - gpt-3.5-turbo-16k has max tokens length of 16384
-				switch (OPENAI_MODEL) {
-					case "gpt-4": {
-						MAX_CONTENT_TOKEN_LENGTH = 8192;
-						// MAX_TOKENS = 8192;
-						break;
+			}>(
+				"/",
+				{ schema: { body: bodySchema, response: responseSchema } },
+				async (request, reply) => {
+					let MAX_CONTENT_TOKEN_LENGTH = 1500;
+					const MAX_TOKENS = 2048;
+					// set MAX_CONTENT_LENGTH based on the openai model
+					// models we use
+					// - gpt-4 has max tokens length of 8192
+					// - gpt-3.5-turbo has max tokens length of 4096
+					// - gpt-3.5-turbo-16k has max tokens length of 16384
+					switch (OPENAI_MODEL) {
+						case "gpt-4": {
+							MAX_CONTENT_TOKEN_LENGTH = 8192;
+							// MAX_TOKENS = 8192;
+							break;
+						}
+						case "gpt-3.5-turbo": {
+							MAX_CONTENT_TOKEN_LENGTH = 2048;
+							// MAX_TOKENS = 2048;
+							break;
+						}
+						case "gpt-3.5-turbo-16k": {
+							MAX_CONTENT_TOKEN_LENGTH = 8192;
+							// MAX_TOKENS = 16384;
+							break;
+						}
+						default: {
+							MAX_CONTENT_TOKEN_LENGTH = 1500;
+							// MAX_TOKENS = 2048;
+							break;
+						}
 					}
-					case "gpt-3.5-turbo": {
-						MAX_CONTENT_TOKEN_LENGTH = 2048;
-						// MAX_TOKENS = 2048;
-						break;
-					}
-					case "gpt-3.5-turbo-16k": {
-						MAX_CONTENT_TOKEN_LENGTH = 8192;
-						// MAX_TOKENS = 16384;
-						break;
-					}
-					default: {
-						MAX_CONTENT_TOKEN_LENGTH = 1500;
-						// MAX_TOKENS = 2048;
-						break;
-					}
-				}
-				const {
-					query,
-					temperature,
-					match_threshold,
-					num_probes,
-					match_count,
-					min_content_length,
-					openai_model,
-				} = request.body;
-
-				app.log.info("query", query);
-				app.log.info("temperature", temperature);
-				app.log.info("match_threshold", match_threshold);
-				app.log.info("num_probes", num_probes);
-				app.log.info("match_count", match_count);
-				app.log.info("min_content_length", min_content_length);
-				app.log.info("openai_model", openai_model);
-				// 2. moderate content
-				// Moderate the content to comply with OpenAI T&C
-				const sanitizedQuery = query.trim();
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				//@ts-ignore
-				const moderationResponse = await fetch(
-					"https://api.openai.com/v1/moderations",
-					{
-						method: "POST",
-						headers: {
-							Authorization: `Bearer ${OPENAI_KEY}`,
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							input: sanitizedQuery,
-						}),
-					},
-				);
-
-				if (!moderationResponse.ok) {
-					throw new ApplicationError(
-						`OpenAI moderation failed with status ${moderationResponse.status}`,
-					);
-				}
-				const moderationResponseJson = await moderationResponse.json();
-
-				const [results] = moderationResponseJson.results;
-
-				if (results.flagged) {
-					throw new UserError("Flagged content", {
-						flagged: true,
-						categories: results.categories,
-					});
-				}
-				// 3. generate an embeedding using openai api
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				const embeddingResponse = await fetch(
-					"https://api.openai.com/v1/embeddings",
-					{
-						method: "POST",
-						headers: {
-							Authorization: `Bearer ${OPENAI_KEY}`,
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							model: "text-embedding-ada-002",
-							input: sanitizedQuery.replaceAll("\n", " "),
-						}),
-					},
-				);
-
-				if (embeddingResponse.status !== 200) {
-					throw new ApplicationError(
-						"Failed to create embedding for question",
-						embeddingResponse,
-					);
-				}
-
-				const {
-					data: [{ embedding }],
-				} = await embeddingResponse.json();
-
-				// 4. make the similarity search
-				const { error: matchSectionError, data: docSections } =
-					await supabase.rpc("match_parsed_dokument_sections", {
-						embedding,
+					const {
+						query,
+						temperature,
 						match_threshold,
+						num_probes,
 						match_count,
 						min_content_length,
-						num_probes,
-					});
-				if (matchSectionError) {
-					throw new ApplicationError(
-						"Failed to match page sections",
-						matchSectionError,
-					);
-				}
+						openai_model,
+					} = request.body;
 
-				const { error: sectionsError, data: sections } = await supabase
-					.from("parsed_document_sections")
-					.select("content,id,parsed_document_id,page,token_count")
-					.in(
-						"id",
-						docSections.map((section) => section.id),
-					);
-
-				if (sectionsError) {
-					throw new ApplicationError(
-						"Failed to match pages to pageSections",
-						sectionsError,
-					);
-				}
-				const responseDetail: ResponseDetail = {
-					sections: sections.map((section) => {
-						const docSection = docSections.find((sec) => section.id === sec.id);
-						return {
-							similarity: docSection?.similarity ?? 0,
-							...section,
-						};
-					}),
-				};
-
-				// match documents to pdfs
-				const { error: docsError, data: docs } = await supabase
-					.from("parsed_documents")
-					.select("*")
-					.in(
-						"id",
-						sections.map((section) => section.parsed_document_id),
-					);
-				if (docsError) {
-					throw new ApplicationError("Failed to match docsSections to docs");
-				}
-				responseDetail.sections.forEach((section) => {
-					section.parsed_documents = docs.filter(
-						(doc) => doc.id === section.parsed_document_id,
-					);
-				});
-				const { error: pdfError, data: pdfs } = await supabase
-					.from("dokument")
-					.select("*")
-					.in(
-						"id",
-						docs.map((doc) => doc.dokument_id),
-					);
-				if (pdfError) {
-					throw new ApplicationError("Failed to match docs to pdfs");
-				}
-				responseDetail.sections.forEach((section) => {
-					section.pdfs = pdfs.filter(
-						(pdf) =>
-							section.parsed_documents
-								?.map((doc) => doc.dokument_id)
-								.includes(pdf.id),
-					);
-				});
-				const completionOptions = createPrompt({
-					sections,
-					MAX_CONTENT_TOKEN_LENGTH,
-					OPENAI_MODEL,
-					sanitizedQuery,
-					MAX_TOKENS,
-				});
-
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				//@ts-ignore
-				const response = await fetch(
-					"https://api.openai.com/v1/chat/completions",
-					{
-						method: "POST",
-						headers: {
-							Authorization: `Bearer ${OPENAI_KEY}`,
-							"Content-Type": "application/json",
+					app.log.info("query", query);
+					app.log.info("temperature", temperature);
+					app.log.info("match_threshold", match_threshold);
+					app.log.info("num_probes", num_probes);
+					app.log.info("match_count", match_count);
+					app.log.info("min_content_length", min_content_length);
+					app.log.info("openai_model", openai_model);
+					// 2. moderate content
+					// Moderate the content to comply with OpenAI T&C
+					const sanitizedQuery = query.trim();
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					//@ts-ignore
+					const moderationResponse = await fetch(
+						"https://api.openai.com/v1/moderations",
+						{
+							method: "POST",
+							headers: {
+								Authorization: `Bearer ${OPENAI_KEY}`,
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								input: sanitizedQuery,
+							}),
 						},
-						body: JSON.stringify(completionOptions),
-					},
-				);
-
-				if (response.status !== 200) {
-					throw new ApplicationError(
-						"Failed to create completion for question",
-						response,
 					);
-				}
-				const json = await response.json();
-				responseDetail.gpt = json;
-				responseDetail.requestBody = request.body;
-				responseDetail.completionOptions = completionOptions;
 
-				reply.status(201).send([responseDetail] as ResponseDetail[]);
-			});
+					if (!moderationResponse.ok) {
+						throw new ApplicationError(
+							`OpenAI moderation failed with status ${moderationResponse.status}`,
+						);
+					}
+					const moderationResponseJson = await moderationResponse.json();
+
+					const [results] = moderationResponseJson.results;
+
+					if (results.flagged) {
+						throw new UserError("Flagged content", {
+							flagged: true,
+							categories: results.categories,
+						});
+					}
+					// 3. generate an embeedding using openai api
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore
+					const embeddingResponse = await fetch(
+						"https://api.openai.com/v1/embeddings",
+						{
+							method: "POST",
+							headers: {
+								Authorization: `Bearer ${OPENAI_KEY}`,
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								model: "text-embedding-ada-002",
+								input: sanitizedQuery.replaceAll("\n", " "),
+							}),
+						},
+					);
+
+					if (embeddingResponse.status !== 200) {
+						throw new ApplicationError(
+							"Failed to create embedding for question",
+							{ embeddingResponse },
+						);
+					}
+
+					const {
+						data: [{ embedding }],
+					} = await embeddingResponse.json();
+
+					// 4. make the similarity search
+					const { error: matchSectionError, data: docSections } =
+						await supabase.rpc("match_parsed_dokument_sections", {
+							embedding,
+							match_threshold,
+							match_count,
+							min_content_length,
+							num_probes,
+						});
+					if (matchSectionError) {
+						throw new ApplicationError(
+							"Failed to match page sections",
+							matchSectionError,
+						);
+					}
+
+					const { error: sectionsError, data: sections } = await supabase
+						.from("parsed_document_sections")
+						.select("content,id,parsed_document_id,page,token_count")
+						.in(
+							"id",
+							docSections.map((section) => section.id),
+						);
+
+					if (sectionsError) {
+						throw new ApplicationError(
+							"Failed to match pages to pageSections",
+							sectionsError,
+						);
+					}
+					const responseDetail: ResponseDetail = {
+						sections: sections.map((section) => {
+							const docSection = docSections.find(
+								(sec) => section.id === sec.id,
+							);
+							return {
+								similarity: docSection?.similarity ?? 0,
+								...section,
+							};
+						}),
+					};
+
+					// match documents to pdfs
+					const { error: docsError, data: docs } = await supabase
+						.from("parsed_documents")
+						.select("*")
+						.in(
+							"id",
+							sections.map((section) => section.parsed_document_id),
+						);
+					if (docsError) {
+						throw new ApplicationError("Failed to match docsSections to docs");
+					}
+					responseDetail.sections.forEach((section) => {
+						section.parsed_documents = docs.filter(
+							(doc) => doc.id === section.parsed_document_id,
+						);
+					});
+					const { error: pdfError, data: pdfs } = await supabase
+						.from("dokument")
+						.select("*")
+						.in(
+							"id",
+							docs.map((doc) => doc.dokument_id),
+						);
+					if (pdfError) {
+						throw new ApplicationError("Failed to match docs to pdfs");
+					}
+					responseDetail.sections.forEach((section) => {
+						section.pdfs = pdfs.filter(
+							(pdf) =>
+								section.parsed_documents
+									?.map((doc) => doc.dokument_id)
+									.includes(pdf.id),
+						);
+					});
+					const completionOptions = createPrompt({
+						sections,
+						MAX_CONTENT_TOKEN_LENGTH,
+						OPENAI_MODEL,
+						sanitizedQuery,
+						MAX_TOKENS,
+					});
+
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					//@ts-ignore
+					const response = await fetch(
+						"https://api.openai.com/v1/chat/completions",
+						{
+							method: "POST",
+							headers: {
+								Authorization: `Bearer ${OPENAI_KEY}`,
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(completionOptions),
+						},
+					);
+
+					if (response.status !== 200) {
+						throw new ApplicationError(
+							"Failed to create completion for question",
+							{ response },
+						);
+					}
+					const json = await response.json();
+					responseDetail.gpt = json;
+					responseDetail.requestBody = request.body;
+					responseDetail.completionOptions = completionOptions;
+
+					reply.status(201).send([responseDetail] as ResponseDetail[]);
+				},
+			);
 
 			next();
 		},

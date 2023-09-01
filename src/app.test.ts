@@ -12,9 +12,18 @@ const test = async () => {
 		method: "GET",
 		url: { pathname: "/", hostname: "localhost", port: 8888, protocol: "http" },
 	};
-	const response = await app.inject(opts);
+	const responseRoot = await app.inject(opts);
 
-	assert.ok(response.statusCode === 200);
-	assert.deepStrictEqual(response.body, "OK");
+	assert.ok(responseRoot.statusCode === 200);
+	assert.deepStrictEqual(responseRoot.body, JSON.stringify({ message: "OK" }));
+
+	const responseHealth = await app.inject(opts);
+
+	assert.ok(responseHealth.statusCode === 200);
+	assert.deepStrictEqual(
+		responseHealth.body,
+		JSON.stringify({ message: "OK" }),
+	);
 };
+
 test();
