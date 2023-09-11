@@ -81,7 +81,11 @@ const sections = S.object()
 				.prop("dokument_id", S.number())
 				.prop("filename", S.string())
 				.prop("id", S.number())
-				.prop("meta", S.object()),
+				.prop("meta", S.object())
+				.prop("page", S.number())
+				.prop("token_count", S.number())
+				.prop("heading", S.string())
+				.prop("content", S.string()),
 		),
 	)
 	.prop("similarity", S.number())
