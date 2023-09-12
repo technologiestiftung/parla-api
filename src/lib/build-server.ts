@@ -133,7 +133,7 @@ export async function buildServer({
 				Body: Body;
 			}>(
 				"/",
-				{ schema: { body: bodySchema /* response: responseSchema */ } },
+				{ schema: { body: bodySchema, response: responseSchema } },
 				async (request, reply) => {
 					let MAX_CONTENT_TOKEN_LENGTH = 1500;
 					const MAX_TOKENS = 2048;
