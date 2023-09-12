@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.4.1...v1.5.0) (2023-09-12)
+
+
+### Bug Fixes
+
+* **json schema:** Remove respone schema ([9af8ffd](https://github.com/technologiestiftung/ki-anfragen-api/commit/9af8ffdc7d64a795cca8a7c10cfad09ff38c9011))
+
+
+### Features
+
+* **schema:** This adds a reponse schema ([3171cda](https://github.com/technologiestiftung/ki-anfragen-api/commit/3171cdac5b66d4ebfc32725a268425ad367bb00a))
+
 ## [1.4.1](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.4.0...v1.4.1) (2023-09-01)
 
 
