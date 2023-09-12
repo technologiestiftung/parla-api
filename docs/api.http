@@ -48,7 +48,8 @@ Content-Type: application/json
 {"query":"Wie ist der aktuelle Stand der Planungen der Fußgängerüberwege am Jacques-Offenbach-Platz in Mahlsdorf?"}
 
 HTTP/1.1 201  - Created
+vary: Origin
 content-type: application/json; charset=utf-8
-content-length: 22889
-date: Thu, 24 Aug 2023 10:52:19 GMT
+content-length: 4678
+date: Mon, 11 Sep 2023 13:39:41 GMT
 connection: close
