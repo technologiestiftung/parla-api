@@ -72,19 +72,22 @@ const pdf = S.object()
 	.prop("vkdat", S.string())
 	.prop("vorgang_id", S.number())
 	.prop("wp", S.string());
+
+const parsedDocuments = S.object()
+	.prop("id", S.number())
+	.prop("filename", S.string())
+	.prop("checksum", S.string())
+	.prop("meta", S.object())
+	.prop("dokument_id", S.number());
+
 const sections = S.object()
-	.prop(
-		"parsed_documents",
-		S.array().items(
-			S.object()
-				.prop("checksum", S.string())
-				.prop("dokument_id", S.number())
-				.prop("filename", S.string())
-				.prop("id", S.number())
-				.prop("meta", S.object()),
-		),
-	)
 	.prop("similarity", S.number())
+	.prop("content", S.string())
+	.prop("id", S.number())
+	.prop("parsed_document_id", S.number())
+	.prop("page", S.number())
+	.prop("token_count", S.number())
+	.prop("parsed_documents", S.array().items(parsedDocuments))
 	.prop("pdfs", S.array().items(pdf));
 
 const usage = S.object()

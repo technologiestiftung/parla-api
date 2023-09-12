@@ -274,6 +274,7 @@ export async function buildServer({
 							sectionsError,
 						);
 					}
+
 					const responseDetail: ResponseDetail = {
 						sections: sections.map((section) => {
 							const docSection = docSections.find(
@@ -352,7 +353,6 @@ export async function buildServer({
 					responseDetail.gpt = json;
 					responseDetail.requestBody = request.body;
 					responseDetail.completionOptions = completionOptions;
-
 					reply.status(201).send([responseDetail] as ResponseDetail[]);
 				},
 			);
