@@ -9,6 +9,7 @@ import { createPrompt } from "./create-prompt.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
 import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
 import supabase from "./supabase.js";
+import { similaritySearch } from "./similarity-search.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -244,90 +245,17 @@ export async function buildServer({
 						data: [{ embedding }],
 					} = await embeddingResponse.json();
 
-					// 4. make the similarity search
-					const { error: matchSectionError, data: docSections } =
-						await supabase.rpc("match_parsed_dokument_sections", {
-							embedding,
-							match_threshold,
-							match_count,
-							min_content_length,
-							num_probes,
-						});
-					if (matchSectionError) {
-						throw new ApplicationError(
-							"Failed to match page sections",
-							matchSectionError,
-						);
-					}
-
-					const { error: sectionsError, data: sections } = await supabase
-						.from("parsed_document_sections")
-						.select("content,id,parsed_document_id,page,token_count")
-						.in(
-							"id",
-							docSections.map((section) => section.id),
-						);
-
-					if (sectionsError) {
-						throw new ApplicationError(
-							"Failed to match pages to pageSections",
-							sectionsError,
-						);
-					}
-
-					const responseDetail: ResponseDetail = {
-						sections: sections.map((section) => {
-							const docSection = docSections.find(
-								(sec) => section.id === sec.id,
-							);
-							return {
-								similarity: docSection?.similarity ?? 0,
-								...section,
-							};
-						}),
-					};
-
-					// match documents to pdfs
-					const { error: docsError, data: docs } = await supabase
-						.from("parsed_documents")
-						.select("*")
-						.in(
-							"id",
-							sections.map((section) => section.parsed_document_id),
-						);
-					if (docsError) {
-						throw new ApplicationError("Failed to match docsSections to docs");
-					}
-					responseDetail.sections.forEach((section) => {
-						section.parsed_documents = docs.filter(
-							(doc) => doc.id === section.parsed_document_id,
-						);
-					});
-					const { error: pdfError, data: pdfs } = await supabase
-						.from("dokument")
-						.select("*")
-						.in(
-							"id",
-							docs.map((doc) => doc.dokument_id),
-						);
-					if (pdfError) {
-						throw new ApplicationError("Failed to match docs to pdfs");
-					}
-					responseDetail.sections.forEach((section) => {
-						section.pdfs = pdfs.filter(
-							(pdf) =>
-								section.parsed_documents
-									?.map((doc) => doc.dokument_id)
-									.includes(pdf.id),
-						);
-					});
-					const completionOptions = createPrompt({
-						sections,
+					const responseDetail = await similaritySearch(
+						embedding,
+						match_threshold,
+						match_count,
+						min_content_length,
+						num_probes,
+						sanitizedQuery,
 						MAX_CONTENT_TOKEN_LENGTH,
 						OPENAI_MODEL,
-						sanitizedQuery,
 						MAX_TOKENS,
-					});
+					);
 
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					//@ts-ignore
@@ -339,7 +267,7 @@ export async function buildServer({
 								Authorization: `Bearer ${OPENAI_KEY}`,
 								"Content-Type": "application/json",
 							},
-							body: JSON.stringify(completionOptions),
+							body: JSON.stringify(responseDetail.completionOptions),
 						},
 					);
 
@@ -352,7 +280,6 @@ export async function buildServer({
 					const json = await response.json();
 					responseDetail.gpt = json;
 					responseDetail.requestBody = request.body;
-					responseDetail.completionOptions = completionOptions;
 					reply.status(201).send([responseDetail] as ResponseDetail[]);
 				},
 			);
