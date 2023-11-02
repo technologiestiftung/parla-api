@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.5.0...v1.6.0) (2023-11-02)
+
+
+### Features
+
+* search also in red number reports ([#26](https://github.com/technologiestiftung/ki-anfragen-api/issues/26)) ([5d45e8d](https://github.com/technologiestiftung/ki-anfragen-api/commit/5d45e8d2edb9bc51c811ee23750984065fcc7c24))
+
 # [1.5.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.4.1...v1.5.0) (2023-09-12)
 
 
