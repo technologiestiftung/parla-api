@@ -3,7 +3,8 @@ import GPT3Tokenizer from "gpt3-tokenizer";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { CreateChatCompletionRequest } from "openai";
-import { ResponseSection } from "./common.js";
+import { ResponseSectionDocument } from "./common.js";
+import { ResponseSectionReport } from "./common.js";
 import { ApplicationError } from "./errors.js";
 
 export function createPrompt({
@@ -15,18 +16,15 @@ export function createPrompt({
 }: {
 	sanitizedQuery: string;
 	OPENAI_MODEL: string;
-	sections: ResponseSection[];
+	sections: Array<ResponseSectionDocument | ResponseSectionReport>;
 	MAX_CONTENT_TOKEN_LENGTH: number;
 	MAX_TOKENS: number;
 }): CreateChatCompletionRequest {
+
 	// 4. create a prompt with the
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 	let tokenCount = 0;
 	let contextText = "";
-	const uniqueSectionIds = new Set();
-	for (const sec of sections) {
-		uniqueSectionIds.add(sec.id);
-	}
 	for (let i = 0; i < sections.length; i++) {
 		const section = sections[i];
 		const content = section.content ?? "";
