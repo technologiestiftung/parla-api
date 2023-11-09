@@ -9,7 +9,8 @@
 		"dev": "nodemon",
 		"dev:cors": "NODE_ENV=none nodemon",
 		"build": "mkdir -p dist && node esbuild.config.cjs",
-		"start": "node dist/index.js"
+		"start": "node dist/index.js",
+		"create:types": "supabase gen types typescript --local > ./src/lib/database.ts && prettier --write ./src/lib/database.ts"
 	},
 	"keywords": [],
 	"author": "ff6347 <hash@ff6347.email>",
@@ -29,6 +30,7 @@
 		"nodemon": "3.0.1",
 		"prettier": "3.0.3",
 		"semantic-release": "21.1.2",
+		"supabase": "1.110.1",
 		"tsx": "3.14.0",
 		"typescript": "5.2.2"
 	},
