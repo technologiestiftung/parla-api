@@ -1,5 +1,9 @@
-import { BadRequestError } from "openai";
-import { Model, ResponseDetail, ResponseSectionDocument, ResponseSectionReport } from "./common.js";
+import {
+	Model,
+	ResponseDetail,
+	ResponseSectionDocument,
+	ResponseSectionReport,
+} from "./common.js";
 import { createPrompt } from "./create-prompt.js";
 import { ApplicationError } from "./errors.js";
 import supabase from "./supabase.js";
@@ -16,16 +20,14 @@ export async function similaritySearch(
 	MAX_TOKENS: number,
 ) {
 	// make the similarity search for documents
-	const { error: matchSectionError, data: similarDocSections } = await supabase.rpc(
-		"match_parsed_dokument_sections",
-		{
+	const { error: matchSectionError, data: similarDocSections } =
+		await supabase.rpc("match_parsed_dokument_sections", {
 			embedding,
 			match_threshold,
 			match_count,
 			min_content_length,
 			num_probes,
-		},
-	);
+		});
 	if (matchSectionError) {
 		throw new ApplicationError(
 			"Failed to match page sections",
@@ -83,7 +85,9 @@ export async function similaritySearch(
 
 	const responseDetail: ResponseDetail = {
 		sections: sections.map((section) => {
-			const docSection = similarDocSections.find((sec) => section.id === sec.id);
+			const docSection = similarDocSections.find(
+				(sec) => section.id === sec.id,
+			);
 			return {
 				similarity: docSection?.similarity ?? 0,
 				...section,
@@ -175,19 +179,29 @@ export async function similaritySearch(
 		);
 	});
 
-    const combinedSections: Array<ResponseSectionDocument | ResponseSectionReport> = responseDetail.sections.concat(responseDetail.reportSections as any);
-    const sortedSections = combinedSections.sort((l,r) => (l.similarity ?? 0) < (r.similarity ?? 0) ? 1 : -1).slice(0, match_count);
-    
-    const bestDocumentSections = sortedSections.filter((s) => (s as ResponseSectionDocument).parsed_document_id)
-    const bestReportSections = sortedSections.filter((s) => (s as ResponseSectionReport).parsed_red_number_report_id)
+	const combinedSections: Array<
+		ResponseSectionDocument | ResponseSectionReport
+	> = responseDetail.sections.concat(responseDetail.reportSections as any);
+	const sortedSections = combinedSections
+		.sort((l, r) => ((l.similarity ?? 0) < (r.similarity ?? 0) ? 1 : -1))
+		.slice(0, match_count);
 
-    responseDetail.sections = bestDocumentSections as Array<ResponseSectionDocument>
-    responseDetail.reportSections = bestReportSections as Array<ResponseSectionReport>
+	const bestDocumentSections = sortedSections.filter(
+		(s) => (s as ResponseSectionDocument).parsed_document_id,
+	);
+	const bestReportSections = sortedSections.filter(
+		(s) => (s as ResponseSectionReport).parsed_red_number_report_id,
+	);
 
-    console.log(responseDetail);
+	responseDetail.sections =
+		bestDocumentSections as Array<ResponseSectionDocument>;
+	responseDetail.reportSections =
+		bestReportSections as Array<ResponseSectionReport>;
+
+	console.log(responseDetail);
 
 	const completionOptions = createPrompt({
-		sections: sortedSections, 
+		sections: sortedSections,
 		MAX_CONTENT_TOKEN_LENGTH,
 		OPENAI_MODEL,
 		sanitizedQuery,

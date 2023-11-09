@@ -5,10 +5,8 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
 import { Body, Model, ResponseDetail } from "./common.js";
-import { createPrompt } from "./create-prompt.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
 import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
-import supabase from "./supabase.js";
 import { similaritySearch } from "./similarity-search.js";
 
 export async function buildServer({
