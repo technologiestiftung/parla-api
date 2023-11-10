@@ -54,7 +54,7 @@ const registeredDocuments = S.object()
 	.prop("source_url", S.string().required())
 	.prop("source_type", S.string().required())
 	.prop("registered_at", S.string().format("date-time").required())
-	.prop("metadata", S.object());
+	.prop("metadata", S.object().additionalProperties(true));
 
 const processedDocuments = S.object()
 	.prop("id", S.number())
