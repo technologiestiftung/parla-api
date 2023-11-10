@@ -112,8 +112,6 @@ export async function similaritySearch(
 	responseDetail.sections =
 		bestDocumentSections as Array<ResponseSectionDocument>;
 
-	console.log(responseDetail);
-
 	const completionOptions = createPrompt({
 		sections: sortedSections,
 		MAX_CONTENT_TOKEN_LENGTH,
