@@ -1,9 +1,4 @@
-import {
-	Model,
-	ResponseDetail,
-	ResponseSectionDocument,
-	// ResponseSectionReport,
-} from "./common.js";
+import { Model, ResponseDetail, ResponseSectionDocument } from "./common.js";
 import { createPrompt } from "./create-prompt.js";
 import { ApplicationError } from "./errors.js";
 import supabase from "./supabase.js";
@@ -36,22 +31,6 @@ export async function similaritySearch(
 		);
 	}
 
-	// make the similarity search for red reports
-	// const { error: matchReportSectionError, data: similarReportSections } =
-	// 	await supabase.rpc("match_parsed_red_number_report_sections", {
-	// 		embedding,
-	// 		match_threshold,
-	// 		match_count,
-	// 		min_content_length,
-	// 		num_probes,
-	// 	});
-	// if (matchReportSectionError) {
-	// 	throw new ApplicationError(
-	// 		"Failed to match page sections",
-	// 		matchReportSectionError,
-	// 	);
-	// }
-
 	// find parsed document sections
 	const { error: sectionsError, data: sections } = await supabase
 		.from("processed_document_chunks")
@@ -68,22 +47,6 @@ export async function similaritySearch(
 		);
 	}
 
-	// find parsed report sections
-	// const { error: reportSectionsError, data: reportSections } = await supabase
-	// 	.from("parsed_red_number_report_sections")
-	// 	.select("content,id,parsed_red_number_report_id,page,token_count")
-	// 	.in(
-	// 		"id",
-	// 		similarReportSections.map((section) => section.id),
-	// 	);
-
-	// if (reportSectionsError) {
-	// 	throw new ApplicationError(
-	// 		"Failed to match pages to pageSections",
-	// 		reportSectionsError,
-	// 	);
-	// }
-
 	const responseDetail: ResponseDetail = {
 		sections: sections.map((section) => {
 			const docSection = similarDocSections.find(
@@ -94,18 +57,9 @@ export async function similaritySearch(
 				...section,
 			};
 		}),
-		// reportSections: reportSections.map((section) => {
-		// 	const docSection = similarReportSections.find(
-		// 		(sec) => section.id === sec.id,
-		// 	);
-		// 	return {
-		// 		similarity: docSection?.similarity ?? 0,
-		// 		...section,
-		// 	};
-		// }),
 	};
 
-	// match documents to document pdfs
+	// match documents to document
 	const { error: docsError, data: docs } = await supabase
 		.from("processed_documents")
 		.select("*")
@@ -117,68 +71,33 @@ export async function similaritySearch(
 		throw new ApplicationError("Failed to match docsSections to docs");
 	}
 	responseDetail.sections.forEach((section) => {
-		section.parsed_documents = docs.filter(
+		section.processed_documents = docs.filter(
 			(doc) => doc.id === section.processed_document_id,
 		);
 	});
 
-	// match documents to report pdfs
-	// const { error: reportDocsError, data: reportDocs } = await supabase
-	// 	.from("parsed_red_number_reports")
-	// 	.select("*")
-	// 	.in(
-	// 		"id",
-	// 		reportSections.map((section) => section.parsed_red_number_report_id),
-	// 	);
-
-	// if (reportDocsError) {
-	// 	throw new ApplicationError("Failed to match docsSections to docs");
-	// }
-	// responseDetail.reportSections.forEach((section) => {
-	// 	section.parsed_red_number_reports = reportDocs.filter(
-	// 		(doc) => doc.id === section.parsed_red_number_report_id,
-	// 	);
-	// });
-
-	// match pdfs
-	const { error: pdfError, data: pdfs } = await supabase
-		.from("registered_documents")
-		.select("*")
-		.in(
-			"id",
-			docs.map((doc) => doc.registered_document_id),
+	// match registered documents
+	const { error: registered_documents_error, data: registerd_documents } =
+		await supabase
+			.from("registered_documents")
+			.select("*")
+			.in(
+				"id",
+				docs.map((doc) => doc.registered_document_id),
+			);
+	if (registered_documents_error) {
+		throw new ApplicationError(
+			"Failed to match processed documents to registered documents",
 		);
-	if (pdfError) {
-		throw new ApplicationError("Failed to match docs to pdfs");
 	}
 	responseDetail.sections.forEach((section) => {
-		section.pdfs = pdfs.filter(
-			(pdf) =>
-				section.parsed_documents
+		section.registered_documents = registerd_documents.filter(
+			(reg_doc) =>
+				section.processed_documents
 					?.map((doc) => doc.registered_document_id)
-					.includes(pdf.id),
+					.includes(reg_doc.id),
 		);
 	});
-
-	// match pdfs for reports
-	// const { error: pdfReportError, data: reportPdfs } = await supabase
-	// 	.from("red_number_reports")
-	// 	.select("*")
-	// 	.in(
-	// 		"id",
-	// 		reportDocs.map((doc) => doc.red_number_report_id),
-	// 	);
-	// if (pdfReportError) {
-	// 	throw new ApplicationError("Failed to match docs to pdfs");
-	// }
-	// responseDetail.reportSections.forEach((section) => {
-	// 	section.pdfs = reportPdfs.filter(
-	// 		(pdf) =>
-	// 			section.parsed_red_number_reports
-	// 				?.map((doc) => doc.red_number_report_id)
-	// 				.includes(pdf.id),
-	// 	);
-	// });
 
 	const combinedSections: Array<ResponseSectionDocument> =
 		responseDetail.sections;
@@ -189,14 +108,9 @@ export async function similaritySearch(
 	const bestDocumentSections = sortedSections.filter(
 		(s) => (s as ResponseSectionDocument).processed_document_id,
 	);
-	// const bestReportSections = sortedSections.filter(
-	// 	(s) => (s as ResponseSectionReport).parsed_red_number_report_id,
-	// );
 
 	responseDetail.sections =
 		bestDocumentSections as Array<ResponseSectionDocument>;
-	// responseDetail.reportSections =
-	// 	bestReportSections as Array<ResponseSectionReport>;
 
 	console.log(responseDetail);
 
