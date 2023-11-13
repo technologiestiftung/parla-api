@@ -183,12 +183,14 @@ export async function similaritySearch(
 	responseDetail.documentMatches = documentMatches;
 
 	const completionOptions = createPrompt({
-		sections: [],
+		documentMatches,
 		MAX_CONTENT_TOKEN_LENGTH,
 		OPENAI_MODEL,
 		sanitizedQuery,
 		MAX_TOKENS,
 	});
+
 	responseDetail.completionOptions = completionOptions;
+
 	return responseDetail;
 }

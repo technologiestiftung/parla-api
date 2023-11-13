@@ -89,7 +89,7 @@ const processedDocumentChunkMatch = S.object()
 	.prop("processed_document_chunk", processedDocumentChunk)
 	.prop("similarity", S.number());
 
-const documentMatches = S.object()
+const documentMatch = S.object()
 	.prop("registered_document", registeredDocument)
 	.prop("processed_document", processedDocument)
 	.prop("processed_document_summary_match", processedDocumentSummaryMatch)
@@ -112,11 +112,9 @@ const gpt = S.object()
 	.prop("choices", choices);
 
 export const responseSchema = {
-	201: S.array().items(
-		S.object()
-			.prop("gpt", gpt)
-			.prop("requestBody", bodySchema)
-			.prop("completionOptions", createChatCompletionRequestSchema)
-			.prop("documentMatches", S.array().items(documentMatches)),
-	),
+	201: S.object()
+		.prop("gpt", gpt)
+		.prop("requestBody", bodySchema)
+		.prop("completionOptions", createChatCompletionRequestSchema)
+		.prop("documentMatches", S.array().items(documentMatch)),
 };

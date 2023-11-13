@@ -4,11 +4,10 @@ import GPT3Tokenizer from "gpt3-tokenizer";
 // @ts-ignore
 import { CreateChatCompletionRequest } from "openai";
 import { ResponseDocumentMatch } from "./common.js";
-import { ResponseSectionReport } from "./common.js";
 import { ApplicationError } from "./errors.js";
 
 export function createPrompt({
-	sections,
+	documentMatches,
 	MAX_CONTENT_TOKEN_LENGTH,
 	OPENAI_MODEL,
 	sanitizedQuery,
@@ -16,7 +15,7 @@ export function createPrompt({
 }: {
 	sanitizedQuery: string;
 	OPENAI_MODEL: string;
-	sections: Array<ResponseDocumentMatch | ResponseSectionReport>;
+	documentMatches: Array<ResponseDocumentMatch>;
 	MAX_CONTENT_TOKEN_LENGTH: number;
 	MAX_TOKENS: number;
 }): CreateChatCompletionRequest {
@@ -24,9 +23,12 @@ export function createPrompt({
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 	let tokenCount = 0;
 	let contextText = "";
-	for (let i = 0; i < sections.length; i++) {
-		const section = sections[i];
-		const content = section.content ?? "";
+	for (let i = 0; i < documentMatches.length; i++) {
+		const documentMatch = documentMatches[i];
+
+		const content = documentMatch.processed_document_chunk_matches
+			.map((chunk) => chunk.processed_document_chunk.content)
+			.join("\n");
 
 		const encoded = tokenizer.encode(content);
 		tokenCount += encoded.text.length;
@@ -38,7 +40,6 @@ export function createPrompt({
 					tokenCount,
 				},
 			);
-			break;
 		}
 
 		contextText += `${content.trim()}\n---\n`;
