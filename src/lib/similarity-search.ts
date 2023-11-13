@@ -1,4 +1,10 @@
-import { Model, ResponseDetail, ResponseSectionDocument } from "./common.js";
+import {
+	Model,
+	ProcessedDocumentChunkMatch,
+	ProcessedDocumentSummaryMatch,
+	ResponseDetail,
+	ResponseDocumentMatch,
+} from "./common.js";
 import { createPrompt } from "./create-prompt.js";
 import { ApplicationError } from "./errors.js";
 import supabase from "./supabase.js";
@@ -15,105 +21,172 @@ export async function similaritySearch(
 	OPENAI_MODEL: Model,
 	MAX_TOKENS: number,
 ) {
-	// make the similarity search for documents
-	const { error: matchSectionError, data: similarDocSections } =
-		await supabase.rpc("match_document_chunks", {
+	const MAX_MATCHES = 3;
+
+	// vector search summaries
+	const { error: matchSummaryError, data: similarSummaries } = await supabase
+		.rpc("match_summaries", {
 			embedding,
 			match_threshold,
 			match_count,
 			min_content_length,
 			num_probes,
-		});
-	if (matchSectionError) {
-		throw new ApplicationError(
-			"Failed to match page sections",
-			matchSectionError,
-		);
+		})
+		.order("similarity", { ascending: false })
+		.limit(MAX_MATCHES);
+
+	if (matchSummaryError) {
+		throw new ApplicationError("Failed to match summaries", matchSummaryError);
 	}
 
-	// find parsed document sections
-	const { error: sectionsError, data: sections } = await supabase
-		.from("processed_document_chunks")
-		.select("content,id,processed_document_id,page")
-		.in(
-			"id",
-			similarDocSections.map((section) => section.id),
-		);
+	// console.log(similarSummaries);
 
-	if (sectionsError) {
-		throw new ApplicationError(
-			"Failed to match pages to pageSections",
-			sectionsError,
-		);
-	}
-
-	const responseDetail: ResponseDetail = {
-		sections: sections.map((section) => {
-			const docSection = similarDocSections.find(
-				(sec) => section.id === sec.id,
-			);
-			return {
-				similarity: docSection?.similarity ?? 0,
-				...section,
-			};
-		}),
-	};
-
-	// match documents to document
-	const { error: docsError, data: docs } = await supabase
-		.from("processed_documents")
+	// find summaries
+	const {
+		error: processedDocumentSummariesError,
+		data: processedDocumentSummaries,
+	} = await supabase
+		.from("processed_document_summaries")
 		.select("*")
 		.in(
 			"id",
-			sections.map((section) => section.processed_document_id),
+			similarSummaries.map((summaryMatch) => summaryMatch.id),
 		);
-	if (docsError) {
-		throw new ApplicationError("Failed to match docsSections to docs");
+	if (processedDocumentSummariesError) {
+		throw new ApplicationError(
+			"Failed to find summaries",
+			processedDocumentSummariesError,
+		);
 	}
-	responseDetail.sections.forEach((section) => {
-		section.processed_documents = docs.filter(
-			(doc) => doc.id === section.processed_document_id,
-		);
-	});
+	// console.log(processedDocumentSummaries);
 
-	// match registered documents
-	const { error: registered_documents_error, data: registerd_documents } =
+	// find processed documents
+	const { error: processedDocumentsError, data: processedDocuments } =
+		await supabase
+			.from("processed_documents")
+			.select("*")
+			.in(
+				"id",
+				processedDocumentSummaries.map(
+					(summary) => summary.processed_document_id,
+				),
+			);
+	if (processedDocumentsError) {
+		throw new ApplicationError(
+			"Failed to find processed documents",
+			processedDocumentsError,
+		);
+	}
+	console.log(processedDocuments);
+
+	// find registered documents
+	const { error: registeredDocumentsError, data: registeredDocuments } =
 		await supabase
 			.from("registered_documents")
 			.select("*")
 			.in(
 				"id",
-				docs.map((doc) => doc.registered_document_id),
+				processedDocuments.map(
+					(processedDocument) => processedDocument.registered_document_id,
+				),
 			);
-	if (registered_documents_error) {
+	if (registeredDocumentsError) {
 		throw new ApplicationError(
-			"Failed to match processed documents to registered documents",
+			"Failed to find registered documents",
+			registeredDocumentsError,
 		);
 	}
-	responseDetail.sections.forEach((section) => {
-		section.registered_documents = registerd_documents.filter(
-			(reg_doc) =>
-				section.processed_documents
-					?.map((doc) => doc.registered_document_id)
-					.includes(reg_doc.id),
+	// console.log(registeredDocuments);
+
+	// make the similarity search for documents
+	const {
+		error: similarProcessedDocumentChunksError,
+		data: similarProcessedDocumentChunks,
+	} = await supabase
+		.rpc("match_document_chunks", {
+			embedding,
+			match_threshold,
+			match_count,
+			min_content_length,
+			num_probes,
+		})
+		.in(
+			"processed_document_id",
+			processedDocuments.map((x) => x.id),
+		)
+		.order("similarity", { ascending: false });
+
+	if (similarProcessedDocumentChunksError) {
+		throw new ApplicationError(
+			"Failed to match document chunks",
+			similarProcessedDocumentChunksError,
 		);
+	}
+	// console.log(similarProcessedDocumentChunks);
+
+	// find processed document chunks
+	const { error: processedDocumentChunksError, data: processedDocumentChunks } =
+		await supabase
+			.from("processed_document_chunks")
+			.select("content,id,processed_document_id,page")
+			.in(
+				"id",
+				similarProcessedDocumentChunks.map((chunk) => chunk.id),
+			);
+
+	if (processedDocumentChunksError) {
+		throw new ApplicationError(
+			"Failed to match pages to pageSections",
+			processedDocumentChunksError,
+		);
+	}
+
+	let responseDetail = {} as ResponseDetail;
+
+	const chunkMatches = processedDocumentChunks.map((chunk) => {
+		const similarityFound = similarProcessedDocumentChunks.filter(
+			(s) => s.id === chunk.id,
+		)[0];
+		return {
+			processed_document_chunk: chunk,
+			similarity: similarityFound.similarity,
+		} as ProcessedDocumentChunkMatch;
 	});
 
-	const combinedSections: Array<ResponseSectionDocument> =
-		responseDetail.sections;
-	const sortedSections = combinedSections
-		.sort((l, r) => ((l.similarity ?? 0) < (r.similarity ?? 0) ? 1 : -1))
-		.slice(0, match_count);
+	console.log(processedDocuments);
+	console.log(registeredDocuments);
 
-	const bestDocumentSections = sortedSections.filter(
-		(s) => (s as ResponseSectionDocument).processed_document_id,
-	);
+	const documentMatches = registeredDocuments.map((registeredDocument) => {
+		const processedDocument = processedDocuments.filter(
+			(pd) => pd.registered_document_id === registeredDocument.id,
+		)[0];
+		console.log(processedDocument);
+		const processedDocumentSummary = processedDocumentSummaries.filter(
+			(ps) => ps.processed_document_id === processedDocument.id,
+		)[0];
+		const processedDocumentSummaryMatch = similarSummaries.filter(
+			(s) => s.processed_document_id === processedDocument.id,
+		)[0];
+		const chunks = chunkMatches
+			.sort((l, r) => (l.similarity < r.similarity ? -1 : 1))
+			.slice(0, MAX_MATCHES);
+		return {
+			registered_document: registeredDocument,
+			processed_document: processedDocument,
+			processed_document_summary_match: {
+				processed_document_summary: processedDocumentSummary,
+				similarity: processedDocumentSummaryMatch.similarity,
+			} as ProcessedDocumentSummaryMatch,
+			processed_document_chunk_matches: chunks,
+		} as ResponseDocumentMatch;
+	});
 
-	responseDetail.sections =
-		bestDocumentSections as Array<ResponseSectionDocument>;
+	responseDetail.documentMatches = documentMatches;
+
+	console.log(documentMatches);
 
 	const completionOptions = createPrompt({
-		sections: sortedSections,
+		sections: [],
 		MAX_CONTENT_TOKEN_LENGTH,
 		OPENAI_MODEL,
 		sanitizedQuery,

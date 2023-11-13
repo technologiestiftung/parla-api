@@ -49,14 +49,14 @@ const choices = S.array().items(
 		.prop("finsh_reason", S.string()),
 );
 
-const registeredDocuments = S.object()
+const registeredDocument = S.object()
 	.prop("id", S.number())
 	.prop("source_url", S.string().required())
 	.prop("source_type", S.string().required())
 	.prop("registered_at", S.string().format("date-time").required())
 	.prop("metadata", S.object().additionalProperties(true));
 
-const processedDocuments = S.object()
+const processedDocument = S.object()
 	.prop("id", S.number())
 	.prop("file_checksum", S.string().required())
 	.prop("file_size", S.number().required())
@@ -66,20 +66,45 @@ const processedDocuments = S.object()
 	.prop("processing_error", S.string())
 	.prop("registered_document_id", S.number());
 
-const sections = S.object()
-	.prop("similarity", S.number())
+const processedDocumentSummary = S.object()
 	.prop("id", S.number())
-	.prop("content", S.string().required())
-	.prop("page", S.number().required())
+	.prop("summary", S.string())
+	.prop("summary_embedding", S.array().items(S.number()))
+	.prop("tags", S.array().items(S.string()))
 	.prop("processed_document_id", S.number())
-	.prop("token_count", S.number())
-	.prop("processed_documents", S.array().items(processedDocuments))
-	.prop("registered_documents", S.array().items(registeredDocuments));
+	.prop("similarity", S.number());
+
+const processedDocumentSummaryMatch = S.object()
+	.prop("processd_document_summary", processedDocumentSummary)
+	.prop("similarity", S.number());
+
+const processedDocumentChunk = S.object()
+	.prop("id", S.number())
+	.prop("content", S.string())
+	.prop("embedding", S.array().items(S.number()))
+	.prop("page", S.number())
+	.prop("chunk_index", S.number())
+	.prop("processed_document_id", S.number())
+	.prop("similarity", S.number());
+
+const processedDocumentChunkMatch = S.object()
+	.prop("processed_document_chunk", processedDocumentChunk)
+	.prop("similarity", S.number());
+
+const documentMatches = S.object()
+	.prop("registered_document", registeredDocument)
+	.prop("processed_document", processedDocument)
+	.prop("processed_document_summary_match", processedDocumentSummaryMatch)
+	.prop(
+		"processed_document_chunk_matches",
+		S.array().items(processedDocumentChunkMatch),
+	);
 
 const usage = S.object()
 	.prop("prompt_tokens", S.number())
 	.prop("completion_tokens", S.number())
 	.prop("total_tokens", S.number());
+
 const gpt = S.object()
 	.prop("id", S.string())
 	.prop("created", S.number())
@@ -87,12 +112,13 @@ const gpt = S.object()
 	.prop("object", S.string())
 	.prop("usage", usage)
 	.prop("choices", choices);
+
 export const responseSchema = {
 	201: S.array().items(
 		S.object()
 			.prop("gpt", gpt)
 			.prop("requestBody", bodySchema)
 			.prop("completionOptions", createChatCompletionRequestSchema)
-			.prop("sections", S.array().items(sections)),
+			.prop("documentMatches", S.array().items(documentMatches)),
 	),
 };
