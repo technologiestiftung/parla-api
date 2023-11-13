@@ -39,9 +39,7 @@ export async function similaritySearch(
 		throw new ApplicationError("Failed to match summaries", matchSummaryError);
 	}
 
-	// console.log(similarSummaries);
-
-	// find summaries
+	// find complete summaries
 	const {
 		error: processedDocumentSummariesError,
 		data: processedDocumentSummaries,
@@ -58,7 +56,6 @@ export async function similaritySearch(
 			processedDocumentSummariesError,
 		);
 	}
-	// console.log(processedDocumentSummaries);
 
 	// find processed documents
 	const { error: processedDocumentsError, data: processedDocuments } =
@@ -77,7 +74,6 @@ export async function similaritySearch(
 			processedDocumentsError,
 		);
 	}
-	console.log(processedDocuments);
 
 	// find registered documents
 	const { error: registeredDocumentsError, data: registeredDocuments } =
@@ -96,7 +92,6 @@ export async function similaritySearch(
 			registeredDocumentsError,
 		);
 	}
-	// console.log(registeredDocuments);
 
 	// make the similarity search for documents
 	const {
@@ -122,7 +117,6 @@ export async function similaritySearch(
 			similarProcessedDocumentChunksError,
 		);
 	}
-	// console.log(similarProcessedDocumentChunks);
 
 	// find processed document chunks
 	const { error: processedDocumentChunksError, data: processedDocumentChunks } =
@@ -153,23 +147,28 @@ export async function similaritySearch(
 		} as ProcessedDocumentChunkMatch;
 	});
 
-	console.log(processedDocuments);
-	console.log(registeredDocuments);
-
 	const documentMatches = registeredDocuments.map((registeredDocument) => {
 		const processedDocument = processedDocuments.filter(
 			(pd) => pd.registered_document_id === registeredDocument.id,
 		)[0];
-		console.log(processedDocument);
+
 		const processedDocumentSummary = processedDocumentSummaries.filter(
 			(ps) => ps.processed_document_id === processedDocument.id,
 		)[0];
+
 		const processedDocumentSummaryMatch = similarSummaries.filter(
 			(s) => s.processed_document_id === processedDocument.id,
 		)[0];
+
 		const chunks = chunkMatches
-			.sort((l, r) => (l.similarity < r.similarity ? -1 : 1))
+			.filter(
+				(cm) =>
+					cm.processed_document_chunk.processed_document_id ===
+					processedDocument.id,
+			)
+			.sort((l, r) => (l.similarity < r.similarity ? 1 : -1))
 			.slice(0, MAX_MATCHES);
+
 		return {
 			registered_document: registeredDocument,
 			processed_document: processedDocument,
@@ -182,8 +181,6 @@ export async function similaritySearch(
 	});
 
 	responseDetail.documentMatches = documentMatches;
-
-	console.log(documentMatches);
 
 	const completionOptions = createPrompt({
 		sections: [],

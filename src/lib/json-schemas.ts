@@ -69,19 +69,17 @@ const processedDocument = S.object()
 const processedDocumentSummary = S.object()
 	.prop("id", S.number())
 	.prop("summary", S.string())
-	.prop("summary_embedding", S.array().items(S.number()))
 	.prop("tags", S.array().items(S.string()))
 	.prop("processed_document_id", S.number())
 	.prop("similarity", S.number());
 
 const processedDocumentSummaryMatch = S.object()
-	.prop("processd_document_summary", processedDocumentSummary)
+	.prop("processed_document_summary", processedDocumentSummary)
 	.prop("similarity", S.number());
 
 const processedDocumentChunk = S.object()
 	.prop("id", S.number())
 	.prop("content", S.string())
-	.prop("embedding", S.array().items(S.number()))
 	.prop("page", S.number())
 	.prop("chunk_index", S.number())
 	.prop("processed_document_id", S.number())
