@@ -102,7 +102,10 @@ export async function similaritySearch(
 			processed_document_ids: processedDocuments.map((p) => p.id),
 			embedding,
 			match_threshold,
-			match_count,
+			// We want to have 3 chunks for each of the relevant documents,
+			// however, it can't be guaranteed. By setting match_count to a high number,
+			// we increase the chances of getting 3 chunks.
+			match_count: 100,
 			min_content_length,
 			num_probes,
 		})
