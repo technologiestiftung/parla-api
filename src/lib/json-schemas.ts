@@ -49,70 +49,32 @@ const choices = S.array().items(
 		.prop("finsh_reason", S.string()),
 );
 
-const pdf = S.object()
-	.prop("abstract", S.string())
-	.prop("desk", S.string())
-	.prop("dherk", S.string())
-	.prop("dherkl", S.string())
-	.prop("dokart", S.string())
-	.prop("dokartl", S.string())
-	.prop("dokdat", S.string())
-	.prop("doknr", S.string())
-	.prop("doktyp", S.string())
-	.prop("doktypl", S.string())
-	.prop("hnr", S.string())
+const registeredDocuments = S.object()
 	.prop("id", S.number())
-	.prop("jg", S.string())
-	.prop("lokurl", S.string())
-	.prop("nrintyp", S.string())
-	.prop("reihnr", S.string())
-	.prop("sb", S.string())
-	.prop("titel", S.string())
-	.prop("urheber", S.string())
-	.prop("vkdat", S.string())
-	.prop("vorgang_id", S.number())
-	.prop("wp", S.string());
+	.prop("source_url", S.string().required())
+	.prop("source_type", S.string().required())
+	.prop("registered_at", S.string().format("date-time").required())
+	.prop("metadata", S.object().additionalProperties(true));
 
-const reportPdf = S.object()
+const processedDocuments = S.object()
 	.prop("id", S.number())
-	.prop("doc_name", S.string())
-	.prop("doc_ref", S.string())
-	.prop("doc_size", S.number())
-	.prop("red_number_process_id", S.number())
-
-const parsedDocuments = S.object()
-	.prop("id", S.number())
-	.prop("filename", S.string())
-	.prop("checksum", S.string())
-	.prop("meta", S.object())
-	.prop("dokument_id", S.number());
-
-const parsedRedNumberReports = S.object()
-	.prop("id", S.number())
-	.prop("filename", S.string())
-	.prop("checksum", S.string())
-	.prop("meta", S.object())
-	.prop("red_number_report_id", S.number());
+	.prop("file_checksum", S.string().required())
+	.prop("file_size", S.number().required())
+	.prop("num_pages", S.number().required())
+	.prop("processing_started_at", S.string().format("date-time"))
+	.prop("processing_finished_at", S.string().format("date-time"))
+	.prop("processing_error", S.string())
+	.prop("registered_document_id", S.number());
 
 const sections = S.object()
 	.prop("similarity", S.number())
-	.prop("content", S.string())
 	.prop("id", S.number())
-	.prop("parsed_document_id", S.number())
-	.prop("page", S.number())
+	.prop("content", S.string().required())
+	.prop("page", S.number().required())
+	.prop("processed_document_id", S.number())
 	.prop("token_count", S.number())
-	.prop("parsed_documents", S.array().items(parsedDocuments))
-	.prop("pdfs", S.array().items(pdf));
-
-const reportSections = S.object()
-	.prop("similarity", S.number())
-	.prop("content", S.string())
-	.prop("id", S.number())
-	.prop("parsed_document_id", S.number())
-	.prop("page", S.number())
-	.prop("token_count", S.number())
-	.prop("parsed_red_number_reports", S.array().items(parsedRedNumberReports))
-	.prop("pdfs", S.array().items(reportPdf));
+	.prop("processed_documents", S.array().items(processedDocuments))
+	.prop("registered_documents", S.array().items(registeredDocuments));
 
 const usage = S.object()
 	.prop("prompt_tokens", S.number())
@@ -131,7 +93,6 @@ export const responseSchema = {
 			.prop("gpt", gpt)
 			.prop("requestBody", bodySchema)
 			.prop("completionOptions", createChatCompletionRequestSchema)
-			.prop("sections", S.array().items(sections))
-			.prop("reportSections", S.array().items(reportSections)),
+			.prop("sections", S.array().items(sections)),
 	),
 };
