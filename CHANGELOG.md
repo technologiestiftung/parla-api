@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.6.0...v1.7.0) (2023-11-13)
+
+
+### Features
+
+* init supabase for new schema ([#28](https://github.com/technologiestiftung/ki-anfragen-api/issues/28)) ([753ecc0](https://github.com/technologiestiftung/ki-anfragen-api/commit/753ecc0684d94541dd9f68503e3109cf8be64df4))
+
 # [1.6.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.5.0...v1.6.0) (2023-11-02)
 
 
