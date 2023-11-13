@@ -98,17 +98,14 @@ export async function similaritySearch(
 		error: similarProcessedDocumentChunksError,
 		data: similarProcessedDocumentChunks,
 	} = await supabase
-		.rpc("match_document_chunks", {
+		.rpc("match_document_chunks_for_specific_documents", {
+			processed_document_ids: processedDocuments.map((p) => p.id),
 			embedding,
 			match_threshold,
 			match_count,
 			min_content_length,
 			num_probes,
 		})
-		.in(
-			"processed_document_id",
-			processedDocuments.map((x) => x.id),
-		)
 		.order("similarity", { ascending: false });
 
 	if (similarProcessedDocumentChunksError) {
