@@ -278,7 +278,7 @@ export async function buildServer({
 					const json = await response.json();
 					responseDetail.gpt = json;
 					responseDetail.requestBody = request.body;
-					reply.status(201).send([responseDetail] as ResponseDetail[]);
+					reply.status(201).send(responseDetail);
 				},
 			);
 

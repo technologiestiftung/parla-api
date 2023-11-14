@@ -3,11 +3,17 @@
 import { CreateChatCompletionRequest } from "openai";
 import { Database } from "./database.js";
 
-type Section = Database["public"]["Tables"]["processed_document_chunks"]["Row"];
 type RegisteredDocument =
 	Database["public"]["Tables"]["registered_documents"]["Row"];
+
 type ProcessedDocument =
 	Database["public"]["Tables"]["processed_documents"]["Row"];
+
+type ProcessedDocumentSummary =
+	Database["public"]["Tables"]["processed_document_summaries"]["Row"];
+
+type ProcessedDocumentChunk =
+	Database["public"]["Tables"]["processed_document_chunks"]["Row"];
 
 // https://platform.openai.com/docs/models/gpt-3-5
 // https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
@@ -41,17 +47,27 @@ interface Usage {
 	total_tokens: number;
 }
 
-export interface ResponseSectionDocument extends Partial<Section> {
-	processed_documents?: ProcessedDocument[];
-	similarity?: number;
-	registered_documents?: RegisteredDocument[];
+export interface ProcessedDocumentSummaryMatch {
+	processed_document_summary: ProcessedDocumentSummary;
+	similarity: number;
+}
+
+export interface ProcessedDocumentChunkMatch {
+	processed_document_chunk: ProcessedDocumentChunk;
+	similarity: number;
+}
+
+export interface ResponseDocumentMatch {
+	registered_document: RegisteredDocument;
+	processed_document: ProcessedDocument;
+	processed_document_summary_match: ProcessedDocumentSummaryMatch;
+	processed_document_chunk_matches: Array<ProcessedDocumentChunkMatch>;
 }
 
 export interface ResponseDetail {
+	documentMatches: ResponseDocumentMatch[];
 	gpt?: Gpt;
 	requestBody?: Body;
-	sections: ResponseSectionDocument[];
-	// reportSections:  ResponseSectionReport[];
 	completionOptions?: CreateChatCompletionRequest;
 }
 

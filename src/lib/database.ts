@@ -168,6 +168,22 @@ export interface Database {
 			[_ in never]: never;
 		};
 		Functions: {
+			match_document_chunks_for_specific_documents: {
+				Args: {
+					processed_document_ids: Array<number>;
+					embedding: string;
+					match_threshold: number;
+					match_count: number;
+					min_content_length: number;
+					num_probes: number;
+				};
+				Returns: {
+					id: number;
+					processed_document_id: number;
+					content: string;
+					similarity: number;
+				}[];
+			};
 			match_document_chunks: {
 				Args: {
 					embedding: string;
