@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.7.0...v1.8.0) (2023-11-14)
+
+
+### Features
+
+* search in summary embeddings ([#30](https://github.com/technologiestiftung/ki-anfragen-api/issues/30)) ([2cdd8d8](https://github.com/technologiestiftung/ki-anfragen-api/commit/2cdd8d82ee9ff794bfa652d1c14305362c384083))
+
 # [1.7.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.6.0...v1.7.0) (2023-11-13)
 
 
