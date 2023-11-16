@@ -162,6 +162,9 @@ export async function similaritySearchOnChunksOnly(
 				similarity: 0, // We don't calculate summary similarity
 			} as ProcessedDocumentSummaryMatch,
 			processed_document_chunk_matches: chunks,
+			similarity:
+				chunks.map((c) => c.similarity).reduce((l, r) => l + r, 0) /
+				chunks.length,
 		} as ResponseDocumentMatch;
 	});
 
