@@ -159,9 +159,10 @@ export async function similaritySearch(
 			processed_document: processedDocument,
 			processed_document_summary_match: {
 				processed_document_summary: processedDocumentSummary,
-				similarity: processedDocumentSummaryMatch.similarity,
+				similarity: processedDocumentSummaryMatch.summary_similarity,
 			} as ProcessedDocumentSummaryMatch,
 			processed_document_chunk_matches: chunks,
+			similarity: processedDocumentSummaryMatch.similarity,
 		} as ResponseDocumentMatch;
 	});
 

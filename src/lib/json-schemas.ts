@@ -98,7 +98,8 @@ const documentMatch = S.object()
 	.prop(
 		"processed_document_chunk_matches",
 		S.array().items(processedDocumentChunkMatch),
-	);
+	)
+	.prop("similarity", S.number());
 
 const usage = S.object()
 	.prop("prompt_tokens", S.number())

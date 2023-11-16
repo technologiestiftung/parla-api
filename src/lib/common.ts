@@ -62,6 +62,7 @@ export interface ResponseDocumentMatch {
 	processed_document: ProcessedDocument;
 	processed_document_summary_match: ProcessedDocumentSummaryMatch;
 	processed_document_chunk_matches: Array<ProcessedDocumentChunkMatch>;
+	similarity: number;
 }
 
 export interface ResponseDetail {
