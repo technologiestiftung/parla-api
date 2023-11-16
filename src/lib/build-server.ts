@@ -153,7 +153,7 @@ export async function buildServer({
 							break;
 						}
 						case "gpt-3.5-turbo-16k": {
-							MAX_CONTENT_TOKEN_LENGTH = 8192;
+							MAX_CONTENT_TOKEN_LENGTH = 16384;
 							// MAX_TOKENS = 16384;
 							break;
 						}
@@ -171,6 +171,8 @@ export async function buildServer({
 						match_count,
 						min_content_length,
 						openai_model,
+						chunk_limit,
+						summary_limit,
 					} = request.body;
 
 					app.log.info({ query });
@@ -180,6 +182,9 @@ export async function buildServer({
 					app.log.info({ match_count });
 					app.log.info({ min_content_length });
 					app.log.info({ openai_model });
+					app.log.info({ chunk_limit });
+					app.log.info({ summary_limit });
+
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
 					const sanitizedQuery = query.trim();
@@ -246,8 +251,8 @@ export async function buildServer({
 					const responseDetail = await similaritySearch(
 						embedding,
 						match_threshold,
-						match_count,
-						min_content_length,
+						chunk_limit,
+						summary_limit,
 						num_probes,
 						sanitizedQuery,
 						MAX_CONTENT_TOKEN_LENGTH,

@@ -12,6 +12,8 @@ export const bodySchema = S.object()
 	.prop("match_threshold", S.number().minimum(0).maximum(1).default(0.85))
 	.prop("num_probes", S.number().minimum(1).maximum(49).default(7))
 	.prop("match_count", S.number().minimum(1).maximum(10).default(5))
+	.prop("chunk_limit", S.number().minimum(1).maximum(128).default(64))
+	.prop("summary_limit", S.number().minimum(1).maximum(32).default(16))
 	.prop("min_content_length", S.number().minimum(0).maximum(10000).default(50))
 	.prop(
 		"openai_model",

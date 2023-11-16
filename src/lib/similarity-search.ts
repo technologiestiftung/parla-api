@@ -13,47 +13,33 @@ export async function similaritySearch(
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	embedding: any,
 	match_threshold: number,
-	match_count: number,
-	min_content_length: number,
+	chunk_limit: number,
+	summary_limit: number,
 	num_probes: number,
 	sanitizedQuery: string,
 	MAX_CONTENT_TOKEN_LENGTH: number,
 	OPENAI_MODEL: Model,
 	MAX_TOKENS: number,
 ) {
-	const MAX_MATCHES = 3;
+	const MAX_MATCHES = 5;
 
 	// vector search summaries
-	const { error: matchSummaryError, data: similarSummaries } = await supabase
-		.rpc("match_summaries", {
-			embedding,
-			match_threshold,
-			match_count,
-			min_content_length,
-			num_probes,
-		})
-		.order("similarity", { ascending: false })
-		.limit(MAX_MATCHES);
+	const { error: mathSummaryAndChunksError, data: similarSummariesAndChunks } =
+		await supabase
+			.rpc("match_summaries_and_chunks", {
+				embedding,
+				match_threshold: match_threshold,
+				chunk_limit: chunk_limit,
+				summary_limit: summary_limit,
+				num_probes,
+			})
+			.order("similarity", { ascending: false })
+			.limit(MAX_MATCHES);
 
-	if (matchSummaryError) {
-		throw new ApplicationError("Failed to match summaries", matchSummaryError);
-	}
-
-	// find complete summaries
-	const {
-		error: processedDocumentSummariesError,
-		data: processedDocumentSummaries,
-	} = await supabase
-		.from("processed_document_summaries")
-		.select("*")
-		.in(
-			"id",
-			similarSummaries.map((summaryMatch) => summaryMatch.id),
-		);
-	if (processedDocumentSummariesError) {
+	if (mathSummaryAndChunksError) {
 		throw new ApplicationError(
-			"Failed to find summaries",
-			processedDocumentSummariesError,
+			"Failed to match_summaries_and_chunks",
+			mathSummaryAndChunksError,
 		);
 	}
 
@@ -64,7 +50,7 @@ export async function similaritySearch(
 			.select("*")
 			.in(
 				"id",
-				processedDocumentSummaries.map(
+				similarSummariesAndChunks.map(
 					(summary) => summary.processed_document_id,
 				),
 			);
@@ -72,6 +58,25 @@ export async function similaritySearch(
 		throw new ApplicationError(
 			"Failed to find processed documents",
 			processedDocumentsError,
+		);
+	}
+
+	// find complete summaries
+	const {
+		error: processedDocumentSummariesError,
+		data: processedDocumentSummaries,
+	} = await supabase
+		.from("processed_document_summaries")
+		.select("*")
+		.in(
+			"processed_document_id",
+			processedDocuments.map((x) => x.id),
+		);
+
+	if (processedDocumentSummariesError) {
+		throw new ApplicationError(
+			"Failed to find summaries",
+			processedDocumentSummariesError,
 		);
 	}
 
@@ -86,35 +91,11 @@ export async function similaritySearch(
 					(processedDocument) => processedDocument.registered_document_id,
 				),
 			);
+
 	if (registeredDocumentsError) {
 		throw new ApplicationError(
 			"Failed to find registered documents",
 			registeredDocumentsError,
-		);
-	}
-
-	// make the similarity search for documents
-	const {
-		error: similarProcessedDocumentChunksError,
-		data: similarProcessedDocumentChunks,
-	} = await supabase
-		.rpc("match_document_chunks_for_specific_documents", {
-			processed_document_ids: processedDocuments.map((p) => p.id),
-			embedding,
-			match_threshold,
-			// We want to have 3 chunks for each of the relevant documents,
-			// however, it can't be guaranteed. By setting match_count to a high number,
-			// we increase the chances of getting 3 chunks.
-			match_count: 100,
-			min_content_length,
-			num_probes,
-		})
-		.order("similarity", { ascending: false });
-
-	if (similarProcessedDocumentChunksError) {
-		throw new ApplicationError(
-			"Failed to match document chunks",
-			similarProcessedDocumentChunksError,
 		);
 	}
 
@@ -125,7 +106,9 @@ export async function similaritySearch(
 			.select("content,id,processed_document_id,page")
 			.in(
 				"id",
-				similarProcessedDocumentChunks.map((chunk) => chunk.id),
+				similarSummariesAndChunks
+					.flatMap((chunk) => chunk.chunk_ids)
+					.filter((x) => x !== null),
 			);
 
 	if (processedDocumentChunksError) {
@@ -138,12 +121,14 @@ export async function similaritySearch(
 	let responseDetail = {} as ResponseDetail;
 
 	const chunkMatches = processedDocumentChunks.map((chunk) => {
-		const similarityFound = similarProcessedDocumentChunks.filter(
-			(s) => s.id === chunk.id,
+		const similarityFound = similarSummariesAndChunks.filter(
+			(s) => s.chunk_ids.filter((cid) => cid === chunk.id).length > 0,
 		)[0];
+		const chunkIndex = similarityFound.chunk_ids.indexOf(chunk.id);
+		const similarity = similarityFound.chunk_similarities[chunkIndex];
 		return {
 			processed_document_chunk: chunk,
-			similarity: similarityFound.similarity,
+			similarity: similarity,
 		} as ProcessedDocumentChunkMatch;
 	});
 
@@ -156,7 +141,7 @@ export async function similaritySearch(
 			(ps) => ps.processed_document_id === processedDocument.id,
 		)[0];
 
-		const processedDocumentSummaryMatch = similarSummaries.filter(
+		const processedDocumentSummaryMatch = similarSummariesAndChunks.filter(
 			(s) => s.processed_document_id === processedDocument.id,
 		)[0];
 
