@@ -17,6 +17,7 @@ import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
 import { similaritySearchOnChunksAndSummaries } from "./similarity-search-chunks-and-summaries.js";
 import { similaritySearchOnChunksOnly } from "./similarity-search-chunks-only.js";
 import { createPrompt } from "./create-prompt.js";
+import { similaritySearchFirstSummariesThenChunks } from "./similarity-search-summaries-then-chunks.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -282,6 +283,11 @@ export async function buildServer({
 					) {
 						documentMatches =
 							await similaritySearchOnChunksAndSummaries(config);
+					} else if (
+						search_algorithm === AvailableSearchAlgorithms.SummaryThenChunks
+					) {
+						documentMatches =
+							await similaritySearchFirstSummariesThenChunks(config);
 					} else {
 						throw new Error(`Algorithm ${search_algorithm} not supported.`);
 					}

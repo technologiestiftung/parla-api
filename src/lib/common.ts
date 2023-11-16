@@ -100,4 +100,5 @@ export interface SimilaritySearchConfig {
 export enum AvailableSearchAlgorithms {
 	ChunksOnly = "chunks-only",
 	ChunksAndSummaries = "chunks-and-summaries",
+	SummaryThenChunks = "summaries-then-chunks",
 }
