@@ -141,25 +141,22 @@ export async function buildServer({
 					// - gpt-4 has max tokens length of 8192
 					// - gpt-3.5-turbo has max tokens length of 4096
 					// - gpt-3.5-turbo-16k has max tokens length of 16384
+					// Reference: https://platform.openai.com/docs/models/overview
 					switch (OPENAI_MODEL) {
 						case "gpt-4": {
 							MAX_CONTENT_TOKEN_LENGTH = 8192;
-							// MAX_TOKENS = 8192;
 							break;
 						}
 						case "gpt-3.5-turbo": {
-							MAX_CONTENT_TOKEN_LENGTH = 2048;
-							// MAX_TOKENS = 2048;
+							MAX_CONTENT_TOKEN_LENGTH = 4096;
 							break;
 						}
 						case "gpt-3.5-turbo-16k": {
 							MAX_CONTENT_TOKEN_LENGTH = 16384;
-							// MAX_TOKENS = 16384;
 							break;
 						}
 						default: {
 							MAX_CONTENT_TOKEN_LENGTH = 1500;
-							// MAX_TOKENS = 2048;
 							break;
 						}
 					}
