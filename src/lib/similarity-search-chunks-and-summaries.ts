@@ -1,46 +1,34 @@
 import GPT3Tokenizer from "gpt3-tokenizer";
 import {
-	Model,
 	ProcessedDocumentChunkMatch,
 	ProcessedDocumentSummaryMatch,
-	ResponseDetail,
 	ResponseDocumentMatch,
+	SimilaritySearchConfig,
 } from "./common.js";
-import { createPrompt } from "./create-prompt.js";
 import { ApplicationError } from "./errors.js";
 import supabase from "./supabase.js";
 
-export async function similaritySearch(
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	embedding: any,
-	match_threshold: number,
-	chunk_limit: number,
-	summary_limit: number,
-	document_limit: number,
-	num_probes: number,
-	sanitizedQuery: string,
-	MAX_CONTENT_TOKEN_LENGTH: number,
-	OPENAI_MODEL: Model,
-	MAX_TOKENS: number,
-) {
+export async function similaritySearchOnChunksAndSummaries(
+	config: SimilaritySearchConfig,
+): Promise<Array<ResponseDocumentMatch>> {
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 
 	// vector search summaries
 	const { error: mathSummaryAndChunksError, data: similarSummariesAndChunks } =
 		await supabase
 			.rpc("match_summaries_and_chunks", {
-				embedding,
+				embedding: config.embedding,
 				// ok, this is weird. the higher we set match_threshold, the longer the DB function takes to complete
 				// workaround is to set match_threshold to 0 and do the tresholding in frontend
 				// no difference in results, since the results are ordered in DB already
 				match_threshold: 0,
-				chunk_limit: chunk_limit,
-				summary_limit: summary_limit,
-				num_probes,
+				chunk_limit: 64,
+				summary_limit: 32,
+				num_probes: config.num_probes,
 			})
-			.gte("similarity", match_threshold)
+			.gte("similarity", config.match_threshold)
 			.order("similarity", { ascending: false })
-			.limit(document_limit);
+			.limit(config.document_limit);
 
 	if (mathSummaryAndChunksError) {
 		throw new ApplicationError(
@@ -138,8 +126,6 @@ export async function similaritySearch(
 			similarSummariesAndChunks.length,
 	);
 
-	let responseDetail = {} as ResponseDetail;
-
 	const chunkMatches = processedDocumentChunks.map((chunk) => {
 		const similarityFound = similarSummariesAndChunks.filter(
 			(s) => (s.chunk_ids ?? []).filter((cid) => cid === chunk.id).length > 0,
@@ -186,17 +172,5 @@ export async function similaritySearch(
 		} as ResponseDocumentMatch;
 	});
 
-	responseDetail.documentMatches = documentMatches;
-
-	const completionOptions = createPrompt({
-		documentMatches,
-		MAX_CONTENT_TOKEN_LENGTH,
-		OPENAI_MODEL,
-		sanitizedQuery,
-		MAX_TOKENS,
-	});
-
-	responseDetail.completionOptions = completionOptions;
-
-	return responseDetail;
+	return documentMatches;
 }

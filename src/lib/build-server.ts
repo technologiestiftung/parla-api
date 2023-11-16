@@ -4,10 +4,18 @@ import cors from "@fastify/cors";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
-import { Body, Model, ResponseDetail } from "./common.js";
+import {
+	Body,
+	Model,
+	ResponseDetail,
+	ResponseDocumentMatch,
+	SimilaritySearchConfig,
+} from "./common.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
 import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
-import { similaritySearch } from "./similarity-search.js";
+import { similaritySearchOnChunksAndSummaries } from "./similarity-search-chunks-and-summaries.js";
+import { similaritySearchOnChunksOnly } from "./similarity-search-chunks-only.js";
+import { createPrompt } from "./create-prompt.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -171,6 +179,8 @@ export async function buildServer({
 						chunk_limit,
 						summary_limit,
 						document_limit,
+						search_algorithm,
+						include_summary_in_response_generation,
 					} = request.body;
 
 					app.log.info({ query });
@@ -183,6 +193,8 @@ export async function buildServer({
 					app.log.info({ chunk_limit });
 					app.log.info({ summary_limit });
 					app.log.info({ document_limit });
+					app.log.info({ search_algorithm });
+					app.log.info({ include_summary_in_response_generation });
 
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
@@ -247,18 +259,41 @@ export async function buildServer({
 						data: [{ embedding }],
 					} = await embeddingResponse.json();
 
-					const responseDetail = await similaritySearch(
-						embedding,
-						match_threshold,
-						chunk_limit,
-						summary_limit,
-						document_limit,
-						num_probes,
-						sanitizedQuery,
+					const config = {
+						embedding: embedding,
+						match_threshold: match_threshold,
+						match_count: match_count,
+						document_limit: document_limit,
+						num_probes: num_probes,
+						sanitizedQuery: sanitizedQuery,
 						MAX_CONTENT_TOKEN_LENGTH,
 						OPENAI_MODEL,
 						MAX_TOKENS,
-					);
+					} as SimilaritySearchConfig;
+
+					let documentMatches: Array<ResponseDocumentMatch> = [];
+					if (search_algorithm === "chunks-only") {
+						documentMatches = await similaritySearchOnChunksOnly(config);
+					} else {
+						documentMatches =
+							await similaritySearchOnChunksAndSummaries(config);
+					}
+
+					const chatCompletionRequest = createPrompt({
+						documentMatches,
+						MAX_CONTENT_TOKEN_LENGTH,
+						OPENAI_MODEL,
+						sanitizedQuery,
+						MAX_TOKENS,
+						temperature,
+						includeSummary: include_summary_in_response_generation,
+					});
+
+					let responseDetail = {
+						documentMatches: documentMatches,
+						completionOptions: chatCompletionRequest,
+						requestBody: request.body,
+					} as ResponseDetail;
 
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					//@ts-ignore

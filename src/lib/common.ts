@@ -83,4 +83,18 @@ export interface Body {
 	chunk_limit: number;
 	summary_limit: number;
 	document_limit: number;
+	search_algorithm: string;
+	include_summary_in_response_generation: boolean;
+}
+
+export interface SimilaritySearchConfig {
+	embedding: any;
+	match_threshold: number;
+	match_count: number;
+	document_limit: number;
+	num_probes: number;
+	sanitizedQuery: string;
+	MAX_CONTENT_TOKEN_LENGTH: number;
+	OPENAI_MODEL: Model;
+	MAX_TOKENS: number;
 }
