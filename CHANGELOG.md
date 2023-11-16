@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.8.0...v1.9.0) (2023-11-16)
+
+
+### Features
+
+* add summary to prompt ([#31](https://github.com/technologiestiftung/ki-anfragen-api/issues/31)) ([8ccf872](https://github.com/technologiestiftung/ki-anfragen-api/commit/8ccf872fb2d1c7de7ef62dd56ca2228f52c1f4cb))
+
 # [1.8.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.7.0...v1.8.0) (2023-11-14)
 
 
