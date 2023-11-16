@@ -79,4 +79,5 @@ export interface Body {
 	match_count: number;
 	min_content_length: number;
 	openai_model: Model;
+	document_count: number;
 }

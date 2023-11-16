@@ -11,8 +11,8 @@ export const bodySchema = S.object()
 	.prop("temperature", S.number().minimum(0).maximum(2).default(0.5))
 	.prop("match_threshold", S.number().minimum(0).maximum(1).default(0.85))
 	.prop("num_probes", S.number().minimum(1).maximum(49).default(7))
-	.prop("match_count", S.number().minimum(1).maximum(10).default(5))
-	.prop("min_content_length", S.number().minimum(0).maximum(10000).default(50))
+	.prop("match_count", S.number().minimum(1).maximum(256).default(64))
+	.prop("document_count", S.number().minimum(1).maximum(10).default(5))
 	.prop(
 		"openai_model",
 		S.string().enum(Object.values(MODELS)).default(MODELS.GPT_3_5_TURBO),
@@ -25,7 +25,12 @@ export const healthSchema = {
 
 const createChatCompletionRequestSchema = S.object()
 	.prop("model", S.string())
-	.prop("messages", S.array().items(S.object()))
+	.prop(
+		"messages",
+		S.array().items(
+			S.object().prop("role", S.string()).prop("content", S.string()),
+		),
+	)
 	.prop("functions", S.array().items(S.object()))
 	.prop("function_call", S.object())
 	.prop("temperature", S.number())

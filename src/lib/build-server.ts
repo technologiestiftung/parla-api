@@ -7,7 +7,11 @@ import Fastify from "fastify";
 import { Body, Model, ResponseDetail } from "./common.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
 import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
-import { similaritySearch } from "./similarity-search.js";
+import {
+	SimilaritySearchConfig,
+	similaritySearch,
+} from "./similarity-search.js";
+import { createPrompt } from "./create-prompt.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -171,6 +175,7 @@ export async function buildServer({
 						match_count,
 						min_content_length,
 						openai_model,
+						document_count,
 					} = request.body;
 
 					app.log.info({ query });
@@ -180,6 +185,8 @@ export async function buildServer({
 					app.log.info({ match_count });
 					app.log.info({ min_content_length });
 					app.log.info({ openai_model });
+					app.log.info({ document_count });
+
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
 					const sanitizedQuery = query.trim();
@@ -243,17 +250,30 @@ export async function buildServer({
 						data: [{ embedding }],
 					} = await embeddingResponse.json();
 
-					const responseDetail = await similaritySearch(
-						embedding,
-						match_threshold,
-						match_count,
-						min_content_length,
-						num_probes,
-						sanitizedQuery,
+					const config = {
+						embedding: embedding,
+						match_threshold: match_threshold,
+						match_count: match_count,
+						num_probes: num_probes,
+						document_count: document_count,
+					} as SimilaritySearchConfig;
+
+					const documentMatches = await similaritySearch(config);
+
+					const chatCompletionRequest = createPrompt({
+						documentMatches,
 						MAX_CONTENT_TOKEN_LENGTH,
 						OPENAI_MODEL,
+						sanitizedQuery,
 						MAX_TOKENS,
-					);
+						temperature,
+					});
+
+					let responseDetail = {
+						documentMatches: documentMatches,
+						completionOptions: chatCompletionRequest,
+						requestBody: request.body,
+					} as ResponseDetail;
 
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					//@ts-ignore
@@ -277,7 +297,7 @@ export async function buildServer({
 					}
 					const json = await response.json();
 					responseDetail.gpt = json;
-					responseDetail.requestBody = request.body;
+
 					reply.status(201).send(responseDetail);
 				},
 			);

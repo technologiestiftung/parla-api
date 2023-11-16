@@ -12,12 +12,14 @@ export function createPrompt({
 	OPENAI_MODEL,
 	sanitizedQuery,
 	MAX_TOKENS,
+	temperature,
 }: {
 	sanitizedQuery: string;
 	OPENAI_MODEL: string;
 	documentMatches: Array<ResponseDocumentMatch>;
 	MAX_CONTENT_TOKEN_LENGTH: number;
 	MAX_TOKENS: number;
+	temperature: number;
 }): CreateChatCompletionRequest {
 	const contextDivider = "----";
 
@@ -79,7 +81,7 @@ export function createPrompt({
 			{ role: "user", content: sanitizedQuery },
 		],
 		max_tokens: MAX_TOKENS,
-		temperature: 0.5,
+		temperature: temperature,
 		stream: false,
 	};
 
