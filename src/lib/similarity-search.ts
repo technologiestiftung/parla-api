@@ -1,3 +1,4 @@
+import GPT3Tokenizer from "gpt3-tokenizer";
 import {
 	Model,
 	ProcessedDocumentChunkMatch,
@@ -15,13 +16,14 @@ export async function similaritySearch(
 	match_threshold: number,
 	chunk_limit: number,
 	summary_limit: number,
+	document_limit: number,
 	num_probes: number,
 	sanitizedQuery: string,
 	MAX_CONTENT_TOKEN_LENGTH: number,
 	OPENAI_MODEL: Model,
 	MAX_TOKENS: number,
 ) {
-	const MAX_MATCHES = 5;
+	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 
 	// vector search summaries
 	const { error: mathSummaryAndChunksError, data: similarSummariesAndChunks } =
@@ -34,7 +36,7 @@ export async function similaritySearch(
 				num_probes,
 			})
 			.order("similarity", { ascending: false })
-			.limit(MAX_MATCHES);
+			.limit(document_limit);
 
 	if (mathSummaryAndChunksError) {
 		throw new ApplicationError(
@@ -118,11 +120,25 @@ export async function similaritySearch(
 		);
 	}
 
+	// Assure that max context length of ~15000 tokens is not exceeded
+	// Assume 1000 tokens per chunk
+	// Distribute chunks equally across documents
+	const MAX_CONTEXT_SIZE = 15000;
+	const TOKENS_PER_CHUNK = 1000;
+	const summaryTokens = processedDocumentSummaries
+		.map((s) => tokenizer.encode(s.summary).text.length)
+		.reduce((l, r) => l + r, 0);
+	const MAX_CHUNKS_PER_DOCUMENT = Math.floor(
+		(MAX_CONTEXT_SIZE - summaryTokens) /
+			TOKENS_PER_CHUNK /
+			similarSummariesAndChunks.length,
+	);
+
 	let responseDetail = {} as ResponseDetail;
 
 	const chunkMatches = processedDocumentChunks.map((chunk) => {
 		const similarityFound = similarSummariesAndChunks.filter(
-			(s) => s.chunk_ids.filter((cid) => cid === chunk.id).length > 0,
+			(s) => (s.chunk_ids ?? []).filter((cid) => cid === chunk.id).length > 0,
 		)[0];
 		const chunkIndex = similarityFound.chunk_ids.indexOf(chunk.id);
 		const similarity = similarityFound.chunk_similarities[chunkIndex];
@@ -152,7 +168,7 @@ export async function similaritySearch(
 					processedDocument.id,
 			)
 			.sort((l, r) => (l.similarity < r.similarity ? 1 : -1))
-			.slice(0, MAX_MATCHES);
+			.slice(0, MAX_CHUNKS_PER_DOCUMENT);
 
 		return {
 			registered_document: registeredDocument,

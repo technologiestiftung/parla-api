@@ -173,6 +173,7 @@ export async function buildServer({
 						openai_model,
 						chunk_limit,
 						summary_limit,
+						document_limit,
 					} = request.body;
 
 					app.log.info({ query });
@@ -184,6 +185,7 @@ export async function buildServer({
 					app.log.info({ openai_model });
 					app.log.info({ chunk_limit });
 					app.log.info({ summary_limit });
+					app.log.info({ document_limit });
 
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
@@ -253,6 +255,7 @@ export async function buildServer({
 						match_threshold,
 						chunk_limit,
 						summary_limit,
+						document_limit,
 						num_probes,
 						sanitizedQuery,
 						MAX_CONTENT_TOKEN_LENGTH,

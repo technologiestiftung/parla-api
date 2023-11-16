@@ -80,4 +80,7 @@ export interface Body {
 	match_count: number;
 	min_content_length: number;
 	openai_model: Model;
+	chunk_limit: number;
+	summary_limit: number;
+	document_limit: number;
 }
