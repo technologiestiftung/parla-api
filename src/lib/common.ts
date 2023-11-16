@@ -92,9 +92,12 @@ export interface SimilaritySearchConfig {
 	match_threshold: number;
 	match_count: number;
 	document_limit: number;
+	chunk_limit: number;
+	summary_limit: number;
 	num_probes: number;
-	sanitizedQuery: string;
-	MAX_CONTENT_TOKEN_LENGTH: number;
-	OPENAI_MODEL: Model;
-	MAX_TOKENS: number;
+}
+
+export enum AvailableSearchAlgorithms {
+	ChunksOnly = "chunks-only",
+	ChunksAndSummaries = "chunks-and-summaries",
 }

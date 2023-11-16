@@ -5,6 +5,7 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
 import {
+	AvailableSearchAlgorithms,
 	Body,
 	Model,
 	ResponseDetail,
@@ -266,17 +267,23 @@ export async function buildServer({
 						document_limit: document_limit,
 						num_probes: num_probes,
 						sanitizedQuery: sanitizedQuery,
+						chunk_limit: chunk_limit,
+						summary_limit: summary_limit,
 						MAX_CONTENT_TOKEN_LENGTH,
 						OPENAI_MODEL,
 						MAX_TOKENS,
 					} as SimilaritySearchConfig;
 
 					let documentMatches: Array<ResponseDocumentMatch> = [];
-					if (search_algorithm === "chunks-only") {
+					if (search_algorithm === AvailableSearchAlgorithms.ChunksOnly) {
 						documentMatches = await similaritySearchOnChunksOnly(config);
-					} else {
+					} else if (
+						search_algorithm === AvailableSearchAlgorithms.ChunksAndSummaries
+					) {
 						documentMatches =
 							await similaritySearchOnChunksAndSummaries(config);
+					} else {
+						throw new Error(`Algorithm ${search_algorithm} not supported.`);
 					}
 
 					const chatCompletionRequest = createPrompt({

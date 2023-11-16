@@ -17,7 +17,7 @@ export const bodySchema = S.object()
 	.prop("document_limit", S.number().minimum(1).maximum(10).default(3))
 	.prop("min_content_length", S.number().minimum(0).maximum(10000).default(50))
 	.prop("include_summary_in_response_generation", S.boolean().default(false))
-	.prop("search_algorithm", S.string().default("chunks-only"))
+	.prop("search_algorithm", S.string().default("chunks-and-summaries"))
 	.prop(
 		"openai_model",
 		S.string().enum(Object.values(MODELS)).default(MODELS.GPT_3_5_TURBO),
