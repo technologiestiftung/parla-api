@@ -30,11 +30,15 @@ export async function similaritySearch(
 		await supabase
 			.rpc("match_summaries_and_chunks", {
 				embedding,
-				match_threshold: match_threshold,
+				// ok, this is weird. the higher we set match_threshold, the longer the DB function takes to complete
+				// workaround is to set match_threshold to 0 and do the tresholding in frontend
+				// no difference in results, since the results are ordered in DB already
+				match_threshold: 0,
 				chunk_limit: chunk_limit,
 				summary_limit: summary_limit,
 				num_probes,
 			})
+			.gte("similarity", match_threshold)
 			.order("similarity", { ascending: false })
 			.limit(document_limit);
 
