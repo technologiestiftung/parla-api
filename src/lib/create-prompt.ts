@@ -19,16 +19,25 @@ export function createPrompt({
 	MAX_CONTENT_TOKEN_LENGTH: number;
 	MAX_TOKENS: number;
 }): CreateChatCompletionRequest {
-	// 4. create a prompt with the
+	const contextDivider = "----";
+
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 	let tokenCount = 0;
 	let contextText = "";
+
+	// Concatenate the context
 	for (let i = 0; i < documentMatches.length; i++) {
 		const documentMatch = documentMatches[i];
 
-		const content = documentMatch.processed_document_chunk_matches
+		const chunkContent = documentMatch.processed_document_chunk_matches
 			.map((chunk) => chunk.processed_document_chunk.content)
 			.join("\n");
+
+		const summaryContent =
+			documentMatch.processed_document_summary_match.processed_document_summary
+				.summary;
+
+		const content = chunkContent + "\n" + summaryContent;
 
 		const encoded = tokenizer.encode(content);
 		tokenCount += encoded.text.length;
@@ -42,18 +51,24 @@ export function createPrompt({
 			);
 		}
 
-		contextText += `${content.trim()}\n---\n`;
+		contextText += `${content.trim()}\n${contextDivider}\n`;
 	}
+
+	// Build the prompt
 	const prompt = codeBlock`
 		${oneLine`
-			Du bist ein KI Assistent des Verwaltung. Du antwortest immer in Deutsch. Du benutzt immer das Sie nie das du.
-			Mit den folgenden Abschnitte aus das den schriftlichen Anfragen, beantwortest du die Frage nur mit diesen Informationen. ERWÄHNE DIE ABSCHNITTE NICHT NACH IHRER REINHENFOLGE. Erstelle eine sinnvolle Antowort aus allen relevanten Informationen.
+			Du bist ein KI Assistent der Verwaltung, der in der Lage ist aus Abschnitten von relevanten Dokumenten eine sinnvolle Antwort zu generieren.
+			Du antwortest immer auf Deutsch. Du benutzt immer das Sie, niemals das du.
+			Du beantwortest die Frage nur mit den vorliegenden Abschnitten aus relevanten Dokumenten.
+			ERWÄHNE DIE ABSCHNITTE NICHT NACH IHRER REINHENFOLGE.
+			Erstelle eine sinnvolle Antwort aus allen relevanten Informationen.
 		`}
-		${oneLine`Start Abschnitte der schriftlichen Anfragen getrennt durch "---":`}
+		${oneLine`Start Abschnitte der relevanten Dokumente getrennt durch ${contextDivider}:`}
 		${contextText}
-		${oneLine`Ende Abschnitte der schriftlichen Anfragen`}
+		${oneLine`Ende Abschnitte der relevanten Dokumente`}
 		Das ist die Frage des Benutzers:
 	`;
+
 	const completionOptions: CreateChatCompletionRequest = {
 		model: OPENAI_MODEL,
 		messages: [
@@ -63,10 +78,10 @@ export function createPrompt({
 			},
 			{ role: "user", content: sanitizedQuery },
 		],
-		// max tokens only applies to the reponse length
 		max_tokens: MAX_TOKENS,
 		temperature: 0.5,
 		stream: false,
 	};
+
 	return completionOptions;
 }
