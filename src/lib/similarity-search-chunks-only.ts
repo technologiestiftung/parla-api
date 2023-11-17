@@ -60,8 +60,11 @@ export async function similaritySearchOnChunksOnly(
 			.select("*")
 			.in(
 				"id",
-				matchChunks.map((chunk) => chunk.processed_document_id),
+				chunkMatches.map(
+					(chunk) => chunk.processed_document_chunk.processed_document_id,
+				),
 			);
+
 	if (processedDocumentsError) {
 		throw new ApplicationError(
 			"Failed to find processed documents",
@@ -84,7 +87,7 @@ export async function similaritySearchOnChunksOnly(
 			};
 		})
 		.sort((l, r) =>
-			l.averageBestPagesSimilarity < r.averageBestPagesSimilarity ? -1 : 1,
+			l.averageBestPagesSimilarity < r.averageBestPagesSimilarity ? 1 : -1,
 		)
 		.slice(0, config.document_limit);
 
