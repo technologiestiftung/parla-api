@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.9.0...v1.10.0) (2023-11-20)
+
+
+### Features
+
+* frontend can decide which search algorithm to use ([#32](https://github.com/technologiestiftung/ki-anfragen-api/issues/32)) ([512d008](https://github.com/technologiestiftung/ki-anfragen-api/commit/512d00806b096fbfe4f011c1a46e5479607a5faa))
+
 # [1.9.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.8.0...v1.9.0) (2023-11-16)
 
 
