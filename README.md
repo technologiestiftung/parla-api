@@ -1,12 +1,14 @@
 ![](https://img.shields.io/badge/Built%20with%20%E2%9D%A4%EF%B8%8F-at%20Technologiestiftung%20Berlin-blue)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-# _>ki.anfragen (api)_
+# _>ki.anfragen (api & database)_
 
-This is a the api for the explorational project _>ki.anfragen_. This is not production ready. Currently we explore if we can make the parliamentary documentation provided by the "The Abgeordnetenhaus" of Berlin as open data https://www.parlament-berlin.de/dokumente/open-data more accessible by embedding all the data and do search it using vector similarity search. The project is heavily based on [this example](https://github.com/supabase-community/nextjs-openai-doc-search) from the supabase community. Built with [Fastify](https://fastify.dev/) and deployed to [render.com](https://render.com) using [docker](https://www.docker.com/).
+This is a the api and database for the explorational project _>ki.anfragen_. This is not production ready. Currently we explore if we can make the parliamentary documentation provided by the "The Abgeordnetenhaus" of Berlin as open data https://www.parlament-berlin.de/dokumente/open-data more accessible by embedding all the data and do search it using vector similarity search. The project is heavily based on [this example](https://github.com/supabase-community/nextjs-openai-doc-search) from the supabase community. Built with [Fastify](https://fastify.dev/) and deployed to [render.com](https://render.com) using [docker](https://www.docker.com/).
 
 ## Prerequisites
 
@@ -14,8 +16,8 @@ This is a the api for the explorational project _>ki.anfragen_. This is not prod
 - vercel.com account
 - supabase.com account
 - running instance of the related frontend https://github.com/technologiestiftung/ki-anfragen-frontend
-- running supabase project. Source can be found here https://github.com/technologiestiftung/ki-anfragen-supabase
-- Populated database. Using these tools https://github.com/technologiestiftung/ki-anfragen-data-extractor
+- running instance of the database, defined in [./supabase](./supabase)
+- populated database. Using these tools https://github.com/technologiestiftung/ki-anfragen-document-processor
 
 ## Needed Environment Variables
 
@@ -54,6 +56,14 @@ Currently we deploy using docker on render.com.
 - deploy
 
 ## Development
+
+Startup a local database:
+
+```bash
+npx supabase start
+```
+
+Run the API:
 
 ```bash
 npm run dev
