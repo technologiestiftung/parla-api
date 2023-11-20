@@ -1,39 +1,26 @@
 import {
-	Model,
 	ProcessedDocumentChunkMatch,
 	ProcessedDocumentSummaryMatch,
-	ResponseDetail,
 	ResponseDocumentMatch,
+	SimilaritySearchConfig,
 } from "./common.js";
-import { createPrompt } from "./create-prompt.js";
 import { ApplicationError } from "./errors.js";
 import supabase from "./supabase.js";
 
-export async function similaritySearch(
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	embedding: any,
-	match_threshold: number,
-	match_count: number,
-	min_content_length: number,
-	num_probes: number,
-	sanitizedQuery: string,
-	MAX_CONTENT_TOKEN_LENGTH: number,
-	OPENAI_MODEL: Model,
-	MAX_TOKENS: number,
-) {
-	const MAX_MATCHES = 3;
-
+export async function similaritySearchFirstSummariesThenChunks(
+	config: SimilaritySearchConfig,
+): Promise<Array<ResponseDocumentMatch>> {
 	// vector search summaries
 	const { error: matchSummaryError, data: similarSummaries } = await supabase
 		.rpc("match_summaries", {
-			embedding,
-			match_threshold,
-			match_count,
-			min_content_length,
-			num_probes,
+			embedding: config.embedding,
+			match_threshold: config.match_threshold,
+			match_count: config.match_count,
+			min_content_length: 0,
+			num_probes: config.num_probes,
 		})
 		.order("similarity", { ascending: false })
-		.limit(MAX_MATCHES);
+		.limit(config.document_limit);
 
 	if (matchSummaryError) {
 		throw new ApplicationError("Failed to match summaries", matchSummaryError);
@@ -100,14 +87,14 @@ export async function similaritySearch(
 	} = await supabase
 		.rpc("match_document_chunks_for_specific_documents", {
 			processed_document_ids: processedDocuments.map((p) => p.id),
-			embedding,
-			match_threshold,
+			embedding: config.embedding,
+			match_threshold: config.match_threshold,
 			// We want to have 3 chunks for each of the relevant documents,
 			// however, it can't be guaranteed. By setting match_count to a high number,
 			// we increase the chances of getting 3 chunks.
-			match_count: 100,
-			min_content_length,
-			num_probes,
+			match_count: 128,
+			min_content_length: 0,
+			num_probes: config.num_probes,
 		})
 		.order("similarity", { ascending: false });
 
@@ -134,8 +121,6 @@ export async function similaritySearch(
 			processedDocumentChunksError,
 		);
 	}
-
-	let responseDetail = {} as ResponseDetail;
 
 	const chunkMatches = processedDocumentChunks.map((chunk) => {
 		const similarityFound = similarProcessedDocumentChunks.filter(
@@ -167,7 +152,7 @@ export async function similaritySearch(
 					processedDocument.id,
 			)
 			.sort((l, r) => (l.similarity < r.similarity ? 1 : -1))
-			.slice(0, MAX_MATCHES);
+			.slice(0, 3);
 
 		return {
 			registered_document: registeredDocument,
@@ -177,20 +162,9 @@ export async function similaritySearch(
 				similarity: processedDocumentSummaryMatch.similarity,
 			} as ProcessedDocumentSummaryMatch,
 			processed_document_chunk_matches: chunks,
+			similarity: processedDocumentSummaryMatch.similarity,
 		} as ResponseDocumentMatch;
 	});
 
-	responseDetail.documentMatches = documentMatches;
-
-	const completionOptions = createPrompt({
-		documentMatches,
-		MAX_CONTENT_TOKEN_LENGTH,
-		OPENAI_MODEL,
-		sanitizedQuery,
-		MAX_TOKENS,
-	});
-
-	responseDetail.completionOptions = completionOptions;
-
-	return responseDetail;
+	return documentMatches;
 }

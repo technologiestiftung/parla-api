@@ -62,6 +62,7 @@ export interface ResponseDocumentMatch {
 	processed_document: ProcessedDocument;
 	processed_document_summary_match: ProcessedDocumentSummaryMatch;
 	processed_document_chunk_matches: Array<ProcessedDocumentChunkMatch>;
+	similarity: number;
 }
 
 export interface ResponseDetail {
@@ -79,4 +80,25 @@ export interface Body {
 	match_count: number;
 	min_content_length: number;
 	openai_model: Model;
+	chunk_limit: number;
+	summary_limit: number;
+	document_limit: number;
+	search_algorithm: string;
+	include_summary_in_response_generation: boolean;
+}
+
+export interface SimilaritySearchConfig {
+	embedding: any;
+	match_threshold: number;
+	match_count: number;
+	document_limit: number;
+	chunk_limit: number;
+	summary_limit: number;
+	num_probes: number;
+}
+
+export enum AvailableSearchAlgorithms {
+	ChunksOnly = "chunks-only",
+	ChunksAndSummaries = "chunks-and-summaries",
+	SummaryThenChunks = "summaries-then-chunks",
 }

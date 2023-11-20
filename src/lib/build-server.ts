@@ -4,10 +4,20 @@ import cors from "@fastify/cors";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
-import { Body, Model, ResponseDetail } from "./common.js";
+import {
+	AvailableSearchAlgorithms,
+	Body,
+	Model,
+	ResponseDetail,
+	ResponseDocumentMatch,
+	SimilaritySearchConfig,
+} from "./common.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
 import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
-import { similaritySearch } from "./similarity-search.js";
+import { similaritySearchOnChunksAndSummaries } from "./similarity-search-chunks-and-summaries.js";
+import { similaritySearchOnChunksOnly } from "./similarity-search-chunks-only.js";
+import { createPrompt } from "./create-prompt.js";
+import { similaritySearchFirstSummariesThenChunks } from "./similarity-search-summaries-then-chunks.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -141,25 +151,22 @@ export async function buildServer({
 					// - gpt-4 has max tokens length of 8192
 					// - gpt-3.5-turbo has max tokens length of 4096
 					// - gpt-3.5-turbo-16k has max tokens length of 16384
+					// Reference: https://platform.openai.com/docs/models/overview
 					switch (OPENAI_MODEL) {
 						case "gpt-4": {
 							MAX_CONTENT_TOKEN_LENGTH = 8192;
-							// MAX_TOKENS = 8192;
 							break;
 						}
 						case "gpt-3.5-turbo": {
-							MAX_CONTENT_TOKEN_LENGTH = 2048;
-							// MAX_TOKENS = 2048;
+							MAX_CONTENT_TOKEN_LENGTH = 4096;
 							break;
 						}
 						case "gpt-3.5-turbo-16k": {
-							MAX_CONTENT_TOKEN_LENGTH = 8192;
-							// MAX_TOKENS = 16384;
+							MAX_CONTENT_TOKEN_LENGTH = 16384;
 							break;
 						}
 						default: {
 							MAX_CONTENT_TOKEN_LENGTH = 1500;
-							// MAX_TOKENS = 2048;
 							break;
 						}
 					}
@@ -171,6 +178,11 @@ export async function buildServer({
 						match_count,
 						min_content_length,
 						openai_model,
+						chunk_limit,
+						summary_limit,
+						document_limit,
+						search_algorithm,
+						include_summary_in_response_generation,
 					} = request.body;
 
 					app.log.info({ query });
@@ -180,6 +192,12 @@ export async function buildServer({
 					app.log.info({ match_count });
 					app.log.info({ min_content_length });
 					app.log.info({ openai_model });
+					app.log.info({ chunk_limit });
+					app.log.info({ summary_limit });
+					app.log.info({ document_limit });
+					app.log.info({ search_algorithm });
+					app.log.info({ include_summary_in_response_generation });
+
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
 					const sanitizedQuery = query.trim();
@@ -243,17 +261,52 @@ export async function buildServer({
 						data: [{ embedding }],
 					} = await embeddingResponse.json();
 
-					const responseDetail = await similaritySearch(
-						embedding,
-						match_threshold,
-						match_count,
-						min_content_length,
-						num_probes,
-						sanitizedQuery,
+					const config = {
+						embedding: embedding,
+						match_threshold: match_threshold,
+						match_count: match_count,
+						document_limit: document_limit,
+						num_probes: num_probes,
+						sanitizedQuery: sanitizedQuery,
+						chunk_limit: chunk_limit,
+						summary_limit: summary_limit,
 						MAX_CONTENT_TOKEN_LENGTH,
 						OPENAI_MODEL,
 						MAX_TOKENS,
-					);
+					} as SimilaritySearchConfig;
+
+					let documentMatches: Array<ResponseDocumentMatch> = [];
+					if (search_algorithm === AvailableSearchAlgorithms.ChunksOnly) {
+						documentMatches = await similaritySearchOnChunksOnly(config);
+					} else if (
+						search_algorithm === AvailableSearchAlgorithms.ChunksAndSummaries
+					) {
+						documentMatches =
+							await similaritySearchOnChunksAndSummaries(config);
+					} else if (
+						search_algorithm === AvailableSearchAlgorithms.SummaryThenChunks
+					) {
+						documentMatches =
+							await similaritySearchFirstSummariesThenChunks(config);
+					} else {
+						throw new Error(`Algorithm ${search_algorithm} not supported.`);
+					}
+
+					const chatCompletionRequest = createPrompt({
+						documentMatches,
+						MAX_CONTENT_TOKEN_LENGTH,
+						OPENAI_MODEL,
+						sanitizedQuery,
+						MAX_TOKENS,
+						temperature,
+						includeSummary: include_summary_in_response_generation,
+					});
+
+					let responseDetail = {
+						documentMatches: documentMatches,
+						completionOptions: chatCompletionRequest,
+						requestBody: request.body,
+					} as ResponseDetail;
 
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					//@ts-ignore

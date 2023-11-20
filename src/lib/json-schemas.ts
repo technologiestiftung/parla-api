@@ -11,8 +11,13 @@ export const bodySchema = S.object()
 	.prop("temperature", S.number().minimum(0).maximum(2).default(0.5))
 	.prop("match_threshold", S.number().minimum(0).maximum(1).default(0.85))
 	.prop("num_probes", S.number().minimum(1).maximum(49).default(7))
-	.prop("match_count", S.number().minimum(1).maximum(10).default(5))
+	.prop("match_count", S.number().minimum(1).maximum(128).default(5))
+	.prop("chunk_limit", S.number().minimum(1).maximum(128).default(64))
+	.prop("summary_limit", S.number().minimum(1).maximum(32).default(16))
+	.prop("document_limit", S.number().minimum(1).maximum(10).default(3))
 	.prop("min_content_length", S.number().minimum(0).maximum(10000).default(50))
+	.prop("include_summary_in_response_generation", S.boolean().default(false))
+	.prop("search_algorithm", S.string().default("chunks-and-summaries"))
 	.prop(
 		"openai_model",
 		S.string().enum(Object.values(MODELS)).default(MODELS.GPT_3_5_TURBO),
@@ -96,7 +101,8 @@ const documentMatch = S.object()
 	.prop(
 		"processed_document_chunk_matches",
 		S.array().items(processedDocumentChunkMatch),
-	);
+	)
+	.prop("similarity", S.number());
 
 const usage = S.object()
 	.prop("prompt_tokens", S.number())
