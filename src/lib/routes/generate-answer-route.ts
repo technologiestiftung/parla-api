@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { GenerateAnswerBody } from "../common.js";
+import { GenerateAnswerBody, GenerateAnswerResponse } from "../common.js";
 import { createPrompt } from "../create-prompt.js";
 import { ApplicationError } from "../errors.js";
 import { registerCors } from "../handle-cors.js";
@@ -94,9 +94,10 @@ export async function registerGenerateAnswerRoute(
 					}
 
 					let gptAnswer = await response.json();
-					console.log(gptAnswer);
 
-					reply.status(201).send({ answer: gptAnswer });
+					const res = { answer: gptAnswer } as GenerateAnswerResponse;
+
+					reply.status(201).send(res);
 				},
 			);
 
