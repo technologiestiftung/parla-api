@@ -60,7 +60,6 @@ export interface DocumentSearchBody {
 	query: string;
 	match_threshold: number;
 	num_probes: number;
-	match_count: number;
 	chunk_limit: number;
 	summary_limit: number;
 	document_limit: number;
@@ -70,7 +69,6 @@ export interface DocumentSearchBody {
 export interface SimilaritySearchConfig {
 	embedding: any;
 	match_threshold: number;
-	match_count: number;
 	document_limit: number;
 	chunk_limit: number;
 	summary_limit: number;

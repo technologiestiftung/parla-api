@@ -11,7 +11,6 @@ export const documentSearchBodySchema = S.object()
 	.prop("query", S.string())
 	.prop("match_threshold", S.number().minimum(0).maximum(1).default(0.85))
 	.prop("num_probes", S.number().minimum(1).maximum(49).default(7))
-	.prop("match_count", S.number().minimum(1).maximum(128).default(5))
 	.prop("chunk_limit", S.number().minimum(1).maximum(128).default(64))
 	.prop("summary_limit", S.number().minimum(1).maximum(32).default(16))
 	.prop("document_limit", S.number().minimum(1).maximum(10).default(3))
@@ -106,7 +105,7 @@ export const generatedAnswerResponseSchema = {
 export const generateAnswerBodySchema = S.object()
 	.prop("query", S.string())
 	.prop("include_summary_in_response_generation", S.boolean().default(false))
-	.prop("temperature", S.number().minimum(0).maximum(2).default(0.5))
+	.prop("temperature", S.number().minimum(0).maximum(2).default(0))
 	.prop("documentMatches", S.array().items(documentMatch));
 
 export const countSchema = {
