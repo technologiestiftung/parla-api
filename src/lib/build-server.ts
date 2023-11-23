@@ -9,6 +9,7 @@ import { registerGenerateAnswerRoute } from "./routes/generate-answer-route.js";
 import { registerHealthRoute } from "./routes/health-route.js";
 import { registerRootRoute } from "./routes/root-route.js";
 import { registerSearchDocumentsRoute } from "./routes/search-documents-route.js";
+import { registerCountDocumentsRoute } from "./routes/count-documents-route.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -45,6 +46,7 @@ export async function buildServer({
 	registerDocumentationRoute(fastify);
 	registerRootRoute(fastify);
 	registerHealthRoute(fastify);
+	registerCountDocumentsRoute(fastify);
 	registerSearchDocumentsRoute(fastify, OPENAI_MODEL, OPENAI_KEY);
 	registerGenerateAnswerRoute(fastify, OPENAI_MODEL, OPENAI_KEY);
 
