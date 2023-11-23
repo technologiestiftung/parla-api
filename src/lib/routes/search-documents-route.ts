@@ -64,7 +64,6 @@ export async function registerSearchDocumentsRoute(
 						query,
 						match_threshold,
 						num_probes,
-						match_count,
 						chunk_limit,
 						summary_limit,
 						document_limit,
@@ -139,7 +138,6 @@ export async function registerSearchDocumentsRoute(
 					const config = {
 						embedding: embedding,
 						match_threshold: match_threshold,
-						match_count: match_count,
 						document_limit: document_limit,
 						num_probes: num_probes,
 						chunk_limit: chunk_limit,
