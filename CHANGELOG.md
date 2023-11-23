@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.10.0...v1.11.0) (2023-11-23)
+
+
+### Features
+
+* functional tests with a set of predefined questions + route for counting docs ([#37](https://github.com/technologiestiftung/ki-anfragen-api/issues/37)) ([9c0019c](https://github.com/technologiestiftung/ki-anfragen-api/commit/9c0019cc83f237ed5ba578384bd5cc03ad01f9f0))
+
 # [1.10.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.9.0...v1.10.0) (2023-11-20)
 
 
