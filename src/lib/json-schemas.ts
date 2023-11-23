@@ -138,5 +138,5 @@ export const generateAnswerBodySchema = S.object()
 	.prop("documentMatches", S.array().items(documentMatch));
 
 export const countSchema = {
-	200: S.object().prop("registered_documents_count", S.number()),
+	200: S.object().prop("processed_documents_count", S.number()),
 };
