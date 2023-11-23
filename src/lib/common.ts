@@ -72,6 +72,10 @@ export interface ResponseDetail {
 	completionOptions?: CreateChatCompletionRequest;
 }
 
+export interface GenerateAnswerBody {
+	documentMatches: Array<ResponseDocumentMatch>;
+}
+
 export interface Body {
 	query: string;
 	temperature: number;

@@ -6,6 +6,7 @@ export const MODELS: Record<string, Model> = {
 	GPT_3_5_TURBO: "gpt-3.5-turbo",
 	GPT_3_5_TURBO_16K: "gpt-3.5-turbo-16k",
 };
+
 export const bodySchema = S.object()
 	.prop("query", S.string())
 	.prop("temperature", S.number().minimum(0).maximum(2).default(0.5))
@@ -125,6 +126,16 @@ export const responseSchema = {
 		.prop("completionOptions", createChatCompletionRequestSchema)
 		.prop("documentMatches", S.array().items(documentMatch)),
 };
+
+export const generatedAnswerResponseSchema = {
+	201: S.object().prop("answer", gpt),
+};
+
+export const generateAnswerBodySchema = S.object()
+	.prop("query", S.string())
+	.prop("include_summary_in_response_generation", S.boolean().default(false))
+	.prop("temperature", S.number().minimum(0).maximum(2).default(0.5))
+	.prop("documentMatches", S.array().items(documentMatch));
 
 export const countSchema = {
 	200: S.object().prop("registered_documents_count", S.number()),
