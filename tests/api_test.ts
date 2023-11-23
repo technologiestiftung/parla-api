@@ -16,6 +16,7 @@ const availableAlgorithms = [
 		search_algorithm: Algorithms.ChunksOnly,
 		match_count: 64,
 		include_summary_in_response_generation: false,
+		generate_answer: false,
 	},
 	{
 		temperature: 0,
@@ -27,6 +28,7 @@ const availableAlgorithms = [
 		document_limit: 3,
 		search_algorithm: Algorithms.ChunksAndSummaries,
 		include_summary_in_response_generation: false,
+		generate_answer: false,
 	},
 	{
 		temperature: 0,
@@ -37,6 +39,7 @@ const availableAlgorithms = [
 		search_algorithm: Algorithms.SummariesThenChunks,
 		match_count: 64,
 		include_summary_in_response_generation: false,
+		generate_answer: false,
 	},
 ];
 

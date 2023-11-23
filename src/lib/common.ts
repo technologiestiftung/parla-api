@@ -85,6 +85,7 @@ export interface Body {
 	document_limit: number;
 	search_algorithm: string;
 	include_summary_in_response_generation: boolean;
+	generate_answer: boolean;
 }
 
 export interface SimilaritySearchConfig {

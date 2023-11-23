@@ -183,6 +183,7 @@ export async function buildServer({
 						document_limit,
 						search_algorithm,
 						include_summary_in_response_generation,
+						generate_answer,
 					} = request.body;
 
 					app.log.info({ query });
@@ -197,6 +198,7 @@ export async function buildServer({
 					app.log.info({ document_limit });
 					app.log.info({ search_algorithm });
 					app.log.info({ include_summary_in_response_generation });
+					app.log.info({ generate_answer });
 
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
@@ -308,28 +310,32 @@ export async function buildServer({
 						requestBody: request.body,
 					} as ResponseDetail;
 
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					//@ts-ignore
-					const response = await fetch(
-						"https://api.openai.com/v1/chat/completions",
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${OPENAI_KEY}`,
-								"Content-Type": "application/json",
+					let answer = undefined;
+					if (generate_answer) {
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-ignore
+						const response = await fetch(
+							"https://api.openai.com/v1/chat/completions",
+							{
+								method: "POST",
+								headers: {
+									Authorization: `Bearer ${OPENAI_KEY}`,
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify(responseDetail.completionOptions),
 							},
-							body: JSON.stringify(responseDetail.completionOptions),
-						},
-					);
-
-					if (response.status !== 200) {
-						throw new ApplicationError(
-							"Failed to create completion for question",
-							{ response },
 						);
+
+						if (response.status !== 200) {
+							throw new ApplicationError(
+								"Failed to create completion for question",
+								{ response },
+							);
+						}
+						answer = await response.json();
 					}
-					const json = await response.json();
-					responseDetail.gpt = json;
+
+					responseDetail.gpt = answer;
 					responseDetail.requestBody = request.body;
 					reply.status(201).send(responseDetail);
 				},
