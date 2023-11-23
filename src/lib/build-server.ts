@@ -13,11 +13,17 @@ import {
 	SimilaritySearchConfig,
 } from "./common.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
-import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
+import {
+	bodySchema,
+	countSchema,
+	healthSchema,
+	responseSchema,
+} from "./json-schemas.js";
 import { similaritySearchOnChunksAndSummaries } from "./similarity-search-chunks-and-summaries.js";
 import { similaritySearchOnChunksOnly } from "./similarity-search-chunks-only.js";
 import { createPrompt } from "./create-prompt.js";
 import { similaritySearchFirstSummariesThenChunks } from "./similarity-search-summaries-then-chunks.js";
+import supabase from "./supabase.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -90,6 +96,34 @@ export async function buildServer({
 			next();
 		},
 		{ prefix: "/health" },
+	);
+	fastify.register(
+		(app, options, next) => {
+			app.register(cors, { origin: "*" });
+			app.get(
+				"/count",
+				{
+					schema: {
+						response: countSchema,
+					},
+				},
+				async (_request, reply) => {
+					const { data, error, count } = await supabase
+						.from("processed_documents")
+						.select("*", { count: "exact", head: true });
+					console.log(data, error, count);
+					if (!error && count) {
+						reply.status(200).send({ registered_documents_count: count });
+					} else {
+						reply
+							.status(500)
+							.send({ error: "Could not count processed_documents" });
+					}
+				},
+			);
+			next();
+		},
+		{ prefix: "/processed_documents" },
 	);
 	fastify.register(
 		(app, options, next) => {
@@ -183,6 +217,7 @@ export async function buildServer({
 						document_limit,
 						search_algorithm,
 						include_summary_in_response_generation,
+						generate_answer,
 					} = request.body;
 
 					app.log.info({ query });
@@ -197,6 +232,7 @@ export async function buildServer({
 					app.log.info({ document_limit });
 					app.log.info({ search_algorithm });
 					app.log.info({ include_summary_in_response_generation });
+					app.log.info({ generate_answer });
 
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
@@ -308,28 +344,32 @@ export async function buildServer({
 						requestBody: request.body,
 					} as ResponseDetail;
 
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					//@ts-ignore
-					const response = await fetch(
-						"https://api.openai.com/v1/chat/completions",
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${OPENAI_KEY}`,
-								"Content-Type": "application/json",
+					let answer = undefined;
+					if (generate_answer) {
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-ignore
+						const response = await fetch(
+							"https://api.openai.com/v1/chat/completions",
+							{
+								method: "POST",
+								headers: {
+									Authorization: `Bearer ${OPENAI_KEY}`,
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify(responseDetail.completionOptions),
 							},
-							body: JSON.stringify(responseDetail.completionOptions),
-						},
-					);
-
-					if (response.status !== 200) {
-						throw new ApplicationError(
-							"Failed to create completion for question",
-							{ response },
 						);
+
+						if (response.status !== 200) {
+							throw new ApplicationError(
+								"Failed to create completion for question",
+								{ response },
+							);
+						}
+						answer = await response.json();
 					}
-					const json = await response.json();
-					responseDetail.gpt = json;
+
+					responseDetail.gpt = answer;
 					responseDetail.requestBody = request.body;
 					reply.status(201).send(responseDetail);
 				},
