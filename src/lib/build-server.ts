@@ -13,11 +13,17 @@ import {
 	SimilaritySearchConfig,
 } from "./common.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
-import { bodySchema, healthSchema, responseSchema } from "./json-schemas.js";
+import {
+	bodySchema,
+	countSchema,
+	healthSchema,
+	responseSchema,
+} from "./json-schemas.js";
 import { similaritySearchOnChunksAndSummaries } from "./similarity-search-chunks-and-summaries.js";
 import { similaritySearchOnChunksOnly } from "./similarity-search-chunks-only.js";
 import { createPrompt } from "./create-prompt.js";
 import { similaritySearchFirstSummariesThenChunks } from "./similarity-search-summaries-then-chunks.js";
+import supabase from "./supabase.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -90,6 +96,34 @@ export async function buildServer({
 			next();
 		},
 		{ prefix: "/health" },
+	);
+	fastify.register(
+		(app, options, next) => {
+			app.register(cors, { origin: "*" });
+			app.get(
+				"/count",
+				{
+					schema: {
+						response: countSchema,
+					},
+				},
+				async (_request, reply) => {
+					const { data, error, count } = await supabase
+						.from("processed_documents")
+						.select("*", { count: "exact", head: true });
+					console.log(data, error, count);
+					if (!error && count) {
+						reply.status(200).send({ registered_documents_count: count });
+					} else {
+						reply
+							.status(500)
+							.send({ error: "Could not count processed_documents" });
+					}
+				},
+			);
+			next();
+		},
+		{ prefix: "/processed_documents" },
 	);
 	fastify.register(
 		(app, options, next) => {

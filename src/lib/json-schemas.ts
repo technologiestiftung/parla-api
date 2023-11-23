@@ -125,3 +125,7 @@ export const responseSchema = {
 		.prop("completionOptions", createChatCompletionRequestSchema)
 		.prop("documentMatches", S.array().items(documentMatch)),
 };
+
+export const countSchema = {
+	200: S.object().prop("registered_documents_count", S.number()),
+};
