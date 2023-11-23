@@ -22,7 +22,7 @@ const test = async () => {
 	assert.ok(responseHealth.statusCode === 200);
 	assert.deepStrictEqual(
 		responseHealth.body,
-		JSON.stringify({ message: "what" }),
+		JSON.stringify({ message: "OK" }),
 	);
 };
 
