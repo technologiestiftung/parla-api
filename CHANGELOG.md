@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.11.0...v1.12.0) (2023-11-27)
+
+
+### Features
+
+* refactoring into separate routes ([#38](https://github.com/technologiestiftung/ki-anfragen-api/issues/38)) ([cb4b501](https://github.com/technologiestiftung/ki-anfragen-api/commit/cb4b501609f69c132107db515df78f30f5856f2a))
+
 # [1.11.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.10.0...v1.11.0) (2023-11-23)
 
 
