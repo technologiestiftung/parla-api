@@ -23,30 +23,6 @@ export type Model =
 	| "gpt-3.5-turbo-1106" // will be default turbo 2023 12 11
 	| "gpt-3.5-turbo-16k"; // 16k will be depreacted 2023 12 11
 
-interface Gpt {
-	id: string;
-	object: string;
-	created: number;
-	model: string;
-	choices: Choice[];
-	usage: Usage;
-}
-
-interface Choice {
-	index: number;
-	message: {
-		role: string;
-		content: string;
-	};
-	finish_reason: string;
-}
-
-interface Usage {
-	prompt_tokens: number;
-	completion_tokens: number;
-	total_tokens: number;
-}
-
 export interface ProcessedDocumentSummaryMatch {
 	processed_document_summary: ProcessedDocumentSummary;
 	similarity: number;
@@ -65,33 +41,34 @@ export interface ResponseDocumentMatch {
 	similarity: number;
 }
 
-export interface ResponseDetail {
+export interface DocumentSearchResponse {
 	documentMatches: ResponseDocumentMatch[];
-	gpt?: Gpt;
-	requestBody?: Body;
-	completionOptions?: CreateChatCompletionRequest;
 }
 
-export interface Body {
+export interface GenerateAnswerResponse {
+	answer: CreateChatCompletionRequest;
+}
+
+export interface GenerateAnswerBody {
 	query: string;
+	include_summary_in_response_generation: boolean;
 	temperature: number;
+	documentMatches: Array<ResponseDocumentMatch>;
+}
+
+export interface DocumentSearchBody {
+	query: string;
 	match_threshold: number;
 	num_probes: number;
-	match_count: number;
-	min_content_length: number;
-	openai_model: Model;
 	chunk_limit: number;
 	summary_limit: number;
 	document_limit: number;
 	search_algorithm: string;
-	include_summary_in_response_generation: boolean;
-	generate_answer: boolean;
 }
 
 export interface SimilaritySearchConfig {
 	embedding: any;
 	match_threshold: number;
-	match_count: number;
 	document_limit: number;
 	chunk_limit: number;
 	summary_limit: number;
