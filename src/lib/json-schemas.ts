@@ -12,7 +12,7 @@ export const documentSearchBodySchema = S.object()
 	.prop("match_threshold", S.number().minimum(0).maximum(1).default(0.85))
 	.prop("num_probes", S.number().minimum(1).maximum(49).default(7))
 	.prop("chunk_limit", S.number().minimum(1).maximum(128).default(64))
-	.prop("summary_limit", S.number().minimum(1).maximum(32).default(16))
+	.prop("summary_limit", S.number().minimum(1).maximum(64).default(16))
 	.prop("document_limit", S.number().minimum(1).maximum(10).default(3))
 	.prop("search_algorithm", S.string().default("chunks-and-summaries"))
 	.required(["query"]);
