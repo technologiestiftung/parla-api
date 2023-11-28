@@ -16,8 +16,7 @@ export async function similaritySearchFirstSummariesThenChunks(
 			embedding: config.embedding,
 			match_threshold: config.match_threshold,
 			match_count: config.summary_limit,
-			min_content_length: 0,
-			num_probes: config.num_probes,
+			num_probes: config.num_probes_summaries,
 		})
 		.order("similarity", { ascending: false })
 		.limit(config.document_limit);
@@ -93,8 +92,7 @@ export async function similaritySearchFirstSummariesThenChunks(
 			// however, it can't be guaranteed. By setting match_count to a high number,
 			// we increase the chances of getting 3 chunks.
 			match_count: config.chunk_limit,
-			min_content_length: 0,
-			num_probes: config.num_probes,
+			num_probes: config.num_probes_chunks,
 		})
 		.order("similarity", { ascending: false });
 

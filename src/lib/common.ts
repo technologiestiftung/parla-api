@@ -59,7 +59,8 @@ export interface GenerateAnswerBody {
 export interface DocumentSearchBody {
 	query: string;
 	match_threshold: number;
-	num_probes: number;
+	num_probes_summaries: number;
+	num_probes_chunks: number;
 	chunk_limit: number;
 	summary_limit: number;
 	document_limit: number;
@@ -72,7 +73,8 @@ export interface SimilaritySearchConfig {
 	document_limit: number;
 	chunk_limit: number;
 	summary_limit: number;
-	num_probes: number;
+	num_probes_summaries: number;
+	num_probes_chunks: number;
 }
 
 export enum AvailableSearchAlgorithms {
