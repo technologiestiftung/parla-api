@@ -16,10 +16,11 @@ export async function similaritySearchOnChunksOnly(
 			embedding: config.embedding,
 			match_threshold: config.match_threshold,
 			match_count: config.chunk_limit,
-			num_probes: config.num_probes,
-			min_content_length: 0,
+			num_probes: config.num_probes_chunks,
 		})
 		.order("similarity", { ascending: false });
+
+	console.log(matchChunks?.length);
 
 	if (matchChunksError) {
 		throw new ApplicationError(

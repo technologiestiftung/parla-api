@@ -21,7 +21,8 @@ export async function similaritySearchOnChunksAndSummaries(
 				match_threshold: config.match_threshold,
 				chunk_limit: config.chunk_limit,
 				summary_limit: config.summary_limit,
-				num_probes: config.num_probes,
+				num_probes_chunks: config.num_probes_chunks,
+				num_probes_summaries: config.num_probes_summaries,
 			})
 			.gte("similarity", config.match_threshold)
 			.order("similarity", { ascending: false })
