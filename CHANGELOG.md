@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.12.0...v1.12.1) (2023-11-29)
+
+
+### Bug Fixes
+
+* cleanup db function params ([#40](https://github.com/technologiestiftung/ki-anfragen-api/issues/40)) ([2279a25](https://github.com/technologiestiftung/ki-anfragen-api/commit/2279a256fb5f5629ef1408cef9c13e15778d39aa))
+
 # [1.12.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.11.0...v1.12.0) (2023-11-27)
 
 
