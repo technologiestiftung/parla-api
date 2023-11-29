@@ -63,7 +63,8 @@ export async function registerSearchDocumentsRoute(
 					const {
 						query,
 						match_threshold,
-						num_probes,
+						num_probes_chunks,
+						num_probes_summaries,
 						chunk_limit,
 						summary_limit,
 						document_limit,
@@ -139,9 +140,10 @@ export async function registerSearchDocumentsRoute(
 						embedding: embedding,
 						match_threshold: match_threshold,
 						document_limit: document_limit,
-						num_probes: num_probes,
-						chunk_limit: chunk_limit,
+						num_probes_chunks: num_probes_chunks,
+						num_probes_summaries: num_probes_summaries,
 						summary_limit: summary_limit,
+						chunk_limit: chunk_limit,
 					} as SimilaritySearchConfig;
 
 					let documentMatches: Array<ResponseDocumentMatch> = [];
