@@ -15,11 +15,12 @@ export async function similaritySearchOnChunksOnly(
 		.rpc("match_document_chunks", {
 			embedding: config.embedding,
 			match_threshold: config.match_threshold,
-			match_count: config.match_count,
-			num_probes: config.num_probes,
-			min_content_length: 0,
+			match_count: config.chunk_limit,
+			num_probes: config.num_probes_chunks,
 		})
 		.order("similarity", { ascending: false });
+
+	console.log(matchChunks?.length);
 
 	if (matchChunksError) {
 		throw new ApplicationError(

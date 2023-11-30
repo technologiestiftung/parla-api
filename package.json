@@ -1,11 +1,11 @@
 {
 	"name": "ki-anfragen-api",
-	"version": "1.11.0",
+	"version": "1.12.1",
 	"description": "",
 	"main": "dist/index.js",
 	"type": "module",
 	"scripts": {
-		"test": "NODE_ENV=test npx tsx src/app.test.ts",
+		"test": "NODE_ENV=test npx tsx tests/app.test.ts",
 		"dev": "nodemon",
 		"dev:cors": "NODE_ENV=none nodemon",
 		"build": "mkdir -p dist && node esbuild.config.cjs",

@@ -6,44 +6,21 @@ export const MODELS: Record<string, Model> = {
 	GPT_3_5_TURBO: "gpt-3.5-turbo",
 	GPT_3_5_TURBO_16K: "gpt-3.5-turbo-16k",
 };
-export const bodySchema = S.object()
+
+export const documentSearchBodySchema = S.object()
 	.prop("query", S.string())
-	.prop("temperature", S.number().minimum(0).maximum(2).default(0.5))
 	.prop("match_threshold", S.number().minimum(0).maximum(1).default(0.85))
-	.prop("num_probes", S.number().minimum(1).maximum(49).default(7))
-	.prop("match_count", S.number().minimum(1).maximum(128).default(5))
+	.prop("num_probes_chunks", S.number().minimum(1).maximum(85).default(9))
+	.prop("num_probes_summaries", S.number().minimum(1).maximum(9).default(3))
 	.prop("chunk_limit", S.number().minimum(1).maximum(128).default(64))
-	.prop("summary_limit", S.number().minimum(1).maximum(32).default(16))
+	.prop("summary_limit", S.number().minimum(1).maximum(64).default(16))
 	.prop("document_limit", S.number().minimum(1).maximum(10).default(3))
-	.prop("min_content_length", S.number().minimum(0).maximum(10000).default(50))
-	.prop("include_summary_in_response_generation", S.boolean().default(false))
-	.prop("generate_answer", S.boolean().default(true))
 	.prop("search_algorithm", S.string().default("chunks-and-summaries"))
-	.prop(
-		"openai_model",
-		S.string().enum(Object.values(MODELS)).default(MODELS.GPT_3_5_TURBO),
-	)
 	.required(["query"]);
 
 export const healthSchema = {
 	200: S.object().prop("message", S.string().default("OK")),
 };
-
-const createChatCompletionRequestSchema = S.object()
-	.prop("model", S.string())
-	.prop("messages", S.array().items(S.object()))
-	.prop("functions", S.array().items(S.object()))
-	.prop("function_call", S.object())
-	.prop("temperature", S.number())
-	.prop("top_p", S.number())
-	.prop("n", S.number())
-	.prop("stream", S.boolean())
-	.prop("stop", S.object())
-	.prop("max_tokens", S.number())
-	.prop("presence_penalty", S.number())
-	.prop("frequency_penalty", S.number())
-	.prop("logit_bias", S.object())
-	.prop("user", S.string());
 
 const choices = S.array().items(
 	S.object()
@@ -118,14 +95,20 @@ const gpt = S.object()
 	.prop("usage", usage)
 	.prop("choices", choices);
 
-export const responseSchema = {
-	201: S.object()
-		.prop("gpt", gpt)
-		.prop("requestBody", bodySchema)
-		.prop("completionOptions", createChatCompletionRequestSchema)
-		.prop("documentMatches", S.array().items(documentMatch)),
+export const documentSearchResponseSchema = {
+	201: S.object().prop("documentMatches", S.array().items(documentMatch)),
 };
 
+export const generatedAnswerResponseSchema = {
+	201: S.object().prop("answer", gpt),
+};
+
+export const generateAnswerBodySchema = S.object()
+	.prop("query", S.string())
+	.prop("include_summary_in_response_generation", S.boolean().default(true))
+	.prop("temperature", S.number().minimum(0).maximum(2).default(0))
+	.prop("documentMatches", S.array().items(documentMatch));
+
 export const countSchema = {
-	200: S.object().prop("registered_documents_count", S.number()),
+	200: S.object().prop("processed_documents_count", S.number()),
 };

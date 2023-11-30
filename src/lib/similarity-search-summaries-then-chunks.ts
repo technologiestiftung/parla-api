@@ -15,9 +15,8 @@ export async function similaritySearchFirstSummariesThenChunks(
 		.rpc("match_summaries", {
 			embedding: config.embedding,
 			match_threshold: config.match_threshold,
-			match_count: config.match_count,
-			min_content_length: 0,
-			num_probes: config.num_probes,
+			match_count: config.summary_limit,
+			num_probes: config.num_probes_summaries,
 		})
 		.order("similarity", { ascending: false })
 		.limit(config.document_limit);
@@ -92,9 +91,8 @@ export async function similaritySearchFirstSummariesThenChunks(
 			// We want to have 3 chunks for each of the relevant documents,
 			// however, it can't be guaranteed. By setting match_count to a high number,
 			// we increase the chances of getting 3 chunks.
-			match_count: 128,
-			min_content_length: 0,
-			num_probes: config.num_probes,
+			match_count: config.chunk_limit,
+			num_probes: config.num_probes_chunks,
 		})
 		.order("similarity", { ascending: false });
 
