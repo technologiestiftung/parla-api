@@ -1,5 +1,5 @@
 import fs from "fs";
-
+import type { DocumentSearchResponse } from "../src/lib/common.js";
 enum Algorithms {
 	ChunksAndSummaries = "chunks-and-summaries",
 	ChunksOnly = "chunks-only",
@@ -48,7 +48,7 @@ interface AlgorithmCount {
 	count: number;
 }
 
-let counts: Array<AlgorithmCount> = availableAlgorithms.map((alg) => {
+const counts: Array<AlgorithmCount> = availableAlgorithms.map((alg) => {
 	return { algorithm: alg.search_algorithm, count: 0 } as AlgorithmCount;
 });
 
@@ -72,10 +72,10 @@ for (let algIdx = 0; algIdx < availableAlgorithms.length; algIdx++) {
 			},
 			body: JSON.stringify({ ...algorithm, query: question }),
 		});
-		const res = await data.json();
+		const res = (await data.json()) as DocumentSearchResponse;
 
 		if (res.documentMatches) {
-			const foundDocument = res.documentMatches.filter((d: any) => {
+			const foundDocument = res.documentMatches.filter((d) => {
 				return d.registered_document.source_url.includes(groundTruthUrl);
 			})[0];
 			if (foundDocument) {
@@ -101,7 +101,7 @@ for (let algIdx = 0; algIdx < availableAlgorithms.length; algIdx++) {
 	console.log(`Tests completed for ${algorithm.search_algorithm}....\n\n`);
 }
 
-console.log(`All tests completed, summary:`);
+console.log("All tests completed, summary:");
 counts.forEach((c) => {
 	console.log(
 		`Algorithm "${c.algorithm}" has match rate = ${(
