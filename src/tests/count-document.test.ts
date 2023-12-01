@@ -1,11 +1,16 @@
-import test from "ava";
-import { InjectOptions } from "fastify";
-import { server } from "./util/test-server.js";
+import anyTest, { TestFn } from "ava";
 
-test.after(async () => {
-	await server.close();
+import { FastifyInstance, InjectOptions } from "fastify";
+import { buildTestServer } from "./util/test-server.js";
+const test = anyTest as TestFn<{ server: FastifyInstance }>;
+
+test.before(async (t) => {
+	const server = await buildTestServer();
+	t.context = { server };
 });
-
+test.after(async (t) => {
+	await t.context.server.close();
+});
 test("count documents should return 1 doc", async (t) => {
 	const opts: InjectOptions = {
 		method: "GET",
@@ -16,7 +21,7 @@ test("count documents should return 1 doc", async (t) => {
 			protocol: "http",
 		},
 	};
-	const responseRoot = await server.inject(opts);
+	const responseRoot = await t.context.server.inject(opts);
 
 	t.is(responseRoot.statusCode, 200);
 	t.deepEqual(
