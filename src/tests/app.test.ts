@@ -1,23 +1,55 @@
-import test from "ava";
-import { InjectOptions } from "fastify";
-import { server } from "./util/test-server.js";
+import anyTest, { TestFn } from "ava";
+import { FastifyInstance, InjectOptions } from "fastify";
+import { buildTestServer } from "./util/test-server.js";
+import { testSearchQuery } from "./util/fixtures.js";
+const test = anyTest as TestFn<{ server: FastifyInstance }>;
 
-test.after(async () => {
-	await server.close();
+test.before(async (t) => {
+	const server = await buildTestServer();
+	t.context = { server };
+});
+test.after(async (t) => {
+	await t.context.server.close();
 });
 
-test("default health check route", async (t) => {
+test("default health check route should return 200", async (t) => {
 	const opts: InjectOptions = {
 		method: "GET",
 		url: { pathname: "/", hostname: "localhost", port: 8888, protocol: "http" },
 	};
-	const responseRoot = await server.inject(opts);
+	const response = await t.context.server.inject(opts);
 
-	t.is(responseRoot.statusCode, 200);
-	t.is(responseRoot.body, JSON.stringify({ message: "OK" }));
+	t.is(response.statusCode, 200);
+	t.is(response.body, JSON.stringify({ message: "OK" }));
+});
 
-	const responseHealth = await server.inject(opts);
+test("documentation route should return 200", async (t) => {
+	const opts: InjectOptions = {
+		method: "GET",
+		url: {
+			pathname: "/documentation/static/index.html",
+			hostname: "localhost",
+			port: 8888,
+			protocol: "http",
+		},
+	};
+	const response = await t.context.server.inject(opts);
 
-	t.is(responseHealth.statusCode, 200);
-	t.is(responseHealth.body, JSON.stringify({ message: "OK" }));
+	t.is(response.statusCode, 200);
+});
+
+test("vector-search route OPTIONS should return 200", async (t) => {
+	const opts: InjectOptions = {
+		method: "POST",
+		url: {
+			pathname: "/vector-search",
+			hostname: "localhost",
+			port: 8888,
+			protocol: "http",
+		},
+		body: { query: testSearchQuery },
+	};
+	const response = await t.context.server.inject(opts);
+
+	t.is(response.statusCode, 201);
 });
