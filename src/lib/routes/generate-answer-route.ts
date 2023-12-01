@@ -70,8 +70,6 @@ export async function registerGenerateAnswerRoute(
 						includeSummary: include_summary_in_response_generation,
 					});
 
-					console.log(chatCompletionRequest);
-
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore
 					const response = await fetch(
@@ -93,8 +91,8 @@ export async function registerGenerateAnswerRoute(
 						);
 					}
 
-					let gptAnswer = await response.json();
-
+					const gptAnswer = await response.json();
+					console.log(gptAnswer);
 					const res = { answer: gptAnswer } as GenerateAnswerResponse;
 
 					reply.status(201).send(res);
