@@ -16,6 +16,7 @@ jobs:
       OPENAI_KEY: sk-abc...
       OPENAI_MODEL: gpt-3.5-turbo
       NODE_ENV: test
+      LOG_LEVEL: error
       DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS: FOR_REAL_REAL
 
     runs-on: ubuntu-latest
