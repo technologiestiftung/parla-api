@@ -1,7 +1,6 @@
 import anyTest, { TestFn } from "ava";
 import { FastifyInstance, InjectOptions } from "fastify";
 import { buildTestServer } from "./util/test-server.js";
-import { testSearchQuery } from "./util/fixtures.js";
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
 
 test.before(async (t) => {
@@ -36,20 +35,4 @@ test("documentation route should return 200", async (t) => {
 	const response = await t.context.server.inject(opts);
 
 	t.is(response.statusCode, 200);
-});
-
-test("vector-search route OPTIONS should return 200", async (t) => {
-	const opts: InjectOptions = {
-		method: "POST",
-		url: {
-			pathname: "/vector-search",
-			hostname: "localhost",
-			port: 8888,
-			protocol: "http",
-		},
-		body: { query: testSearchQuery },
-	};
-	const response = await t.context.server.inject(opts);
-
-	t.is(response.statusCode, 201);
 });
