@@ -1,0 +1,12 @@
+
+@token = {{$processEnv OPENAI_KEY}}
+@query = Wann kommen die Solaranlagen nach Pankow?
+### moderation api
+
+curl -X POST \
+  https://api.openai.com/v1/moderations \
+  -H 'Authorization: Bearer {{token}}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "input": "{{query}}"
+  }'
