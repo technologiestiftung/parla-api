@@ -85,6 +85,7 @@ export async function registerGenerateAnswerRoute(
 					);
 
 					if (response.status !== 200) {
+						// TODO: Should this be a 500?
 						throw new ApplicationError(
 							"Failed to create completion for question",
 							{ response },
@@ -92,7 +93,6 @@ export async function registerGenerateAnswerRoute(
 					}
 
 					const gptAnswer = await response.json();
-					console.log(gptAnswer);
 					const res = { answer: gptAnswer } as GenerateAnswerResponse;
 
 					reply.status(201).send(res);
