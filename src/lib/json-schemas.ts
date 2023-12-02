@@ -1,5 +1,5 @@
 import { S } from "fluent-json-schema";
-import { Model } from "./common.js";
+import { AvailableSearchAlgorithms, Model } from "./common.js";
 
 export const MODELS: Record<string, Model> = {
 	GPT_4: "gpt-4",
@@ -15,7 +15,12 @@ export const documentSearchBodySchema = S.object()
 	.prop("chunk_limit", S.number().minimum(1).maximum(128).default(64))
 	.prop("summary_limit", S.number().minimum(1).maximum(64).default(16))
 	.prop("document_limit", S.number().minimum(1).maximum(10).default(3))
-	.prop("search_algorithm", S.string().default("chunks-and-summaries"))
+	.prop(
+		"search_algorithm",
+		S.string()
+			.enum(Object.values(AvailableSearchAlgorithms))
+			.default(AvailableSearchAlgorithms.ChunksAndSummaries),
+	)
 	.required(["query"]);
 
 export const healthSchema = {
