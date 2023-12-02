@@ -20,11 +20,25 @@ export async function buildServer({
 }) {
 	const NODE_ENV = process.env.NODE_ENV ?? "none";
 	const LOG_LEVEL = process.env.LOG_LEVEL ?? "info";
-	const fastify = Fastify({
-		logger: {
+	const envToLogger: Record<string, unknown> = {
+		development: {
 			level: LOG_LEVEL,
+			transport: {
+				target: "pino-pretty",
+				options: {
+					translateTime: "HH:MM:ss Z",
+					ignore: "pid,hostname",
+				},
+			},
 		},
-		disableRequestLogging: NODE_ENV === "development" ? false : true,
+		production: true,
+		test: false,
+	};
+
+	const fastify = Fastify({
+		logger: envToLogger[NODE_ENV] ?? true,
+		disableRequestLogging:
+			NODE_ENV === "development" || NODE_ENV === "test" ? false : true,
 	});
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
