@@ -7,7 +7,6 @@ export async function registerCors(app: FastifyInstance) {
 			if (
 				process.env.DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS === "FOR_REAL_REAL"
 			) {
-				console.warn("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
 				app.log.warn("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
 				return cb(null, true);
 			}
