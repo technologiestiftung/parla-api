@@ -35,31 +35,6 @@ export async function registerSearchDocumentsRoute(
 					},
 				},
 				async (request, reply) => {
-					let MAX_CONTENT_TOKEN_LENGTH = 1500;
-					// set MAX_CONTENT_LENGTH based on the openai model
-					// models we use
-					// - gpt-4 has max tokens length of 8192
-					// - gpt-3.5-turbo has max tokens length of 4096
-					// - gpt-3.5-turbo-16k has max tokens length of 16384
-					// Reference: https://platform.openai.com/docs/models/overview
-					switch (OPENAI_MODEL) {
-						case "gpt-4": {
-							MAX_CONTENT_TOKEN_LENGTH = 8192;
-							break;
-						}
-						case "gpt-3.5-turbo": {
-							MAX_CONTENT_TOKEN_LENGTH = 4096;
-							break;
-						}
-						case "gpt-3.5-turbo-16k": {
-							MAX_CONTENT_TOKEN_LENGTH = 16384;
-							break;
-						}
-						default: {
-							MAX_CONTENT_TOKEN_LENGTH = 1500;
-							break;
-						}
-					}
 					const {
 						query,
 						match_threshold,
@@ -70,8 +45,6 @@ export async function registerSearchDocumentsRoute(
 						document_limit,
 						search_algorithm,
 					} = request.body;
-
-					app.log.info(request.body);
 
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
@@ -91,7 +64,6 @@ export async function registerSearchDocumentsRoute(
 							}),
 						},
 					);
-
 					if (!moderationResponse.ok) {
 						throw new ApplicationError(
 							`OpenAI moderation failed with status ${moderationResponse.status}`,
@@ -101,13 +73,14 @@ export async function registerSearchDocumentsRoute(
 
 					const [results] = moderationResponseJson.results;
 
+					// TODO: Should this really return 500?
 					if (results.flagged) {
 						throw new UserError("Flagged content", {
 							flagged: true,
 							categories: results.categories,
 						});
 					}
-					// 3. generate an embeedding using openai api
+					// 3. generate an embedding using openai api
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore
 					const embeddingResponse = await fetch(
