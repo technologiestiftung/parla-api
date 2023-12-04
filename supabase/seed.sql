@@ -19,9 +19,9 @@ CREATE INDEX ON processed_document_chunks USING ivfflat(embedding vector_ip_ops)
 
 CREATE INDEX ON processed_document_chunks USING ivfflat(embedding vector_cosine_ops) WITH (lists = '1');
 
-CREATE INDEX ON processed_document_summaries USING ivfflat(embedding vector_l2_ops) WITH (lists = '1');
+CREATE INDEX ON processed_document_summaries USING ivfflat(summary_embedding vector_l2_ops) WITH (lists = '1');
 
-CREATE INDEX ON processed_document_summaries USING ivfflat(embedding vector_ip_ops) WITH (lists = '1');
+CREATE INDEX ON processed_document_summaries USING ivfflat(summary_embedding vector_ip_ops) WITH (lists = '1');
 
-CREATE INDEX ON processed_document_summaries USING ivfflat(embedding vector_cosine_ops) WITH (lists = '1');
+CREATE INDEX ON processed_document_summaries USING ivfflat(summary_embedding vector_cosine_ops) WITH (lists = '1');
 
