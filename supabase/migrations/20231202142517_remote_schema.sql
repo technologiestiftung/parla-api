@@ -1,8 +1,19 @@
 -- pgFormatter-ignore
--- match_document_chunks
-DROP FUNCTION IF EXISTS public.match_document_chunks(embedding vector, match_threshold double precision, match_count integer, min_content_length integer, num_probes integer);
+CREATE INDEX processed_document_chunks_embedding_idx ON public.processed_document_chunks USING ivfflat(embedding) WITH (lists = '1');
 
-CREATE FUNCTION public.match_document_chunks(embedding vector, match_threshold double precision, match_count integer, num_probes integer)
+CREATE INDEX processed_document_chunks_embedding_idx1 ON public.processed_document_chunks USING ivfflat(embedding vector_ip_ops) WITH (lists = '1');
+
+CREATE INDEX processed_document_chunks_embedding_idx2 ON public.processed_document_chunks USING ivfflat(embedding vector_cosine_ops) WITH (lists = '1');
+
+CREATE INDEX processed_document_summaries_summary_embedding_idx6 ON public.processed_document_summaries USING ivfflat(summary_embedding) WITH (lists = '1');
+
+CREATE INDEX processed_document_summaries_summary_embedding_idx7 ON public.processed_document_summaries USING ivfflat(summary_embedding vector_ip_ops) WITH (lists = '1');
+
+CREATE INDEX processed_document_summaries_summary_embedding_idx8 ON public.processed_document_summaries USING ivfflat(summary_embedding vector_cosine_ops) WITH (lists = '1');
+
+SET check_function_bodies = OFF;
+
+CREATE OR REPLACE FUNCTION public.match_document_chunks(embedding vector, match_threshold double precision, match_count integer, num_probes integer)
 	RETURNS TABLE(
 		id integer,
 		processed_document_id integer,
@@ -28,10 +39,35 @@ LIMIT match_count;
 END;
 $function$;
 
--- match_summaries
-DROP FUNCTION IF EXISTS public.match_summaries(embedding vector, match_threshold double precision, match_count integer, min_content_length integer, num_probes integer);
+CREATE OR REPLACE FUNCTION public.match_document_chunks_for_specific_documents(processed_document_ids integer[], embedding vector, match_threshold double precision, match_count integer, num_probes integer)
+	RETURNS TABLE(
+		id integer,
+		processed_document_id integer,
+		content text,
+		similarity double precision)
+	LANGUAGE plpgsql
+	AS $function$
+	# variable_conflict use_variable
+BEGIN
+	EXECUTE format('SET LOCAL ivfflat.probes = %s', num_probes);
+	RETURN query
+	SELECT
+		processed_document_chunks.id,
+		processed_document_chunks.processed_document_id,
+		processed_document_chunks.content,
+(processed_document_chunks.embedding <#> embedding) * -1 AS similarity
+	FROM
+		processed_document_chunks
+	WHERE
+		processed_document_chunks.processed_document_id = ANY(processed_document_ids)
+		AND(processed_document_chunks.embedding <#> embedding) * -1 > match_threshold
+	ORDER BY
+		processed_document_chunks.embedding <#> embedding
+	LIMIT match_count;
+END;
+$function$;
 
-CREATE FUNCTION public.match_summaries(embedding vector, match_threshold double precision, match_count integer, num_probes integer)
+CREATE OR REPLACE FUNCTION public.match_summaries(embedding vector, match_threshold double precision, match_count integer, num_probes integer)
 	RETURNS TABLE(
 		id integer,
 		processed_document_id integer,
@@ -56,9 +92,6 @@ ORDER BY
 LIMIT match_count;
 END;
 $function$;
-
--- match_summaries_and_chunks
-DROP FUNCTION IF EXISTS public.match_summaries_and_chunks(embedding vector, match_threshold double precision, chunk_limit integer, summary_limit integer, num_probes integer);
 
 CREATE OR REPLACE FUNCTION public.match_summaries_and_chunks(embedding vector, match_threshold double precision, chunk_limit integer, summary_limit integer, num_probes_chunks integer, num_probes_summaries integer)
 	RETURNS TABLE(
@@ -128,37 +161,6 @@ GROUP BY
 	winners.processed_document_id
 ORDER BY
 	similarity DESC;
-END;
-$function$;
-
--- match_document_chunks_for_specific_documents
-DROP FUNCTION IF EXISTS public.match_document_chunks_for_specific_documents(processed_document_ids integer[], embedding vector, match_threshold double precision, match_count integer, min_content_length integer, num_probes integer);
-
-CREATE OR REPLACE FUNCTION public.match_document_chunks_for_specific_documents(processed_document_ids integer[], embedding vector, match_threshold double precision, match_count integer, num_probes integer)
-	RETURNS TABLE(
-		id integer,
-		processed_document_id integer,
-		content text,
-		similarity double precision)
-	LANGUAGE plpgsql
-	AS $function$
-	# variable_conflict use_variable
-BEGIN
-	EXECUTE format('SET LOCAL ivfflat.probes = %s', num_probes);
-	RETURN query
-	SELECT
-		processed_document_chunks.id,
-		processed_document_chunks.processed_document_id,
-		processed_document_chunks.content,
-(processed_document_chunks.embedding <#> embedding) * -1 AS similarity
-	FROM
-		processed_document_chunks
-	WHERE
-		processed_document_chunks.processed_document_id = ANY(processed_document_ids)
-		AND(processed_document_chunks.embedding <#> embedding) * -1 > match_threshold
-	ORDER BY
-		processed_document_chunks.embedding <#> embedding
-	LIMIT match_count;
 END;
 $function$;
 

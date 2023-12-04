@@ -6,6 +6,15 @@ import { CreateChatCompletionRequest } from "openai";
 import { ResponseDocumentMatch } from "./common.js";
 import { ApplicationError } from "./errors.js";
 
+export interface CreatePromptOptions {
+	sanitizedQuery: string;
+	OPENAI_MODEL: string;
+	documentMatches: Array<ResponseDocumentMatch>;
+	MAX_CONTENT_TOKEN_LENGTH: number;
+	MAX_TOKENS: number;
+	temperature: number;
+	includeSummary: boolean;
+}
 export function createPrompt({
 	documentMatches,
 	MAX_CONTENT_TOKEN_LENGTH,
@@ -14,15 +23,7 @@ export function createPrompt({
 	MAX_TOKENS,
 	temperature,
 	includeSummary,
-}: {
-	sanitizedQuery: string;
-	OPENAI_MODEL: string;
-	documentMatches: Array<ResponseDocumentMatch>;
-	MAX_CONTENT_TOKEN_LENGTH: number;
-	MAX_TOKENS: number;
-	temperature: number;
-	includeSummary: boolean;
-}): CreateChatCompletionRequest {
+}: CreatePromptOptions): CreateChatCompletionRequest {
 	const contextDivider = "----";
 
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });

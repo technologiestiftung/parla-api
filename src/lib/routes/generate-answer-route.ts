@@ -70,8 +70,6 @@ export async function registerGenerateAnswerRoute(
 						includeSummary: include_summary_in_response_generation,
 					});
 
-					console.log(chatCompletionRequest);
-
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore
 					const response = await fetch(
@@ -87,14 +85,14 @@ export async function registerGenerateAnswerRoute(
 					);
 
 					if (response.status !== 200) {
+						// TODO: Should this be a 500?
 						throw new ApplicationError(
 							"Failed to create completion for question",
 							{ response },
 						);
 					}
 
-					let gptAnswer = await response.json();
-
+					const gptAnswer = await response.json();
 					const res = { answer: gptAnswer } as GenerateAnswerResponse;
 
 					reply.status(201).send(res);

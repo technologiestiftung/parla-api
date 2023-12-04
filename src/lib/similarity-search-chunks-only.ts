@@ -20,8 +20,6 @@ export async function similaritySearchOnChunksOnly(
 		})
 		.order("similarity", { ascending: false });
 
-	console.log(matchChunks?.length);
-
 	if (matchChunksError) {
 		throw new ApplicationError(
 			"Failed to match_document_chunks",
