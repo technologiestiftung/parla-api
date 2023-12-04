@@ -1,3 +1,4 @@
+-- pgFormatter-ignore
 -- match_document_chunks
 DROP FUNCTION IF EXISTS public.match_document_chunks(embedding vector, match_threshold double precision, match_count integer, min_content_length integer, num_probes integer);
 
@@ -17,12 +18,12 @@ BEGIN
 		processed_document_chunks.id,
 		processed_document_chunks.processed_document_id,
 		processed_document_chunks.content,
-(processed_document_chunks.embedding < #> embedding) * -1 AS similarity
+(processed_document_chunks.embedding <#> embedding) * -1 AS similarity
 	FROM
 		processed_document_chunks
-	WHERE(processed_document_chunks.embedding < #> embedding) * -1 > match_threshold
+	WHERE(processed_document_chunks.embedding <#> embedding) * -1 > match_threshold
 ORDER BY
-	processed_document_chunks.embedding < #> embedding
+	processed_document_chunks.embedding <#> embedding
 LIMIT match_count;
 END;
 $function$;
@@ -46,12 +47,12 @@ BEGIN
 		processed_document_summaries.id,
 		processed_document_summaries.processed_document_id,
 		processed_document_summaries.summary,
-(processed_document_summaries.summary_embedding < #> embedding) * -1 AS similarity
+(processed_document_summaries.summary_embedding <#> embedding) * -1 AS similarity
 	FROM
 		processed_document_summaries
-	WHERE(processed_document_summaries.summary_embedding < #> embedding) * -1 > match_threshold
+	WHERE(processed_document_summaries.summary_embedding <#> embedding) * -1 > match_threshold
 ORDER BY
-	processed_document_summaries.summary_embedding < #> embedding
+	processed_document_summaries.summary_embedding <#> embedding
 LIMIT match_count;
 END;
 $function$;
@@ -149,14 +150,14 @@ BEGIN
 		processed_document_chunks.id,
 		processed_document_chunks.processed_document_id,
 		processed_document_chunks.content,
-(processed_document_chunks.embedding < #> embedding) * -1 AS similarity
+(processed_document_chunks.embedding <#> embedding) * -1 AS similarity
 	FROM
 		processed_document_chunks
 	WHERE
 		processed_document_chunks.processed_document_id = ANY(processed_document_ids)
-		AND(processed_document_chunks.embedding < #> embedding) * -1 > match_threshold
+		AND(processed_document_chunks.embedding <#> embedding) * -1 > match_threshold
 	ORDER BY
-		processed_document_chunks.embedding < #> embedding
+		processed_document_chunks.embedding <#> embedding
 	LIMIT match_count;
 END;
 $function$;

@@ -1,3 +1,4 @@
+-- pgFormatter-ignore
 CREATE INDEX processed_document_chunks_embedding_idx ON public.processed_document_chunks USING ivfflat(embedding) WITH (lists = '1');
 
 CREATE INDEX processed_document_chunks_embedding_idx1 ON public.processed_document_chunks USING ivfflat(embedding vector_ip_ops) WITH (lists = '1');
@@ -28,12 +29,12 @@ BEGIN
 		processed_document_chunks.id,
 		processed_document_chunks.processed_document_id,
 		processed_document_chunks.content,
-(processed_document_chunks.embedding < #> embedding) * -1 AS similarity
+(processed_document_chunks.embedding <#> embedding) * -1 AS similarity
 	FROM
 		processed_document_chunks
-	WHERE(processed_document_chunks.embedding < #> embedding) * -1 > match_threshold
+	WHERE(processed_document_chunks.embedding <#> embedding) * -1 > match_threshold
 ORDER BY
-	processed_document_chunks.embedding < #> embedding
+	processed_document_chunks.embedding <#> embedding
 LIMIT match_count;
 END;
 $function$;
@@ -54,14 +55,14 @@ BEGIN
 		processed_document_chunks.id,
 		processed_document_chunks.processed_document_id,
 		processed_document_chunks.content,
-(processed_document_chunks.embedding < #> embedding) * -1 AS similarity
+(processed_document_chunks.embedding <#> embedding) * -1 AS similarity
 	FROM
 		processed_document_chunks
 	WHERE
 		processed_document_chunks.processed_document_id = ANY(processed_document_ids)
-		AND(processed_document_chunks.embedding < #> embedding) * -1 > match_threshold
+		AND(processed_document_chunks.embedding <#> embedding) * -1 > match_threshold
 	ORDER BY
-		processed_document_chunks.embedding < #> embedding
+		processed_document_chunks.embedding <#> embedding
 	LIMIT match_count;
 END;
 $function$;
@@ -82,12 +83,12 @@ BEGIN
 		processed_document_summaries.id,
 		processed_document_summaries.processed_document_id,
 		processed_document_summaries.summary,
-(processed_document_summaries.summary_embedding < #> embedding) * -1 AS similarity
+(processed_document_summaries.summary_embedding <#> embedding) * -1 AS similarity
 	FROM
 		processed_document_summaries
-	WHERE(processed_document_summaries.summary_embedding < #> embedding) * -1 > match_threshold
+	WHERE(processed_document_summaries.summary_embedding <#> embedding) * -1 > match_threshold
 ORDER BY
-	processed_document_summaries.summary_embedding < #> embedding
+	processed_document_summaries.summary_embedding <#> embedding
 LIMIT match_count;
 END;
 $function$;
