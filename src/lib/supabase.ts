@@ -15,4 +15,5 @@ const supabase = createClient<Database>(
 		auth: { persistSession: false },
 	},
 );
+
 export default supabase;
