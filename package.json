@@ -63,15 +63,15 @@
 		"ext": "ts,json"
 	},
 	"dependencies": {
-		"@fastify/cors": "8.3.0",
-		"@fastify/swagger": "8.10.0",
-		"@fastify/swagger-ui": "1.9.3",
+		"@fastify/cors": "8.4.2",
+		"@fastify/swagger": "8.12.1",
+		"@fastify/swagger-ui": "1.10.2",
 		"@supabase/supabase-js": "2.39.0",
 		"common-tags": "1.8.2",
-		"fastify": "4.22.2",
-		"fluent-json-schema": "4.1.2",
+		"fastify": "4.24.3",
+		"fluent-json-schema": "4.2.1",
 		"gpt3-tokenizer": "1.1.5",
-		"openai": "4.6.0",
+		"openai": "4.20.1",
 		"react-device-detect": "2.2.3"
 	},
 	"config": {
