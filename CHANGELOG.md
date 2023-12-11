@@ -1,3 +1,20 @@
+# [1.13.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.12.1...v1.13.0) (2023-12-11)
+
+
+### Bug Fixes
+
+* **DB:** Pull remote state of DB into migrations ([09efadb](https://github.com/technologiestiftung/ki-anfragen-api/commit/09efadb961f958ac435eb13615ccc42313e6d87e))
+* Initial index list size ([020e9da](https://github.com/technologiestiftung/ki-anfragen-api/commit/020e9daf96f6228f73df7d02860c97693388ab20))
+* **migrations:** Drop function before creation ([7417528](https://github.com/technologiestiftung/ki-anfragen-api/commit/74175287309c0cb3452490d13b2cbf4835ca24d9))
+* **migrations:** pgFormatter killed the <#> operator ([9efbdda](https://github.com/technologiestiftung/ki-anfragen-api/commit/9efbdda0093df37f433d9c26309af24006b5fabe))
+* Types on api_test ([7ec02cd](https://github.com/technologiestiftung/ki-anfragen-api/commit/7ec02cd0f32d4ed1587aa3a11790137b0342f9f6))
+
+
+### Features
+
+* Better logging in dev ([4bc5079](https://github.com/technologiestiftung/ki-anfragen-api/commit/4bc50795d0ab01f5cb2036272892f8e6febca74c))
+* **schema:** Use enum in schema ([63eab60](https://github.com/technologiestiftung/ki-anfragen-api/commit/63eab604775c7ea615ab929389dd4d15e49231f6))
+
 ## [1.12.1](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.12.0...v1.12.1) (2023-11-29)
 
 
