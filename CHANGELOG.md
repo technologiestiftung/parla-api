@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.13.0...v1.13.1) (2023-12-14)
+
+
+### Bug Fixes
+
+* **CORS:** Allow parla.citylab-berlin.org ([989df48](https://github.com/technologiestiftung/ki-anfragen-api/commit/989df48a4eda89cb1892fced7d087d12fdeed518))
+
 # [1.13.0](https://github.com/technologiestiftung/ki-anfragen-api/compare/v1.12.1...v1.13.0) (2023-12-11)
 
 
