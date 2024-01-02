@@ -137,7 +137,6 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 ## Related Projects
 
 - https://github.com/technologiestiftung/parla-frontend
-- https://github.com/technologiestiftung/parla-data-extractor
-- https://github.com/technologiestiftung/parla-supabase
+- https://github.com/technologiestiftung/parla-document-processor
 - https://github.com/technologiestiftung/oeffentliches-gestalten-gpt-search
 - https://github.com/supabase-community/nextjs-openai-doc-search
