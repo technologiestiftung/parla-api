@@ -1,5 +1,5 @@
 {
-	"projectName": "ki-anfragen-api",
+	"projectName": "@technologiestiftung/parla-api",
 	"projectOwner": "technologiestiftung",
 	"repoType": "github",
 	"repoHost": "https://github.com",
@@ -27,4 +27,3 @@
 	"skipCi": true,
 	"commitType": "docs"
 }
-

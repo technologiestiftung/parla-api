@@ -8,7 +8,7 @@ default:
 docker-build:
 	docker build \
 		--platform linux/amd64 \
-		--tag technologiestiftung/ki-anfragen-api .
+		--tag technologiestiftung/parla-api .
 
 docker-run:
 	docker run --env SUPABASE_URL="$SUPABASE_URL" \
@@ -19,4 +19,4 @@ docker-run:
 		--interactive \
 		--tty \
 		--publish 8080:8080 \
-		technologiestiftung/ki-anfragen-api
+		technologiestiftung/parla-api
