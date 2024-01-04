@@ -1,14 +1,13 @@
 import { FastifyInstance } from "fastify";
-import { GenerateAnswerBody, GenerateAnswerResponse } from "../common.js";
+import { OpenAI } from "openai";
+import stream from "stream";
+import { GenerateAnswerBody } from "../common.js";
 import { createPrompt } from "../create-prompt.js";
-import { ApplicationError } from "../errors.js";
 import { registerCors } from "../handle-cors.js";
 import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
-import { OpenAI } from "openai";
-import stream from "stream";
 
 export async function registerGenerateAnswerRoute(
 	fastify: FastifyInstance,
@@ -61,6 +60,13 @@ export async function registerGenerateAnswerRoute(
 						temperature,
 						documentMatches,
 					} = request.body;
+
+					if (!query || query === "") {
+						reply
+							.status(400)
+							.send({ error: "Query must be defined and must not be empty." });
+						return reply;
+					}
 
 					const chatCompletionRequest = createPrompt({
 						documentMatches,
