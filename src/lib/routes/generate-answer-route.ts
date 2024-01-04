@@ -77,9 +77,9 @@ export async function registerGenerateAnswerRoute(
 						chatCompletionRequest,
 					);
 
-					var buffer = new stream.Readable();
+					const buffer = new stream.Readable();
 					buffer._read = () => {};
-					var emit = async () => {
+					const emit = async () => {
 						// @ts-ignore
 						for await (const chunk of answerStream) {
 							const delta = chunk.choices[0]?.delta?.content || "";
@@ -87,9 +87,9 @@ export async function registerGenerateAnswerRoute(
 						}
 						buffer.push(null);
 					};
-
 					emit();
-					reply.send(buffer);
+
+					reply.status(201).send(buffer);
 
 					return reply;
 				},
