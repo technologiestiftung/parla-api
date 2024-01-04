@@ -89,7 +89,7 @@ export function createPrompt({
 		],
 		max_tokens: MAX_TOKENS,
 		temperature: temperature,
-		stream: false,
+		stream: true,
 	};
 
 	return completionOptions;

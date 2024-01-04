@@ -7,6 +7,8 @@ import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
+import { OpenAI } from "openai";
+import stream from "stream";
 
 export async function registerGenerateAnswerRoute(
 	fastify: FastifyInstance,
@@ -70,32 +72,26 @@ export async function registerGenerateAnswerRoute(
 						includeSummary: include_summary_in_response_generation,
 					});
 
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-ignore
-					const response = await fetch(
-						"https://api.openai.com/v1/chat/completions",
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${OPENAI_KEY}`,
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify(chatCompletionRequest),
-						},
+					const openai = new OpenAI({ apiKey: OPENAI_KEY });
+					const answerStream = await openai.chat.completions.create(
+						chatCompletionRequest,
 					);
 
-					if (response.status !== 200) {
-						// TODO: Should this be a 500?
-						throw new ApplicationError(
-							"Failed to create completion for question",
-							{ response },
-						);
-					}
+					var buffer = new stream.Readable();
+					buffer._read = () => {};
+					var emit = async () => {
+						// @ts-ignore
+						for await (const chunk of answerStream) {
+							const delta = chunk.choices[0]?.delta?.content || "";
+							buffer.push(delta);
+						}
+						buffer.push(null);
+					};
 
-					const gptAnswer = await response.json();
-					const res = { answer: gptAnswer } as GenerateAnswerResponse;
+					emit();
+					reply.send(buffer);
 
-					reply.status(201).send(res);
+					return reply;
 				},
 			);
 
