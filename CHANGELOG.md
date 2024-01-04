@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/technologiestiftung/parla-api/compare/v1.13.1...v1.14.0) (2024-01-04)
+
+
+### Features
+
+* better prompt ([#51](https://github.com/technologiestiftung/parla-api/issues/51)) ([0b85b3b](https://github.com/technologiestiftung/parla-api/commit/0b85b3baa09c34e748e2f87a88c3f8fff9bdfc24))
+
 ## [1.13.1](https://github.com/technologiestiftung/parla-api/compare/v1.13.0...v1.13.1) (2023-12-14)
 
 
