@@ -72,6 +72,7 @@
 		"fastify": "4.22.2",
 		"fluent-json-schema": "4.1.2",
 		"gpt3-tokenizer": "1.1.5",
+		"openai": "4.24.1",
 		"react-device-detect": "2.2.3"
 	},
 	"config": {

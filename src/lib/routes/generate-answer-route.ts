@@ -1,5 +1,4 @@
 import { FastifyInstance } from "fastify";
-import stream from "stream";
 import { GenerateAnswerBody } from "../common.js";
 import { createPrompt } from "../create-prompt.js";
 import { registerCors } from "../handle-cors.js";
@@ -7,7 +6,7 @@ import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
-import { OpenAIStream } from "../openai-utils.js";
+import { OpenAIClient } from "../llm/openai-client.js";
 
 export async function registerGenerateAnswerRoute(
 	fastify: FastifyInstance,
@@ -78,23 +77,10 @@ export async function registerGenerateAnswerRoute(
 						includeSummary: include_summary_in_response_generation,
 					});
 
-					const answerStream = await OpenAIStream(
-						chatCompletionRequest,
-						OPENAI_KEY,
-					);
+					const llm = new OpenAIClient(OPENAI_KEY);
+					const stream = await llm.requestResponseStream(chatCompletionRequest);
 
-					const buffer = new stream.Readable();
-					buffer._read = () => {};
-					const emit = async () => {
-						// @ts-ignore
-						for await (const chunk of answerStream) {
-							buffer.push(chunk);
-						}
-						buffer.push(null);
-					};
-					emit();
-
-					reply.status(201).send(buffer);
+					reply.status(201).send(stream);
 
 					return reply;
 				},
