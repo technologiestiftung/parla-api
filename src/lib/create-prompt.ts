@@ -1,9 +1,9 @@
 import { codeBlock, oneLine } from "common-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { CreateChatCompletionRequest } from "openai";
-import { ResponseDocumentMatch } from "./common.js";
+import {
+	OpenAIChatCompletionRequest,
+	ResponseDocumentMatch,
+} from "./common.js";
 import { ApplicationError } from "./errors.js";
 
 export interface CreatePromptOptions {
@@ -23,7 +23,7 @@ export function createPrompt({
 	MAX_TOKENS,
 	temperature,
 	includeSummary,
-}: CreatePromptOptions): CreateChatCompletionRequest {
+}: CreatePromptOptions): OpenAIChatCompletionRequest {
 	const contextDivider = "----";
 
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
@@ -70,6 +70,7 @@ export function createPrompt({
 			Du antwortest immer auf Deutsch. Du benutzt immer das Sie, niemals das du.
 			Du beantwortest die Frage nur mit den vorliegenden Abschnitten aus relevanten Dokumenten.
 			Erwähne die Abschnitte nicht nach ihrer Reihenfolge.
+			Erwähne nicht, dass du die Antwort aus den Abschnitten generiert hast.
 			Erstelle eine sinnvolle Antwort aus allen relevanten Informationen.
 			Konzentriere dich dabei auf die wichtigsten Inhaltes der vorliegenden Informationen..
 			Achte darauf, dass keine Fakten verändert werden.
@@ -82,7 +83,7 @@ export function createPrompt({
 		Das ist die Frage des Benutzers:
 	`;
 
-	const completionOptions: CreateChatCompletionRequest = {
+	const completionOptions: OpenAIChatCompletionRequest = {
 		model: OPENAI_MODEL,
 		messages: [
 			{

@@ -8,6 +8,7 @@ import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
+import { OpenAIStream } from "../openai-utils.js";
 
 export async function registerGenerateAnswerRoute(
 	fastify: FastifyInstance,
@@ -78,9 +79,9 @@ export async function registerGenerateAnswerRoute(
 						includeSummary: include_summary_in_response_generation,
 					});
 
-					const openai = new OpenAI({ apiKey: OPENAI_KEY });
-					const answerStream = await openai.chat.completions.create(
+					const answerStream = await OpenAIStream(
 						chatCompletionRequest,
+						OPENAI_KEY,
 					);
 
 					const buffer = new stream.Readable();
@@ -88,8 +89,7 @@ export async function registerGenerateAnswerRoute(
 					const emit = async () => {
 						// @ts-ignore
 						for await (const chunk of answerStream) {
-							const delta = chunk.choices[0]?.delta?.content || "";
-							buffer.push(delta);
+							buffer.push(chunk);
 						}
 						buffer.push(null);
 					};

@@ -82,3 +82,15 @@ export enum AvailableSearchAlgorithms {
 	ChunksAndSummaries = "chunks-and-summaries",
 	SummaryThenChunks = "summaries-then-chunks",
 }
+
+export interface OpenAIMessage {
+	role: string;
+	content: string;
+}
+export interface OpenAIChatCompletionRequest {
+	model: string;
+	messages: Array<OpenAIMessage>;
+	max_tokens: number;
+	temperature: number;
+	stream: boolean;
+}
