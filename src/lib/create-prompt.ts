@@ -72,7 +72,7 @@ export function createPrompt({
 			Erwähne die Abschnitte nicht nach ihrer Reihenfolge.
 			Erwähne nicht, dass du die Antwort aus den Abschnitten generiert hast.
 			Erstelle eine sinnvolle Antwort aus allen relevanten Informationen.
-			Konzentriere dich dabei auf die wichtigsten Inhaltes der vorliegenden Informationen..
+			Konzentriere dich dabei auf die wichtigsten Inhalte der vorliegenden Informationen.
 			Achte darauf, dass keine Fakten verändert werden.
 			Verändere keine Namen und keine Berufsbezeichnungen.
 			Verändere keine Zahlen und keine Datumsangaben.
