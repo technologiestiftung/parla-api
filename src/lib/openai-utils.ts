@@ -33,7 +33,6 @@ export async function OpenAIStream(
 					try {
 						const json = JSON.parse(data);
 						const text = json.choices[0].delta?.content ?? "";
-						console.log(text);
 						if (counter < 2 && (text.match(/\n/) || []).length) {
 							// this is a prefix character (i.e., "\n\n"), do nothing
 							return;
