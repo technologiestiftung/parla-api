@@ -1,5 +1,4 @@
 import { FastifyInstance } from "fastify";
-import { OpenAI } from "openai";
 import stream from "stream";
 import { GenerateAnswerBody } from "../common.js";
 import { createPrompt } from "../create-prompt.js";

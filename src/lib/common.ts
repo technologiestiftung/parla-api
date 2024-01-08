@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { CreateChatCompletionRequest } from "openai";
 import { Database } from "./database.js";
 
 type RegisteredDocument =
@@ -46,7 +45,7 @@ export interface DocumentSearchResponse {
 }
 
 export interface GenerateAnswerResponse {
-	answer: CreateChatCompletionRequest;
+	answer: OpenAIChatCompletionRequest;
 }
 
 export interface GenerateAnswerBody {
