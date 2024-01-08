@@ -76,6 +76,7 @@ export function createPrompt({
 			Achte darauf, dass keine Fakten verändert werden.
 			Verändere keine Namen und keine Berufsbezeichnungen.
 			Verändere keine Zahlen und keine Datumsangaben.
+			Die generierte Antwort muss im Markdown-Format vorliegen.
 		`}
 		${oneLine`Start Abschnitte der relevanten Dokumente getrennt durch ${contextDivider}:`}
 		${contextText}
