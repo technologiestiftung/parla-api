@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/technologiestiftung/parla-api/compare/v1.14.0...v1.15.0) (2024-01-09)
+
+
+### Features
+
+* streaming answer ([#52](https://github.com/technologiestiftung/parla-api/issues/52)) ([92539e7](https://github.com/technologiestiftung/parla-api/commit/92539e7ca01dc33e5ac612dcafdf5772eab0498f))
+
 # [1.14.0](https://github.com/technologiestiftung/parla-api/compare/v1.13.1...v1.14.0) (2024-01-04)
 
 
