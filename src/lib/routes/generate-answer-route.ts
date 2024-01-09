@@ -1,12 +1,12 @@
 import { FastifyInstance } from "fastify";
-import { GenerateAnswerBody, GenerateAnswerResponse } from "../common.js";
+import { GenerateAnswerBody } from "../common.js";
 import { createPrompt } from "../create-prompt.js";
-import { ApplicationError } from "../errors.js";
 import { registerCors } from "../handle-cors.js";
 import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
+import { OpenAIClient } from "../llm/openai-client.js";
 
 export async function registerGenerateAnswerRoute(
 	fastify: FastifyInstance,
@@ -70,32 +70,12 @@ export async function registerGenerateAnswerRoute(
 						includeSummary: include_summary_in_response_generation,
 					});
 
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-ignore
-					const response = await fetch(
-						"https://api.openai.com/v1/chat/completions",
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${OPENAI_KEY}`,
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify(chatCompletionRequest),
-						},
-					);
+					const llm = new OpenAIClient(OPENAI_KEY);
+					const stream = await llm.requestResponseStream(chatCompletionRequest);
 
-					if (response.status !== 200) {
-						// TODO: Should this be a 500?
-						throw new ApplicationError(
-							"Failed to create completion for question",
-							{ response },
-						);
-					}
+					reply.status(201).send(stream);
 
-					const gptAnswer = await response.json();
-					const res = { answer: gptAnswer } as GenerateAnswerResponse;
-
-					reply.status(201).send(res);
+					return reply;
 				},
 			);
 
