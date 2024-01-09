@@ -109,10 +109,11 @@ export const generatedAnswerResponseSchema = {
 };
 
 export const generateAnswerBodySchema = S.object()
-	.prop("query", S.string())
+	.prop("query", S.string().minLength(1))
 	.prop("include_summary_in_response_generation", S.boolean().default(true))
 	.prop("temperature", S.number().minimum(0).maximum(2).default(0))
-	.prop("documentMatches", S.array().items(documentMatch));
+	.prop("documentMatches", S.array().items(documentMatch))
+	.required(["query", "documentMatches"]);
 
 export const countSchema = {
 	200: S.object().prop("processed_documents_count", S.number()),

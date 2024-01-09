@@ -60,13 +60,6 @@ export async function registerGenerateAnswerRoute(
 						documentMatches,
 					} = request.body;
 
-					if (!query || query === "") {
-						reply
-							.status(400)
-							.send({ error: "Query must be defined and must not be empty." });
-						return reply;
-					}
-
 					const chatCompletionRequest = createPrompt({
 						documentMatches,
 						MAX_CONTENT_TOKEN_LENGTH,
