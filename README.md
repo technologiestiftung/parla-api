@@ -73,6 +73,25 @@ Edit the files in `src`
 
 See also the swagger documentation at http://localhost:8080/documentation/static/index.html
 
+## Periodically regenerate indices
+
+The indices on the `processed_document_chunks` and `processed_document_summaries` tables need be regenerated upon arrival of new data.
+This is because the `lists` parameter should be changed accordingly to https://github.com/pgvector/pgvector. To do this, we use the `pg_cron` extension available: https://github.com/citusdata/pg_cron. To schedule the regeneration of indices, we create two jobs which use functions defined in the API and database definition: https://github.com/technologiestiftung/parla-api.
+
+```
+select cron.schedule (
+    'regenerate_embedding_indices_for_chunks',
+    '30 5 * * *',
+    $$ SELECT * from regenerate_embedding_indices_for_chunks() $$
+);
+
+select cron.schedule (
+    'regenerate_embedding_indices_for_summaries',
+    '30 5 * * *',
+    $$ SELECT * from regenerate_embedding_indices_for_summaries() $$
+);
+```
+
 ## Tests
 
 ```bash
