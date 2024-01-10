@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/technologiestiftung/parla-api/compare/v1.15.0...v1.16.0) (2024-01-10)
+
+
+### Features
+
+* **database:** Enable pg_cron via migration ([7e59e67](https://github.com/technologiestiftung/parla-api/commit/7e59e67e65ad0e02bbd9fe8b237197264d177fb0))
+
 # [1.15.0](https://github.com/technologiestiftung/parla-api/compare/v1.14.0...v1.15.0) (2024-01-09)
 
 
