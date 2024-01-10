@@ -34,4 +34,3 @@ SELECT
 	cron.schedule('regenerate_embedding_indices_for_summaries', '30 5 * * *', $$
 		SELECT
 			* FROM regenerate_embedding_indices_for_summaries() $$);
-
