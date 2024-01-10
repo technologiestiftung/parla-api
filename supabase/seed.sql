@@ -26,7 +26,8 @@ CREATE INDEX ON processed_document_summaries USING ivfflat(summary_embedding vec
 CREATE INDEX ON processed_document_summaries USING ivfflat(summary_embedding vector_cosine_ops) WITH (lists = '1');
 
 -- Periodically regenerate indices
--- You must enable / install the pg_cron extension first before this can be executec
+-- You must enable / install the pg_cron extension first before this can be executed
+
 -- SELECT cron.schedule (
 --     'regenerate_embedding_indices_for_chunks',
 --     '30 5 * * *',
