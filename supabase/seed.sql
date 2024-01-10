@@ -24,4 +24,3 @@ CREATE INDEX ON processed_document_summaries USING ivfflat(summary_embedding vec
 CREATE INDEX ON processed_document_summaries USING ivfflat(summary_embedding vector_ip_ops) WITH (lists = '1');
 
 CREATE INDEX ON processed_document_summaries USING ivfflat(summary_embedding vector_cosine_ops) WITH (lists = '1');
-
