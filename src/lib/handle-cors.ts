@@ -33,7 +33,7 @@ export async function registerCors(app: FastifyInstance) {
 			// match hosstname based on regex
 			if (
 				hostname.match(
-					/cors-requester.vercel.app|parla-frontend.*?.vercel.app|ki-anfragen-frontend.*?.vercel.app|ki-anfragen.citylab-berlin.org|parla.citylab-berlin.org/,
+					/parla-frontend.*?.vercel.app|ki-anfragen-frontend.*?.vercel.app|ki-anfragen.citylab-berlin.org|parla.citylab-berlin.org|parla.berlin/,
 				)
 			) {
 				//  Request from localhost will pass
