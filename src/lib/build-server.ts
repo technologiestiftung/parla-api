@@ -58,7 +58,7 @@ export async function buildServer({
 
 	// Set rate limit
 	await fastify.register(import("@fastify/rate-limit"), {
-		max: 1,
+		max: 5,
 		timeWindow: "1 second",
 	});
 
