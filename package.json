@@ -64,6 +64,7 @@
 	},
 	"dependencies": {
 		"@fastify/cors": "8.3.0",
+		"@fastify/rate-limit": "9.1.0",
 		"@fastify/swagger": "8.10.0",
 		"@fastify/swagger-ui": "1.9.3",
 		"@supabase/supabase-js": "2.39.0",
