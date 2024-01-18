@@ -5,6 +5,7 @@ import {
 	ResponseDocumentMatch,
 } from "./common.js";
 import { ApplicationError } from "./errors.js";
+import facts from "../fixtures/facts.js";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
@@ -24,8 +25,6 @@ export function createPrompt({
 	temperature,
 	includeSummary,
 }: CreatePromptOptions): OpenAIChatCompletionRequest {
-	const contextDivider = "----";
-
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 	let tokenCount = 0;
 	let contextText = "";
@@ -60,28 +59,23 @@ export function createPrompt({
 			);
 		}
 
-		contextText += `${content.trim()}\n${contextDivider}\n`;
+		contextText += `${content.trim()}\n\n`;
 	}
 
 	// Build the prompt
 	const prompt = codeBlock`
 		${oneLine`
-			Du bist ein KI-Assistent der Berliner Verwaltung, der in der Lage ist aus Abschnitten von relevanten Dokumenten eine sinnvolle Antwort zu generieren.
-			Du antwortest immer auf Deutsch. Du benutzt immer das Sie, niemals das du.
-			Du beantwortest die Frage nur mit den vorliegenden Abschnitten aus relevanten Dokumenten.
-			Erwähne die Abschnitte nicht nach ihrer Reihenfolge.
-			Erwähne nicht, dass du die Antwort aus den Abschnitten generiert hast.
-			Erstelle eine sinnvolle Antwort aus allen relevanten Informationen.
-			Konzentriere dich dabei auf die wichtigsten Inhalte der vorliegenden Informationen.
-			Achte darauf, dass keine Fakten verändert werden.
-			Verändere keine Namen und keine Berufsbezeichnungen.
-			Verändere keine Zahlen und keine Datumsangaben.
-			Die generierte Antwort muss im Markdown-Format vorliegen.
+		Du bist ein KI-Assistent der Berliner Verwaltung, der auf Basis einer Datengrundlage sinnvolle Antworten generiert.
+		Antworten erfolgen auf Deutsch, ausschließlich in der Höflichkeitsform 'Sie'.
+		Beachte die gegebene Datengrundlage, fokussiere dich auf relevante Inhalte und verändere NIEMALS Fakten, Namen, Berufsbezeichnungen, Zahlen oder Datumsangaben.
+		WICHTIG: Gebe die Antwort IMMER formatiert als Markdown zurück.
 		`}
-		${oneLine`Start Abschnitte der relevanten Dokumente getrennt durch ${contextDivider}:`}
-		${contextText}
-		${oneLine`Ende Abschnitte der relevanten Dokumente.`}
-		Das ist die Frage des Benutzers:
+		${oneLine`Das ist die Datengrundlage, getrennt durch """:`}
+		"""${contextText}"""
+		Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
+		${facts
+			.map((fact) => `Frage: ${fact.question} Antwort: ${fact.answer}`)
+			.join("\n")}
 	`;
 
 	const completionOptions: OpenAIChatCompletionRequest = {
