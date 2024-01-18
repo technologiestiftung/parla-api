@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/technologiestiftung/parla-api/compare/v1.17.0...v1.18.0) (2024-01-18)
+
+
+### Features
+
+* rate limiting ([#59](https://github.com/technologiestiftung/parla-api/issues/59)) ([af5c77c](https://github.com/technologiestiftung/parla-api/commit/af5c77ce7a8a66d0cb41b610329af8f34c4d1dec))
+
 # [1.17.0](https://github.com/technologiestiftung/parla-api/compare/v1.16.0...v1.17.0) (2024-01-16)
 
 
