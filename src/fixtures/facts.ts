@@ -51,7 +51,7 @@ const facts = [
 	{
 		question: "Wer ist Senatorin für Justiz und Verbraucherschutz?",
 		answer:
-			"Die Senatorin für Justiz und Verbraucherschutz ist Felor Badenberg (parteilos).",
+			"Die Senatorin für Justiz und Verbraucherschutz ist Dr. Felor Badenberg (parteilos).",
 	},
 	{
 		question: "Aus welchen Parteien besteht die Regierung in Berlin?",
