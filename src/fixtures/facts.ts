@@ -53,6 +53,15 @@ const facts = [
 		answer:
 			"Die Senatorin für Justiz und Verbraucherschutz ist Felor Badenberg (parteilos).",
 	},
+	{
+		question: "Aus welchen Parteien besteht die Regierung in Berlin?",
+		answer: "Die Regierung in Berlin besteht aus den Parteien CDU und SPD.",
+	},
+	{
+		question: "Aus welchen Parteien besteht die Opposition in Berlin?",
+		answer:
+			"Die Opposition in Berlin besteht aus den Parteien GRÜNE, DIE LINKE und AfD.",
+	},
 ];
 
 export default facts;
