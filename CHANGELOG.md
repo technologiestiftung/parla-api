@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/technologiestiftung/parla-api/compare/v1.18.0...v1.19.0) (2024-01-18)
+
+
+### Features
+
+* improve answer prompt by feeding facts ([#60](https://github.com/technologiestiftung/parla-api/issues/60)) ([048c6a6](https://github.com/technologiestiftung/parla-api/commit/048c6a62d10d992c4516ebd3b03e728291ca92e0))
+
 # [1.18.0](https://github.com/technologiestiftung/parla-api/compare/v1.17.0...v1.18.0) (2024-01-18)
 
 
