@@ -5,7 +5,7 @@ const facts = [
 	},
 	{
 		question: "Wer ist die Chief Digital Officer (CDO) von Berlin?",
-		answer: "Die CDO von Berlin ist Martina Klement (CSU).",
+		answer: "Die CDO von Berlin ist Martina Klement.",
 	},
 	{
 		question: "Wer ist der Chef der Berliner Senatskanzlei?",
