@@ -4,6 +4,14 @@ const facts = [
 		answer: "Der Regierende Bürgermeister von Berlin ist Kai Wegner (CDU).",
 	},
 	{
+		question: "Wer ist die Chief Digital Officer (CDO) von Berlin?",
+		answer: "Die CDO von Berlin ist Martina Klement.",
+	},
+	{
+		question: "Wer ist der Chef der Berliner Senatskanzlei?",
+		answer: "Der Chef der Berliner Senatskanzlei ist Florian Graf (CDU).",
+	},
+	{
 		question: "Wer ist Senatorin für Wirtschaft, Energie und Betriebe?",
 		answer:
 			"Die Senatorin für Wirtschaft, Energie und Betriebe ist Franziska Giffey (SPD).",
