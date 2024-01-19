@@ -70,6 +70,11 @@ const facts = [
 		answer:
 			"Die Opposition in Berlin besteht aus den Parteien GRÜNE, DIE LINKE und AfD.",
 	},
+	{
+		question: "Wer leitet die Technologiestiftung Berlin?",
+		answer:
+			"Die Technologiestiftung Berlin (TSB) wird von Nicolas Zimmer geleitet.",
+	},
 ];
 
 export default facts;
