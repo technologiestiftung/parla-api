@@ -1,0 +1,30 @@
+name: Deploy Migrations to staging
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+    branches: [staging]
+
+jobs:
+  deploy:
+    environment: staging
+    runs-on: ubuntu-22.04
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      PROJECT_ID: ${{ secrets.PROJECT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 1.136.3
+
+      - run: |
+          supabase link --project-ref $PROJECT_ID
+          supabase db push
