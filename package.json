@@ -45,7 +45,15 @@
 		"semi": true,
 		"singleQuote": false,
 		"useTabs": true,
-		"printWidth": 80
+		"printWidth": 80,
+		"overrides": [
+			{
+				"files": ["*.yml", "*.yaml"],
+				"options": {
+					"useTabs": false
+				}
+			}
+		]
 	},
 	"nodemonConfig": {
 		"restartable": "rs",
@@ -54,9 +62,7 @@
 			"js": "node --harmony"
 		},
 		"exec": "tsx ./src/index.ts",
-		"watch": [
-			"src"
-		],
+		"watch": ["src"],
 		"env": {
 			"NODE_ENV": "development"
 		},
