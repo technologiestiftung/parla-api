@@ -78,7 +78,7 @@
 		"@fastify/cors": "8.5.0",
 		"@fastify/rate-limit": "9.1.0",
 		"@fastify/swagger": "8.14.0",
-		"@fastify/swagger-ui": "1.10.2",
+		"@fastify/swagger-ui": "2.1.0",
 		"@supabase/supabase-js": "2.39.3",
 		"common-tags": "1.8.2",
 		"fastify": "4.25.2",
