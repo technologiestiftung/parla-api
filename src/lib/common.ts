@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { CreateChatCompletionRequest } from "openai";
 import { Database } from "./database.js";
 
 type RegisteredDocument =
@@ -46,7 +45,7 @@ export interface DocumentSearchResponse {
 }
 
 export interface GenerateAnswerResponse {
-	answer: CreateChatCompletionRequest;
+	answer: OpenAIChatCompletionRequest;
 }
 
 export interface GenerateAnswerBody {
@@ -81,4 +80,16 @@ export enum AvailableSearchAlgorithms {
 	ChunksOnly = "chunks-only",
 	ChunksAndSummaries = "chunks-and-summaries",
 	SummaryThenChunks = "summaries-then-chunks",
+}
+
+export interface OpenAIMessage {
+	role: string;
+	content: string;
+}
+export interface OpenAIChatCompletionRequest {
+	model: string;
+	messages: Array<OpenAIMessage>;
+	max_tokens: number;
+	temperature: number;
+	stream: boolean;
 }

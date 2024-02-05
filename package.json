@@ -1,6 +1,6 @@
 {
-	"name": "ki-anfragen-api",
-	"version": "1.13.0",
+	"name": "@technologiestiftung/parla-api",
+	"version": "1.19.0",
 	"description": "",
 	"main": "dist/index.js",
 	"type": "module",
@@ -17,6 +17,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@ava/typescript": "4.1.0",
+		"@saithodev/semantic-release-backmerge": "4.0.1",
 		"@technologiestiftung/semantic-release-config": "1.2.4",
 		"@types/common-tags": "1.8.4",
 		"@types/node": "20.10.4",
@@ -45,7 +46,18 @@
 		"semi": true,
 		"singleQuote": false,
 		"useTabs": true,
-		"printWidth": 80
+		"printWidth": 80,
+		"overrides": [
+			{
+				"files": [
+					"*.yml",
+					"*.yaml"
+				],
+				"options": {
+					"useTabs": false
+				}
+			}
+		]
 	},
 	"nodemonConfig": {
 		"restartable": "rs",
@@ -64,6 +76,7 @@
 	},
 	"dependencies": {
 		"@fastify/cors": "8.3.0",
+		"@fastify/rate-limit": "9.1.0",
 		"@fastify/swagger": "8.10.0",
 		"@fastify/swagger-ui": "1.9.3",
 		"@supabase/supabase-js": "2.39.0",
@@ -71,7 +84,7 @@
 		"fastify": "4.22.2",
 		"fluent-json-schema": "4.1.2",
 		"gpt3-tokenizer": "1.1.5",
-		"openai": "4.6.0",
+		"openai": "4.24.1",
 		"react-device-detect": "2.2.3"
 	},
 	"config": {

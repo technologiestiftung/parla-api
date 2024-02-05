@@ -37,7 +37,7 @@ test("generate answer route should respond with 201", async (t) => {
 	const response = await t.context.server.inject(opts);
 	t.is(response.statusCode, 201);
 });
-test("generate answer route should respond with 500", async (t) => {
+test("generate answer route should respond with 400 on malformed request body", async (t) => {
 	const opts: InjectOptions = {
 		method: "POST",
 		url: {
@@ -52,6 +52,6 @@ test("generate answer route should respond with 500", async (t) => {
 		body: JSON.stringify({ ...testGenAnswerReqBody, query: "" }),
 	};
 	const response = await t.context.server.inject(opts);
-	t.is(response.statusCode, 500);
+	t.is(response.statusCode, 400);
 	t.snapshot(JSON.parse(response.body));
 });
