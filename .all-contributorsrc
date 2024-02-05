@@ -1,29 +1,51 @@
 {
-	"projectName": "@technologiestiftung/parla-api",
-	"projectOwner": "technologiestiftung",
-	"repoType": "github",
-	"repoHost": "https://github.com",
-	"files": ["README.md"],
-	"imageSize": 64,
-	"commit": true,
-	"commitConvention": "angular",
-	"contributors": [
-		{
-			"login": "ff6347",
-			"name": "Fabian Morón Zirfas",
-			"avatar_url": "https://avatars.githubusercontent.com/u/315106?v=4",
-			"profile": "https://fabianmoronzirfas.me",
-			"contributions": ["code", "infra", "design", "doc"]
-		},
-		{
-			"login": "Jaszkowic",
-			"name": "Jonas Jaszkowic",
-			"avatar_url": "https://avatars.githubusercontent.com/u/10830180?v=4",
-			"profile": "https://github.com/Jaszkowic",
-			"contributions": ["code", "ideas", "doc"]
-		}
-	],
-	"contributorsPerLine": 7,
-	"skipCi": true,
-	"commitType": "docs"
+  "projectName": "parla-api",
+  "projectOwner": "technologiestiftung",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 64,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "ff6347",
+      "name": "Fabian Morón Zirfas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/315106?v=4",
+      "profile": "https://fabianmoronzirfas.me",
+      "contributions": [
+        "code",
+        "infra",
+        "design",
+        "doc"
+      ]
+    },
+    {
+      "login": "Jaszkowic",
+      "name": "Jonas Jaszkowic",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10830180?v=4",
+      "profile": "https://github.com/Jaszkowic",
+      "contributions": [
+        "code",
+        "ideas",
+        "doc"
+      ]
+    },
+    {
+      "login": "Esshahn",
+      "name": "Ingo Hinterding",
+      "avatar_url": "https://avatars.githubusercontent.com/u/434355?v=4",
+      "profile": "http://www.awsm.de",
+      "contributions": [
+        "projectManagement",
+        "code",
+        "ideas"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "commitType": "docs"
 }

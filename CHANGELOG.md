@@ -1,3 +1,24 @@
+# [1.19.0](https://github.com/technologiestiftung/parla-api/compare/v1.18.0...v1.19.0) (2024-01-18)
+
+
+### Features
+
+* improve answer prompt by feeding facts ([#60](https://github.com/technologiestiftung/parla-api/issues/60)) ([048c6a6](https://github.com/technologiestiftung/parla-api/commit/048c6a62d10d992c4516ebd3b03e728291ca92e0))
+
+# [1.18.0](https://github.com/technologiestiftung/parla-api/compare/v1.17.0...v1.18.0) (2024-01-18)
+
+
+### Features
+
+* rate limiting ([#59](https://github.com/technologiestiftung/parla-api/issues/59)) ([af5c77c](https://github.com/technologiestiftung/parla-api/commit/af5c77ce7a8a66d0cb41b610329af8f34c4d1dec))
+
+# [1.17.0](https://github.com/technologiestiftung/parla-api/compare/v1.16.0...v1.17.0) (2024-01-16)
+
+
+### Features
+
+* add external resources table ([#58](https://github.com/technologiestiftung/parla-api/issues/58)) ([b208d53](https://github.com/technologiestiftung/parla-api/commit/b208d534a220205e2fb65308ceba3ad73dc675ce))
+
 # [1.16.0](https://github.com/technologiestiftung/parla-api/compare/v1.15.0...v1.16.0) (2024-01-10)
 
 
