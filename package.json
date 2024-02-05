@@ -17,6 +17,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@ava/typescript": "4.1.0",
+		"@saithodev/semantic-release-backmerge": "4.0.1",
 		"@technologiestiftung/semantic-release-config": "1.2.4",
 		"@types/common-tags": "1.8.4",
 		"@types/node": "20.9.4",
@@ -45,7 +46,18 @@
 		"semi": true,
 		"singleQuote": false,
 		"useTabs": true,
-		"printWidth": 80
+		"printWidth": 80,
+		"overrides": [
+			{
+				"files": [
+					"*.yml",
+					"*.yaml"
+				],
+				"options": {
+					"useTabs": false
+				}
+			}
+		]
 	},
 	"nodemonConfig": {
 		"restartable": "rs",
