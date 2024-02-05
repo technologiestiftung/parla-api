@@ -1,15 +1,15 @@
-name: Deploy Migrations to Production
+name: Deploy Migrations to staging
 
 on:
   push:
     branches:
-      - main
+      - staging
   workflow_dispatch:
-    branches: [main]
+    branches: [staging]
 
 jobs:
   deploy:
-    environment: production
+    environment: staging
     runs-on: ubuntu-22.04
     if: "!contains(github.event.head_commit.message, 'skip ci')"
 
