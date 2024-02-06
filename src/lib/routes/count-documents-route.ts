@@ -18,7 +18,7 @@ export async function registerCountDocumentsRoute(fastify: FastifyInstance) {
 					const { error, count } = await supabase
 						.from("processed_documents")
 						.select("*", { count: "exact", head: true });
-					if (!error && count) {
+					if (!error) {
 						reply.status(200).send({ processed_documents_count: count });
 					} else {
 						reply
