@@ -53,10 +53,6 @@
 					"*.yml",
 					"*.yaml"
 				],
-				"files": [
-					"*.yml",
-					"*.yaml"
-				],
 				"options": {
 					"useTabs": false
 				}
