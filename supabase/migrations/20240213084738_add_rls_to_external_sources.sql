@@ -1,0 +1,1 @@
+alter table "public"."external_sources" enable row level security;
