@@ -9,6 +9,7 @@ async function main() {
 		const PORT = parseInt(process.env.PORT ?? "8080");
 		const OPENAI_MODEL = process.env.OPENAI_MODEL as Model;
 		const OPENAI_KEY = process.env.OPENAI_KEY;
+		const OPENAI_EMBEDDING_MODEL = process.env.OPENAI_EMBEDDING_MODEL;
 
 		if (!PORT) {
 			throw new EnvError("PORT");
@@ -17,8 +18,13 @@ async function main() {
 			throw new EnvError("OPENAI_MODEL");
 		}
 		if (!OPENAI_KEY) throw new EnvError("OPENAI_KEY");
+		if (!OPENAI_EMBEDDING_MODEL) throw new EnvError("OPENAI_EMBEDDING_MODEL");
 
-		const server = await buildServer({ OPENAI_MODEL, OPENAI_KEY });
+		const server = await buildServer({
+			OPENAI_MODEL,
+			OPENAI_KEY,
+			OPENAI_EMBEDDING_MODEL,
+		});
 		await server.ready();
 		server.swagger();
 		server.listen({ port: PORT, host: "0.0.0.0" }, function (err) {

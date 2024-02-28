@@ -22,17 +22,13 @@ This is a the api and database for the explorational project _Parla_. This is no
 See also `.envrc.sample`. (Might be more up to date).
 
 ```plain
-SUPABASE_URL="http://localhost:54321"
-SUPABASE_SERVICE_ROLE_KEY="ey..."
-# Get your key at https://platform.openai.com/account/api-keys
-OPENAI_KEY="sk-UY..."
-# in dev we can use a lesser version to save some coins
-# OPENAI_MODEL="gpt-3.5-turbo-16k"
-# OPENAI_MODEL=gpt-4
-OPENAI_MODEL=gpt-3.5-turbo
-PORT="8080"
-NODE_ENV="development"
-LOG_LEVEL="info"
+export SUPABASE_URL=
+export SUPABASE_ANON_KEY=
+export OPENAI_KEY=
+export SUPABASE_SERVICE_ROLE_KEY=
+export OPENAI_MODEL=
+export PORT=
+export OPENAI_EMBEDDING_MODEL=
 ```
 
 Hint. We use `direnv` for development environment variables. See https://direnv.net/

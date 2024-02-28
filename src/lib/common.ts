@@ -92,4 +92,5 @@ export interface OpenAIChatCompletionRequest {
 	max_tokens: number;
 	temperature: number;
 	stream: boolean;
+	seed: number;
 }

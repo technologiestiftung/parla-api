@@ -14,9 +14,11 @@ import { registerCountDocumentsRoute } from "./routes/count-documents-route.js";
 export async function buildServer({
 	OPENAI_MODEL,
 	OPENAI_KEY,
+	OPENAI_EMBEDDING_MODEL,
 }: {
 	OPENAI_MODEL: Model;
 	OPENAI_KEY: string;
+	OPENAI_EMBEDDING_MODEL: string;
 }) {
 	const NODE_ENV = process.env.NODE_ENV ?? "none";
 	const LOG_LEVEL = process.env.LOG_LEVEL ?? "info";
@@ -66,7 +68,11 @@ export async function buildServer({
 	registerRootRoute(fastify);
 	registerHealthRoute(fastify);
 	registerCountDocumentsRoute(fastify);
-	registerSearchDocumentsRoute(fastify, OPENAI_MODEL, OPENAI_KEY);
+	registerSearchDocumentsRoute(
+		fastify,
+		OPENAI_KEY,
+		OPENAI_EMBEDDING_MODEL,
+	);
 	registerGenerateAnswerRoute(fastify, OPENAI_MODEL, OPENAI_KEY);
 
 	fastify.setErrorHandler(function (error, request, reply) {

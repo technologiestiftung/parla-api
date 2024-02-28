@@ -1,16 +1,7 @@
-# shellcheck disable=SC2148
-# This is production environment variables
-export SUPABASE_URL="http://localhost:54321"
-export SUPABASE_SERVICE_ROLE_KEY="ey..."
-# Get your key at https://platform.openai.com/account/api-keys
-export OPENAI_KEY="sk-UY..."
-# in dev we can use a lesser version to save some coins
-# OPENAI_MODEL=gpt-3.5-turbo
-export OPENAI_MODEL="gpt-3.5-turbo-16k"
-# OPENAI_MODEL=gpt-4
-export PORT="8080"
-# should be one of "debug", "info", "warning", "error", "critical"
-export LOG_LEVEL="info"
-# This is only for testing purpose and should not be allowed in production
-# for real real!
-export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"
+export SUPABASE_URL=
+export SUPABASE_ANON_KEY=
+export OPENAI_KEY=
+export SUPABASE_SERVICE_ROLE_KEY=
+export OPENAI_MODEL=
+export PORT=
+export OPENAI_EMBEDDING_MODEL=

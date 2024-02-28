@@ -18,8 +18,8 @@ import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-s
 
 export async function registerSearchDocumentsRoute(
 	fastify: FastifyInstance,
-	OPENAI_MODEL: string,
 	OPENAI_KEY: string,
+	OPENAI_EMBEDDING_MODEL: string,
 ) {
 	await fastify.register(
 		async (app, options, next) => {
@@ -92,7 +92,7 @@ export async function registerSearchDocumentsRoute(
 								"Content-Type": "application/json",
 							},
 							body: JSON.stringify({
-								model: "text-embedding-ada-002",
+								model: OPENAI_EMBEDDING_MODEL,
 								input: sanitizedQuery.replaceAll("\n", " "),
 							}),
 						},
