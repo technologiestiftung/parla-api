@@ -1,7 +1,14 @@
 export SUPABASE_URL=
 export SUPABASE_ANON_KEY=
+# Get your key at https://platform.openai.com/account/api-keys
 export OPENAI_KEY=
 export SUPABASE_SERVICE_ROLE_KEY=
+# in dev we can use a lesser version to save some coins
 export OPENAI_MODEL=
 export PORT=
 export OPENAI_EMBEDDING_MODEL=
+# should be one of "debug", "info", "warning", "error", "critical"
+export LOG_LEVEL="info"
+# This is only for testing purpose and should not be allowed in production
+# for real real!
+export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"

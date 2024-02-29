@@ -1,7 +1,9 @@
 ![](https://img.shields.io/badge/Built%20with%20%E2%9D%A4%EF%B8%8F-at%20Technologiestiftung%20Berlin-blue)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # _Parla (api & database)_
@@ -24,11 +26,18 @@ See also `.envrc.sample`. (Might be more up to date).
 ```plain
 export SUPABASE_URL=
 export SUPABASE_ANON_KEY=
+# Get your key at https://platform.openai.com/account/api-keys
 export OPENAI_KEY=
 export SUPABASE_SERVICE_ROLE_KEY=
+# in dev we can use a lesser version to save some coins
 export OPENAI_MODEL=
 export PORT=
 export OPENAI_EMBEDDING_MODEL=
+# should be one of "debug", "info", "warning", "error", "critical"
+export LOG_LEVEL="info"
+# This is only for testing purpose and should not be allowed in production
+# for real real!
+export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"
 ```
 
 Hint. We use `direnv` for development environment variables. See https://direnv.net/
