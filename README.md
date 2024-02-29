@@ -24,15 +24,15 @@ This is a the api and database for the explorational project _Parla_. This is no
 See also `.envrc.sample`. (Might be more up to date).
 
 ```plain
-export SUPABASE_URL=
-export SUPABASE_ANON_KEY=
+export SUPABASE_URL="http://localhost:54321"
+export SUPABASE_ANON_KEY="ey..."
 # Get your key at https://platform.openai.com/account/api-keys
-export OPENAI_KEY=
+export OPENAI_KEY="sk-UY..."
 export SUPABASE_SERVICE_ROLE_KEY=
 # in dev we can use a lesser version to save some coins
-export OPENAI_MODEL=
-export PORT=
-export OPENAI_EMBEDDING_MODEL=
+export OPENAI_MODEL="gpt-3.5-turbo"
+export PORT="8080"
+export OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
 # should be one of "debug", "info", "warning", "error", "critical"
 export LOG_LEVEL="info"
 # This is only for testing purpose and should not be allowed in production
