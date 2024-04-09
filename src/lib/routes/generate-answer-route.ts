@@ -82,13 +82,17 @@ export async function registerGenerateAnswerRoute(
 
 					await reply.status(201).send(stream);
 
-					const { data, error } = await supabase
+					const { error } = await supabase
 						.from("user_requests")
 						.update({ generated_answer: generatedAnswer })
 						.eq("id", request.body.userRequestId)
 						.select("*");
 
-					console.log(data, error);
+					if (error) {
+						throw new Error(
+							`Could not save generated answer to database: ${error.message}`,
+						);
+					}
 
 					return reply;
 				},

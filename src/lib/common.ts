@@ -27,8 +27,17 @@ export interface ProcessedDocumentSummaryMatch {
 	similarity: number;
 }
 
+export interface ProcessedDocumentSummaryMatchReference {
+	processed_document_summary_id: number;
+	similarity: number;
+}
+
 export interface ProcessedDocumentChunkMatch {
 	processed_document_chunk: ProcessedDocumentChunk;
+	similarity: number;
+}
+export interface ProcessedDocumentChunkMatchReference {
+	processed_document_chunk_id: number;
 	similarity: number;
 }
 
@@ -38,6 +47,14 @@ export interface ResponseDocumentMatch {
 	processed_document_summary_match: ProcessedDocumentSummaryMatch;
 	processed_document_chunk_matches: Array<ProcessedDocumentChunkMatch>;
 	similarity: number;
+}
+
+export interface ResponseDocumentMatchReference {
+	registered_document_id: number;
+	processed_document_id: number;
+	similarity: number;
+	processed_document_summary_match: ProcessedDocumentSummaryMatchReference;
+	processed_document_chunk_matches: Array<ProcessedDocumentChunkMatchReference>;
 }
 
 export interface DocumentSearchResponse {
@@ -95,4 +112,28 @@ export interface OpenAIChatCompletionRequest {
 	temperature: number;
 	stream: boolean;
 	seed: number;
+}
+
+export function responseDocumentMatchToReference(
+	responseDocumentMatch: ResponseDocumentMatch,
+): ResponseDocumentMatchReference {
+	return {
+		registered_document_id: responseDocumentMatch.registered_document.id,
+		processed_document_id: responseDocumentMatch.processed_document.id,
+		similarity: responseDocumentMatch.similarity,
+		processed_document_summary_match: {
+			processed_document_summary_id:
+				responseDocumentMatch.processed_document_summary_match
+					.processed_document_summary.id,
+			similarity:
+				responseDocumentMatch.processed_document_summary_match.similarity,
+		},
+		processed_document_chunk_matches:
+			responseDocumentMatch.processed_document_chunk_matches.map(
+				(chunkMatch: ProcessedDocumentChunkMatch) => ({
+					processed_document_chunk_id: chunkMatch.processed_document_chunk.id,
+					similarity: chunkMatch.similarity,
+				}),
+			),
+	};
 }

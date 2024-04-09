@@ -5,6 +5,7 @@ import {
 	DocumentSearchResponse,
 	ResponseDocumentMatch,
 	SimilaritySearchConfig,
+	responseDocumentMatchToReference,
 } from "../common.js";
 import { ApplicationError, UserError } from "../errors.js";
 import { registerCors } from "../handle-cors.js";
@@ -147,24 +148,9 @@ export async function registerSearchDocumentsRoute(
 							generated_answer: undefined,
 							llm_model: OPENAI_MODEL,
 							llm_embedding: OPENAI_EMBEDDING_MODEL,
-							matching_documents: documentMatches.map((match) => ({
-								registered_document_id: match.registered_document.id,
-								processed_document_id: match.processed_document.id,
-								similarity: match.similarity,
-								processed_document_summary_match: {
-									processed_document_summary_id:
-										match.processed_document_summary_match
-											.processed_document_summary.id,
-									processed_document_summary_match:
-										match.processed_document_summary_match.similarity,
-								},
-								processed_document_chunk_matches:
-									match.processed_document_chunk_matches.map((chunkMatch) => ({
-										processed_document_chunk_id:
-											chunkMatch.processed_document_chunk.id,
-										processed_document_chunk_similarity: chunkMatch.similarity,
-									})),
-							})),
+							matching_documents: documentMatches.map((match) => {
+								return responseDocumentMatchToReference(match);
+							}),
 						})
 						.select("*");
 
