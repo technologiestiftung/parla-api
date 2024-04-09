@@ -72,6 +72,7 @@ export async function buildServer({
 		fastify,
 		OPENAI_KEY,
 		OPENAI_EMBEDDING_MODEL,
+		OPENAI_MODEL,
 	);
 	registerGenerateAnswerRoute(fastify, OPENAI_MODEL, OPENAI_KEY);
 

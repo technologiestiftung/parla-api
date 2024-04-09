@@ -5,6 +5,7 @@ import {
 	DocumentSearchResponse,
 	ResponseDocumentMatch,
 	SimilaritySearchConfig,
+	responseDocumentMatchToReference,
 } from "../common.js";
 import { ApplicationError, UserError } from "../errors.js";
 import { registerCors } from "../handle-cors.js";
@@ -15,11 +16,13 @@ import {
 import { similaritySearchOnChunksAndSummaries } from "../similarity-search-chunks-and-summaries.js";
 import { similaritySearchOnChunksOnly } from "../similarity-search-chunks-only.js";
 import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-summaries-then-chunks.js";
+import supabase from "../supabase.js";
 
 export async function registerSearchDocumentsRoute(
 	fastify: FastifyInstance,
 	OPENAI_KEY: string,
 	OPENAI_EMBEDDING_MODEL: string,
+	OPENAI_MODEL: string,
 ) {
 	await fastify.register(
 		async (app, options, next) => {
@@ -136,7 +139,29 @@ export async function registerSearchDocumentsRoute(
 						throw new Error(`Algorithm ${search_algorithm} not supported.`);
 					}
 
+					const { data, error } = await supabase
+						.from("user_requests")
+						.insert({
+							created_at: new Date(),
+							request_payload: request.body,
+							question: sanitizedQuery,
+							generated_answer: undefined,
+							llm_model: OPENAI_MODEL,
+							llm_embedding_model: OPENAI_EMBEDDING_MODEL,
+							matching_documents: documentMatches.map((match) => {
+								return responseDocumentMatchToReference(match);
+							}),
+						})
+						.select("*");
+
+					if (!data) {
+						throw new Error(
+							`Could not save user request to database: ${error.message}`,
+						);
+					}
+
 					const response = {
+						userRequestId: data[0].id,
 						documentMatches: documentMatches,
 					} as DocumentSearchResponse;
 

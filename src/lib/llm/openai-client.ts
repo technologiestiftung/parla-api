@@ -7,7 +7,10 @@ export class OpenAIClient implements LLMClient {
 	constructor(apiKey: string) {
 		this.openAi = new OpenAI({ apiKey });
 	}
-	async requestResponseStream(payload: object): Promise<Readable> {
+	async requestResponseStream(
+		payload: object,
+		deltaCallback: (delta: string) => void,
+	): Promise<Readable> {
 		//@ts-ignore
 		const answerStream = await this.openAi.chat.completions.create(payload);
 		const buffer = new Readable();
@@ -15,6 +18,7 @@ export class OpenAIClient implements LLMClient {
 		var emit = async () => {
 			for await (const chunk of answerStream) {
 				const delta = chunk.choices[0]?.delta?.content || "";
+				deltaCallback(delta);
 				buffer.push(delta);
 			}
 			buffer.push(null);
