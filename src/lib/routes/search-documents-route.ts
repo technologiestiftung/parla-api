@@ -147,7 +147,7 @@ export async function registerSearchDocumentsRoute(
 							question: sanitizedQuery,
 							generated_answer: undefined,
 							llm_model: OPENAI_MODEL,
-							llm_embedding: OPENAI_EMBEDDING_MODEL,
+							llm_embedding_model: OPENAI_EMBEDDING_MODEL,
 							matching_documents: documentMatches.map((match) => {
 								return responseDocumentMatchToReference(match);
 							}),

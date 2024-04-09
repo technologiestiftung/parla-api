@@ -58,7 +58,7 @@ export interface ResponseDocumentMatchReference {
 }
 
 export interface DocumentSearchResponse {
-	userRequestId: number;
+	userRequestId: string;
 	documentMatches: ResponseDocumentMatch[];
 }
 

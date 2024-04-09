@@ -103,7 +103,7 @@ const gpt = S.object()
 export const documentSearchResponseSchema = {
 	201: S.object()
 		.prop("documentMatches", S.array().items(documentMatch))
-		.prop("userRequestId", S.number()),
+		.prop("userRequestId", S.string()),
 };
 
 export const generatedAnswerResponseSchema = {
@@ -114,7 +114,7 @@ export const generateAnswerBodySchema = S.object()
 	.prop("query", S.string().minLength(1))
 	.prop("include_summary_in_response_generation", S.boolean().default(true))
 	.prop("temperature", S.number().minimum(0).maximum(2).default(0))
-	.prop("userRequestId", S.number())
+	.prop("userRequestId", S.string())
 	.prop("documentMatches", S.array().items(documentMatch))
 	.required(["query", "documentMatches"]);
 

@@ -1,7 +1,7 @@
 create extension pg_jsonschema;
 
 create table user_requests(
-    id serial primary key,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid()
     created_at timestamp not null,
 
     request_payload json not null,
