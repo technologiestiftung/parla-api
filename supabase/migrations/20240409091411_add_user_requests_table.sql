@@ -37,6 +37,7 @@ create table user_requests(
 
     question text not null,
     generated_answer text, -- can be null
+    error text, -- can be null
     llm_model text not null,
     llm_embedding_model text not null,
 

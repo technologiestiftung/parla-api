@@ -7,6 +7,7 @@ import {
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
 import { OpenAIClient } from "../llm/openai-client.js";
+import supabase from "../supabase.js";
 
 export async function registerGenerateAnswerRoute(
 	fastify: FastifyInstance,
@@ -71,9 +72,23 @@ export async function registerGenerateAnswerRoute(
 					});
 
 					const llm = new OpenAIClient(OPENAI_KEY);
-					const stream = await llm.requestResponseStream(chatCompletionRequest);
+					let generatedAnswer: string = "";
+					const stream = await llm.requestResponseStream(
+						chatCompletionRequest,
+						(delta) => {
+							generatedAnswer += delta;
+						},
+					);
 
-					reply.status(201).send(stream);
+					await reply.status(201).send(stream);
+
+					const { data, error } = await supabase
+						.from("user_requests")
+						.update({ generated_answer: generatedAnswer })
+						.eq("id", request.body.userRequestId)
+						.select("*");
+
+					console.log(data, error);
 
 					return reply;
 				},

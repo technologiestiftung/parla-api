@@ -51,6 +51,7 @@ export interface GenerateAnswerResponse {
 
 export interface GenerateAnswerBody {
 	query: string;
+	userRequestId: number;
 	include_summary_in_response_generation: boolean;
 	temperature: number;
 	documentMatches: Array<ResponseDocumentMatch>;
