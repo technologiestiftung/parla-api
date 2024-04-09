@@ -101,7 +101,9 @@ const gpt = S.object()
 	.prop("choices", choices);
 
 export const documentSearchResponseSchema = {
-	201: S.object().prop("documentMatches", S.array().items(documentMatch)),
+	201: S.object()
+		.prop("documentMatches", S.array().items(documentMatch))
+		.prop("userRequestId", S.number()),
 };
 
 export const generatedAnswerResponseSchema = {

@@ -15,11 +15,13 @@ import {
 import { similaritySearchOnChunksAndSummaries } from "../similarity-search-chunks-and-summaries.js";
 import { similaritySearchOnChunksOnly } from "../similarity-search-chunks-only.js";
 import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-summaries-then-chunks.js";
+import supabase from "../supabase.js";
 
 export async function registerSearchDocumentsRoute(
 	fastify: FastifyInstance,
 	OPENAI_KEY: string,
 	OPENAI_EMBEDDING_MODEL: string,
+	OPENAI_MODEL: string,
 ) {
 	await fastify.register(
 		async (app, options, next) => {
@@ -136,7 +138,44 @@ export async function registerSearchDocumentsRoute(
 						throw new Error(`Algorithm ${search_algorithm} not supported.`);
 					}
 
+					const { data, error } = await supabase
+						.from("user_requests")
+						.insert({
+							created_at: new Date(),
+							request_payload: request.body,
+							question: sanitizedQuery,
+							generated_answer: undefined,
+							llm_model: OPENAI_MODEL,
+							llm_embedding: OPENAI_EMBEDDING_MODEL,
+							matching_documents: documentMatches.map((match) => ({
+								registered_document_id: match.registered_document.id,
+								processed_document_id: match.processed_document.id,
+								similarity: match.similarity,
+								processed_document_summary_match: {
+									processed_document_summary_id:
+										match.processed_document_summary_match
+											.processed_document_summary.id,
+									processed_document_summary_match:
+										match.processed_document_summary_match.similarity,
+								},
+								processed_document_chunk_matches:
+									match.processed_document_chunk_matches.map((chunkMatch) => ({
+										processed_document_chunk_id:
+											chunkMatch.processed_document_chunk.id,
+										processed_document_chunk_similarity: chunkMatch.similarity,
+									})),
+							})),
+						})
+						.select("*");
+
+					if (!data) {
+						throw new Error(
+							`Could not save user request to database: ${error.message}`,
+						);
+					}
+
 					const response = {
+						userRequestId: data[0].id,
 						documentMatches: documentMatches,
 					} as DocumentSearchResponse;
 

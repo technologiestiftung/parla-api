@@ -2,9 +2,9 @@ create extension pg_jsonschema;
 
 create table user_requests(
     id serial primary key,
-    created_at timestamp,
+    created_at timestamp not null,
 
-    request_payload json,
+    request_payload json not null,
     check(json_matches_schema('{
 	"type": "object",
 	"properties": {
@@ -35,11 +35,12 @@ create table user_requests(
 	}
 }'::json, request_payload)),
 
-    question text,
-    generated_answer text,
-    llm_model text,
+    question text not null,
+    generated_answer text, -- can be null
+    llm_model text not null,
+    llm_embedding_model text not null,
 
-    matching_documents json,
+    matching_documents json not null,
     check (
         json_matches_schema(
             '{
@@ -49,6 +50,7 @@ create table user_requests(
 		"properties": {
 			"registered_document_id": { "type": "number" },
 			"processed_document_id": { "type": "number" },
+            "similarity": { "type": "number" },
 			"processed_document_summary_match": {
 				"type": "object",
 				"properties": {
