@@ -27,6 +27,10 @@ export const healthSchema = {
 	200: S.object().prop("message", S.string().default("OK")),
 };
 
+export const userRequestSchema = {
+	200: S.object().prop("data", S.object()),
+};
+
 const choices = S.array().items(
 	S.object()
 		.prop("index", S.number())
