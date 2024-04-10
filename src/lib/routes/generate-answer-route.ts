@@ -85,7 +85,7 @@ export async function registerGenerateAnswerRoute(
 					const { error } = await supabase
 						.from("user_requests")
 						.update({ generated_answer: generatedAnswer })
-						.eq("id", request.body.userRequestId)
+						.eq("short_id", request.body.userRequestId)
 						.select("*");
 
 					if (error) {

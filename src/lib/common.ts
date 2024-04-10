@@ -2,17 +2,19 @@
 // @ts-ignore
 import { Database } from "./database.js";
 
-type RegisteredDocument =
+export type RegisteredDocument =
 	Database["public"]["Tables"]["registered_documents"]["Row"];
 
-type ProcessedDocument =
+export type ProcessedDocument =
 	Database["public"]["Tables"]["processed_documents"]["Row"];
 
-type ProcessedDocumentSummary =
+export type ProcessedDocumentSummary =
 	Database["public"]["Tables"]["processed_document_summaries"]["Row"];
 
-type ProcessedDocumentChunk =
+export type ProcessedDocumentChunk =
 	Database["public"]["Tables"]["processed_document_chunks"]["Row"];
+
+export type UserRequest = Database["public"]["Tables"]["user_requests"]["Row"];
 
 // https://platform.openai.com/docs/models/gpt-3-5
 // https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo

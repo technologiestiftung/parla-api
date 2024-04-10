@@ -10,6 +10,7 @@ import { registerHealthRoute } from "./routes/health-route.js";
 import { registerRootRoute } from "./routes/root-route.js";
 import { registerSearchDocumentsRoute } from "./routes/search-documents-route.js";
 import { registerCountDocumentsRoute } from "./routes/count-documents-route.js";
+import { registerLoadUserRequestRoute } from "./routes/load-user-request-route.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -75,6 +76,7 @@ export async function buildServer({
 		OPENAI_MODEL,
 	);
 	registerGenerateAnswerRoute(fastify, OPENAI_MODEL, OPENAI_KEY);
+	registerLoadUserRequestRoute(fastify);
 
 	fastify.setErrorHandler(function (error, request, reply) {
 		if (error instanceof EnvError) {
