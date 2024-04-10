@@ -14,10 +14,11 @@ export async function similaritySearchOnChunksOnly(
 	const { error: matchChunksError, data: matchChunks } = await supabase
 		.rpc("match_document_chunks", {
 			embedding: config.embedding,
-			match_threshold: config.match_threshold,
+			match_threshold: 0,
 			match_count: config.chunk_limit,
 			num_probes: config.num_probes_chunks,
 		})
+		.gte("similarity", config.match_threshold)
 		.order("similarity", { ascending: false });
 
 	if (matchChunksError) {
