@@ -135,8 +135,8 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 						};
 
 						const final = {
-							registeredDocument: registeredDocument,
-							processedDocument: processedDocument,
+							registered_document: registeredDocument,
+							processed_document: processedDocument,
 							processed_document_summary_match: {
 								processed_document_summary: strippedSummary,
 								similarity: findSimilarityForSummary(
@@ -165,7 +165,9 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 					id: data.id,
 					query: data.question,
 					answerResponse: data.generated_answer,
-					searchResponse: matchingDocuments,
+					searchResponse: {
+						documentMatches: matchingDocuments,
+					},
 				};
 
 				reply.status(200).send(final);
