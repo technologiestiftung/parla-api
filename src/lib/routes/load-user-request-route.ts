@@ -1,14 +1,55 @@
 import { FastifyInstance } from "fastify";
-import { userRequestSchema } from "../json-schemas.js";
-import { registerCors } from "../handle-cors.js";
-import supabase from "../supabase.js";
 import {
+	ProcessedDocument,
 	ProcessedDocumentChunk,
 	ProcessedDocumentSummary,
 	RegisteredDocument,
 	ResponseDocumentMatchReference,
 	UserRequest,
 } from "../common.js";
+import { registerCors } from "../handle-cors.js";
+import supabase from "../supabase.js";
+
+function findSimilarityForChunk(
+	chunkId: number,
+	matches: Array<ResponseDocumentMatchReference>,
+): number {
+	const match = matches.find((match) => {
+		return match.processed_document_chunk_matches.some((chunkMatch) => {
+			return chunkMatch.processed_document_chunk_id === chunkId;
+		});
+	});
+
+	if (!match) {
+		return -1;
+	}
+
+	const chunkMatch = match.processed_document_chunk_matches.find(
+		(chunkMatch) => {
+			return chunkMatch.processed_document_chunk_id === chunkId;
+		},
+	);
+
+	return chunkMatch?.similarity ?? -1;
+}
+
+function findSimilarityForSummary(
+	summaryId: number,
+	matches: Array<ResponseDocumentMatchReference>,
+): number {
+	const match = matches.find((match) => {
+		return (
+			match.processed_document_summary_match.processed_document_summary_id ===
+			summaryId
+		);
+	});
+
+	if (!match) {
+		return -1;
+	}
+
+	return match.processed_document_summary_match.similarity;
+}
 
 export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 	await fastify.register(
@@ -41,6 +82,13 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 								.eq("id", matchingDocumentReference.registered_document_id)
 								.single<RegisteredDocument>();
 
+						const { data: processedDocument, error: processedDocumentError } =
+							await supabase
+								.from("processed_documents")
+								.select("*")
+								.eq("id", matchingDocumentReference.processed_document_id)
+								.single<ProcessedDocument>();
+
 						const processedDocumentChunks = await Promise.all(
 							matchingDocumentReference.processed_document_chunk_matches.map(
 								async (chunk) => {
@@ -53,7 +101,14 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 										.eq("id", chunk.processed_document_chunk_id)
 										.single<ProcessedDocumentChunk>();
 
-									return processedDocumentChunk;
+									const strippedChunk = {
+										id: processedDocumentChunk?.id,
+										content: processedDocumentChunk?.content,
+										page: processedDocumentChunk?.page,
+										processed_document_id:
+											processedDocumentChunk?.processed_document_id,
+									};
+									return strippedChunk;
 								},
 							),
 						);
@@ -71,19 +126,49 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 							)
 							.single<ProcessedDocumentSummary>();
 
+						const strippedSummary = {
+							id: processedDocumentSummary?.id,
+							processed_document_id:
+								processedDocumentSummary?.processed_document_id,
+							summary: processedDocumentSummary?.summary,
+							tags: processedDocumentSummary?.tags,
+						};
+
 						const final = {
 							registeredDocument: registeredDocument,
-							processedDocumentChunks: processedDocumentChunks,
-							processedDocumentSummary: processedDocumentSummary,
+							processedDocument: processedDocument,
+							processed_document_summary_match: {
+								processed_document_summary: strippedSummary,
+								similarity: findSimilarityForSummary(
+									strippedSummary.id!,
+									matchingDocumentsReferences,
+								),
+							},
+							processed_document_chunk_matches: processedDocumentChunks.map(
+								(chunk) => {
+									return {
+										processed_document_chunk: chunk,
+										similarity: findSimilarityForChunk(
+											chunk.id!,
+											matchingDocumentsReferences,
+										),
+									};
+								},
+							),
 						};
 
 						return final;
 					}),
 				);
 
-				console.log(matchingDocuments);
+				const final = {
+					id: data.id,
+					query: data.question,
+					answerResponse: data.generated_answer,
+					searchResponse: matchingDocuments,
+				};
 
-				reply.status(200).send({ data: matchingDocuments });
+				reply.status(200).send(final);
 			});
 			next();
 		},
