@@ -82,12 +82,20 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 								.eq("id", matchingDocumentReference.registered_document_id)
 								.single<RegisteredDocument>();
 
+						if (registeredDocumentError) {
+							throw new Error("Error fetching registered document");
+						}
+
 						const { data: processedDocument, error: processedDocumentError } =
 							await supabase
 								.from("processed_documents")
 								.select("*")
 								.eq("id", matchingDocumentReference.processed_document_id)
 								.single<ProcessedDocument>();
+
+						if (processedDocumentError) {
+							throw new Error("Error fetching processed document");
+						}
 
 						const processedDocumentChunks = await Promise.all(
 							matchingDocumentReference.processed_document_chunk_matches.map(
@@ -100,6 +108,10 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 										.select("*")
 										.eq("id", chunk.processed_document_chunk_id)
 										.single<ProcessedDocumentChunk>();
+
+									if (processedDocumentChunkError) {
+										throw new Error("Error fetching processed document chunk");
+									}
 
 									const strippedChunk = {
 										id: processedDocumentChunk?.id,
@@ -125,6 +137,10 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 									.processed_document_summary_id,
 							)
 							.single<ProcessedDocumentSummary>();
+
+						if (processedDocumentSummaryError) {
+							throw new Error("Error fetching processed document summary");
+						}
 
 						const strippedSummary = {
 							id: processedDocumentSummary?.id,
@@ -161,7 +177,7 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 					}),
 				);
 
-				const final = {
+				const finalResponse = {
 					id: data.id,
 					query: data.question,
 					answerResponse: data.generated_answer,
@@ -170,7 +186,7 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 					},
 				};
 
-				reply.status(200).send(final);
+				reply.status(200).send(finalResponse);
 			});
 			next();
 		},
