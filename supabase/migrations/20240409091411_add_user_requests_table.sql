@@ -1,4 +1,4 @@
-create extension pg_jsonschema;
+create extension if not exists "pg_jsonschema";
 
 create table user_requests(
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
