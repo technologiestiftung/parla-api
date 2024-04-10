@@ -1,10 +1,6 @@
 import anyTest, { TestFn } from "ava";
 import { buildTestServer } from "./util/test-server.js";
 import { FastifyInstance, InjectOptions } from "fastify";
-import {
-	testGenAnswerReqBody,
-	testUserRequestResponse,
-} from "./util/fixtures.js";
 import { mockServer } from "../mock/node.js";
 
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
@@ -38,6 +34,5 @@ test("load user request should return reconstructed request/response object", as
 	};
 	const response = await t.context.server.inject(opts);
 	t.is(response.statusCode, 200);
-	const responseJson = JSON.parse(response.body);
-	t.deepEqual(responseJson, testUserRequestResponse);
+	t.snapshot(response.json());
 });
