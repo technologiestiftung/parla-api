@@ -23,7 +23,7 @@ test("load user request should return reconstructed request/response object", as
 	const opts: InjectOptions = {
 		method: "GET",
 		url: {
-			pathname: "/requests/wR", // jR is encoded short id for numeric id = 1
+			pathname: "/requests/jR", // jR is encoded short id for numeric id = 1
 			hostname: "localhost",
 			port: 8888,
 			protocol: "http",
