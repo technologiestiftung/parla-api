@@ -17,6 +17,7 @@ import { similaritySearchOnChunksAndSummaries } from "../similarity-search-chunk
 import { similaritySearchOnChunksOnly } from "../similarity-search-chunks-only.js";
 import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-summaries-then-chunks.js";
 import supabase from "../supabase.js";
+import { Json } from "../database.js";
 
 export async function registerSearchDocumentsRoute(
 	fastify: FastifyInstance,
@@ -142,14 +143,16 @@ export async function registerSearchDocumentsRoute(
 					const { data, error } = await supabase
 						.from("user_requests")
 						.insert({
-							created_at: new Date(),
-							request_payload: request.body,
+							created_at: new Date().toISOString(),
+							request_payload: request.body as unknown as Json,
 							question: sanitizedQuery,
 							generated_answer: undefined,
 							llm_model: OPENAI_MODEL,
 							llm_embedding_model: OPENAI_EMBEDDING_MODEL,
 							matching_documents: documentMatches.map((match) => {
-								return responseDocumentMatchToReference(match);
+								return responseDocumentMatchToReference(
+									match,
+								) as unknown as Json;
 							}),
 						})
 						.select("*");
