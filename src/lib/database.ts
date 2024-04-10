@@ -173,34 +173,37 @@ export type Database = {
           created_at: string
           error: string | null
           generated_answer: string | null
-          id: string
+          id: number | null
           llm_embedding_model: string
           llm_model: string
           matching_documents: Json
           question: string
           request_payload: Json
+          short_id: string | null
         }
         Insert: {
           created_at: string
           error?: string | null
           generated_answer?: string | null
-          id?: string
+          id?: number | null
           llm_embedding_model: string
           llm_model: string
           matching_documents: Json
           question: string
           request_payload: Json
+          short_id?: string | null
         }
         Update: {
           created_at?: string
           error?: string | null
           generated_answer?: string | null
-          id?: string
+          id?: number | null
           llm_embedding_model?: string
           llm_model?: string
           matching_documents?: Json
           question?: string
           request_payload?: Json
+          short_id?: string | null
         }
         Relationships: []
       }
@@ -209,6 +212,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      hash_encode: {
+        Args: {
+          "": number
+        }
+        Returns: string
+      }
+      id_decode: {
+        Args: {
+          "": string
+        }
+        Returns: number[]
+      }
+      id_decode_once: {
+        Args: {
+          "": string
+        }
+        Returns: number
+      }
+      id_encode:
+        | {
+            Args: {
+              "": number[]
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": number
+            }
+            Returns: string
+          }
       json_matches_schema: {
         Args: {
           schema: Json

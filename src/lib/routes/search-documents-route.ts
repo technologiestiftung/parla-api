@@ -164,7 +164,7 @@ export async function registerSearchDocumentsRoute(
 					}
 
 					const response = {
-						userRequestId: data[0].id,
+						userRequestId: data[0].short_id,
 						documentMatches: documentMatches,
 					} as DocumentSearchResponse;
 

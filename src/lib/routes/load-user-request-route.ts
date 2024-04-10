@@ -70,7 +70,7 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 					const { data, error } = await supabase
 						.from("user_requests")
 						.select("*")
-						.eq("id", requestId)
+						.eq("short_id", requestId)
 						.single<UserRequest>();
 
 					if (!data) {
@@ -194,7 +194,7 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 					);
 
 					const finalResponse = {
-						id: data.id,
+						id: data.short_id,
 						query: data.question,
 						answerResponse: data.generated_answer,
 						searchResponse: {
