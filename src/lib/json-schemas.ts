@@ -110,6 +110,26 @@ export const documentSearchResponseSchema = {
 		.prop("userRequestId", S.string()),
 };
 
+export const documentMatchSchema = S.object()
+	.prop("registered_document", registeredDocument)
+	.prop("processed_document", processedDocument)
+	.prop("processed_document_summary_match", processedDocumentSummaryMatch)
+	.prop(
+		"processed_document_chunk_matches",
+		S.array().items(processedDocumentChunkMatch),
+	);
+
+export const getUserRequestSchema = {
+	200: S.object()
+		.prop("id", S.string())
+		.prop("query", S.string())
+		.prop("answerResponse", S.string())
+		.prop(
+			"searchResponse",
+			S.object().prop("documentMatches", S.array().items(documentMatchSchema)),
+		),
+};
+
 export const generatedAnswerResponseSchema = {
 	201: S.object().prop("answer", gpt),
 };
