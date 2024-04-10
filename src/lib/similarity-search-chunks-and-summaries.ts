@@ -18,7 +18,7 @@ export async function similaritySearchOnChunksAndSummaries(
 		await supabase
 			.rpc("match_summaries_and_chunks", {
 				embedding: config.embedding,
-				match_threshold: 0,
+				match_threshold: config.match_threshold,
 				chunk_limit: config.chunk_limit,
 				summary_limit: config.summary_limit,
 				num_probes_chunks: config.num_probes_chunks,

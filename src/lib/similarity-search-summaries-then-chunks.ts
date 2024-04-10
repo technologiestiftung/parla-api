@@ -14,7 +14,7 @@ export async function similaritySearchFirstSummariesThenChunks(
 	const { error: matchSummaryError, data: similarSummaries } = await supabase
 		.rpc("match_summaries", {
 			embedding: config.embedding,
-			match_threshold: 0,
+			match_threshold: config.match_threshold,
 			match_count: config.summary_limit,
 			num_probes: config.num_probes_summaries,
 		})

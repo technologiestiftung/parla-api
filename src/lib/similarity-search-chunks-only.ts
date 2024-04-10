@@ -14,7 +14,7 @@ export async function similaritySearchOnChunksOnly(
 	const { error: matchChunksError, data: matchChunks } = await supabase
 		.rpc("match_document_chunks", {
 			embedding: config.embedding,
-			match_threshold: 0,
+			match_threshold: config.match_threshold,
 			match_count: config.chunk_limit,
 			num_probes: config.num_probes_chunks,
 		})
