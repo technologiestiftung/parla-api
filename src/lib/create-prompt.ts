@@ -29,9 +29,12 @@ export function createPrompt({
 	let tokenCount = 0;
 	let contextText = "";
 
+	// Max. 3 of the top documents to assure that we do not exceed the token limit
+	const includedDocumentMatches = documentMatches.slice(0, 3);
+
 	// Concatenate the context
-	for (let i = 0; i < documentMatches.length; i++) {
-		const documentMatch = documentMatches[i];
+	for (let i = 0; i < includedDocumentMatches.length; i++) {
+		const documentMatch = includedDocumentMatches[i];
 
 		const chunkContent = documentMatch.processed_document_chunk_matches
 			.map((chunk) => chunk.processed_document_chunk.content)
@@ -90,11 +93,11 @@ export function createPrompt({
 		max_tokens: MAX_TOKENS,
 		temperature: temperature,
 		stream: true,
-		// https://platform.openai.com/docs/api-reference/chat 
+		// https://platform.openai.com/docs/api-reference/chat
 		// seed feature is in Beta. If specified, our system will make a best effort to
 		// sample deterministically, such that repeated requests with the same seed and
 		// parameters should return the same result. Determinism is not guaranteed.
-		seed: 1024
+		seed: 1024,
 	};
 
 	return completionOptions;

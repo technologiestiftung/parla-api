@@ -18,6 +18,7 @@ export async function similaritySearchOnChunksOnly(
 			match_count: config.chunk_limit,
 			num_probes: config.num_probes_chunks,
 		})
+		.gte("similarity", config.match_threshold)
 		.order("similarity", { ascending: false });
 
 	if (matchChunksError) {
