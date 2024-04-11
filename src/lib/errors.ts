@@ -6,6 +6,25 @@ export class ApplicationError extends Error {
 		super(message);
 	}
 }
+
+export type OpenAIendpointTypes =
+	| "moderation"
+	| "embeddings"
+	| "chat/completions";
+export interface OpenAIErrorData {
+	endpoint: OpenAIendpointTypes;
+	status: number;
+	statusText: string;
+}
+
+export class OpenAIError extends Error {
+	constructor(
+		message: string,
+		public data: OpenAIErrorData,
+	) {
+		super(message);
+	}
+}
 // export class AuthError extends Error {}
 
 export class UserError extends ApplicationError {}

@@ -11,6 +11,7 @@ import { registerRootRoute } from "./routes/root-route.js";
 import { registerSearchDocumentsRoute } from "./routes/search-documents-route.js";
 import { registerCountDocumentsRoute } from "./routes/count-documents-route.js";
 import { registerLoadUserRequestRoute } from "./routes/load-user-request-route.js";
+import { customErrorHandler } from "./error-handler.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -43,6 +44,9 @@ export async function buildServer({
 		disableRequestLogging:
 			NODE_ENV === "development" || NODE_ENV === "test" ? false : true,
 	});
+
+	// Register custom error handler
+	fastify.setErrorHandler(customErrorHandler);
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
 	await fastify.register(fastifySwagger, {

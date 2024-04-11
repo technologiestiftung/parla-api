@@ -8,6 +8,7 @@ import {
 } from "../json-schemas.js";
 import { OpenAIClient } from "../llm/openai-client.js";
 import supabase from "../supabase.js";
+import { OpenAIError } from "../errors.js";
 
 export async function registerGenerateAnswerRoute(
 	fastify: FastifyInstance,
@@ -70,18 +71,27 @@ export async function registerGenerateAnswerRoute(
 						temperature,
 						includeSummary: include_summary_in_response_generation,
 					});
-
-					const llm = new OpenAIClient(OPENAI_KEY);
 					let generatedAnswer: string = "";
-					const stream = await llm.requestResponseStream(
-						chatCompletionRequest,
-						(delta) => {
-							generatedAnswer += delta;
-						},
-					);
+					try {
+						const llm = new OpenAIClient(OPENAI_KEY);
+						const stream = await llm.requestResponseStream(
+							chatCompletionRequest,
+							(delta) => {
+								generatedAnswer += delta;
+							},
+						);
 
-					await reply.status(201).send(stream);
-
+						await reply.status(201).send(stream);
+					} catch (error: unknown) {
+						if (error instanceof Error) {
+							throw new OpenAIError("Failed to create completion", {
+								endpoint: "chat/completions",
+								status: 500,
+								statusText: error.message,
+							});
+						}
+						throw error;
+					}
 					const { error } = await supabase
 						.from("user_requests")
 						.update({ generated_answer: generatedAnswer })

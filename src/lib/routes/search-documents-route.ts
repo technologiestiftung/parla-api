@@ -7,7 +7,7 @@ import {
 	SimilaritySearchConfig,
 	responseDocumentMatchToReference,
 } from "../common.js";
-import { ApplicationError, UserError } from "../errors.js";
+import { ApplicationError, UserError, OpenAIError } from "../errors.js";
 import { registerCors } from "../handle-cors.js";
 import {
 	documentSearchBodySchema,
@@ -60,6 +60,9 @@ export async function registerSearchDocumentsRoute(
 						{
 							method: "POST",
 							headers: {
+								"x-test-error": request.headers.hasOwnProperty("x-test-error")
+									? (request.headers["x-test-error"] as string)
+									: "", // This header is used to test the error handling in the tests
 								Authorization: `Bearer ${OPENAI_KEY}`,
 								"Content-Type": "application/json",
 							},
@@ -69,9 +72,15 @@ export async function registerSearchDocumentsRoute(
 						},
 					);
 					if (!moderationResponse.ok) {
-						throw new ApplicationError(
-							`OpenAI moderation failed with status ${moderationResponse.status}`,
-						);
+						throw new OpenAIError("Failed to moderate content", {
+							endpoint: "moderation",
+							status: moderationResponse.status,
+							statusText: await moderationResponse.text(),
+						});
+
+						// throw new ApplicationError(
+						// 	`OpenAI moderation failed with status ${moderationResponse.status}`,
+						// );
 					}
 					const moderationResponseJson = await moderationResponse.json();
 
@@ -102,11 +111,12 @@ export async function registerSearchDocumentsRoute(
 						},
 					);
 
-					if (embeddingResponse.status !== 200) {
-						throw new ApplicationError(
-							"Failed to create embedding for question",
-							{ embeddingResponse },
-						);
+					if (!embeddingResponse.ok) {
+						throw new OpenAIError("Failed to create embedding", {
+							endpoint: "embeddings",
+							status: embeddingResponse.status,
+							statusText: await embeddingResponse.text(),
+						});
 					}
 
 					const {
