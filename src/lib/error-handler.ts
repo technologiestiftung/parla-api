@@ -11,12 +11,18 @@ export function customErrorHandler(
 	reply: FastifyReply,
 ) {
 	if (error instanceof OpenAIError) {
-		reply
-			.status(error.data.status)
-			.send({
-				endpoint: error.data.endpoint,
-				statusText: error.data.statusText,
-			});
+		// test if the statusText is parseable as JSON
+		let statusText;
+		try {
+			statusText = JSON.parse(error.data.statusText);
+		} catch (e) {
+			statusText = error.data.statusText;
+		}
+
+		reply.status(error.data.status).send({
+			endpoint: error.data.endpoint,
+			statusText,
+		});
 	} else {
 		reply.send(error);
 	}

@@ -43,5 +43,11 @@ test.only("openai error vector search 401 due to missing or wrong openai api key
 	const response = await t.context.server.inject(opts);
 
 	t.is(response.statusCode, 401);
-	t.is(response.body, JSON.stringify(testOpenAIApiKeyError));
+	t.is(
+		response.body,
+		JSON.stringify({
+			endpoint: "moderation",
+			statusText: testOpenAIApiKeyError,
+		}),
+	);
 });
