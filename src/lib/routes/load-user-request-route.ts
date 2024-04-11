@@ -166,6 +166,7 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 								};
 
 								const final = {
+									similarity: matchingDocumentReference.similarity,
 									registered_document: registeredDocument,
 									processed_document: processedDocument,
 									processed_document_summary_match: {

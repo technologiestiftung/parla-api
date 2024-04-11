@@ -111,6 +111,7 @@ export const documentSearchResponseSchema = {
 };
 
 export const documentMatchSchema = S.object()
+	.prop("similarity", S.number())
 	.prop("registered_document", registeredDocument)
 	.prop("processed_document", processedDocument)
 	.prop("processed_document_summary_match", processedDocumentSummaryMatch)
