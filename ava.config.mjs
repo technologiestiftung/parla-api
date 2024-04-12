@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 config({ path: "./.env.test" });
 
+// eslint-disable-next-line @technologiestiftung/no-default-export
 export default {
 	require: [],
 	timeout: "20s",
