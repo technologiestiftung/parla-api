@@ -268,6 +268,13 @@ test("feedbacks route POST should return 201", async (t) => {
 	const response = await t.context.server.inject(opts);
 	t.is(response.statusCode, 201);
 
-	t.snapshot(response.body);
+	const alteredBody = JSON.stringify(
+		JSON.parse(response.body).map((item: Record<string, unknown>) => ({
+			...item,
+			created_at: undefined,
+		})),
+	);
+	// we remove the created_at field because it is dynamic
+	t.snapshot(alteredBody);
 	t.is(JSON.parse(response.body)[0].feedback_id, feedback_id);
 });
