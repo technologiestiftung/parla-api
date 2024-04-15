@@ -19,6 +19,7 @@ export default [
 		},
 		rules: {
 			"@technologiestiftung/no-default-export": "error",
+			"max-lines": ["error", 1000],
 		},
 		plugins: { "@technologiestiftung": tsbPlugin },
 	},
