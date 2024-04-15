@@ -23,4 +23,7 @@ export default [
 		},
 		plugins: { "@technologiestiftung": tsbPlugin },
 	},
+	{
+		ignores: ["src/lib/database.ts"],
+	},
 ];

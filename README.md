@@ -95,6 +95,17 @@ select cron.schedule (
 );
 ```
 
+## Feedback Feature
+
+To have feedback types and tags in the initial version you can use this snippet
+
+```sql
+INSERT INTO feedbacks (kind, tag)
+		values('positive', NULL), ('negative', 'Antwort inhaltlich falsch oder missverständlich'), ('negative', 'Es gab einen Fehler'), ('negative', 'Antwort nicht ausführlich genug'), ('negative', 'Dokumente unpassend');
+```
+
+It is also present in the `supabase/seed.sql`
+
 ## Tests
 
 ```bash

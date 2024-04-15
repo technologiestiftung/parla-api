@@ -1,0 +1,4 @@
+ALTER TABLE "public"."feedbacks" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."user_requests" ENABLE ROW LEVEL SECURITY;
+

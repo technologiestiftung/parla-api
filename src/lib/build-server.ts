@@ -10,6 +10,7 @@ import { registerRootRoute } from "./routes/root-route.js";
 import { registerSearchDocumentsRoute } from "./routes/search-documents-route.js";
 import { registerCountDocumentsRoute } from "./routes/count-documents-route.js";
 import { registerLoadUserRequestRoute } from "./routes/load-user-request-route.js";
+import { feedbackRoute } from "./routes/feedback-route.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -67,6 +68,8 @@ export async function buildServer({
 	registerRootRoute(server);
 	registerHealthRoute(server);
 	registerCountDocumentsRoute(server);
+	server.register(feedbackRoute, { prefix: "/feedbacks" });
+
 	registerSearchDocumentsRoute(
 		server,
 		OPENAI_KEY,
