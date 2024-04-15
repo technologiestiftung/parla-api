@@ -1,7 +1,6 @@
-/* eslint-disable indent */
 // ESM
 import fastifySwagger from "@fastify/swagger";
-import Fastify from "fastify";
+import fastify from "fastify";
 import { Model } from "./common.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
 import { registerDocumentationRoute } from "./routes/documentation-route.js";
@@ -39,14 +38,13 @@ export async function buildServer({
 		test: false,
 	};
 
-	const fastify = Fastify({
+	const server = fastify({
 		logger: envToLogger[NODE_ENV] ?? true,
-		disableRequestLogging:
-			NODE_ENV === "development" || NODE_ENV === "test" ? false : true,
+		disableRequestLogging: !(NODE_ENV === "development" || NODE_ENV === "test"),
 	});
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	await fastify.register(fastifySwagger, {
+	// @ts-expect-error
+	await server.register(fastifySwagger, {
 		mode: "dynamic",
 		openapi: {
 			info: {
@@ -61,7 +59,7 @@ export async function buildServer({
 	});
 
 	// Set rate limit
-	await fastify.register(import("@fastify/rate-limit"), {
+	await server.register(import("@fastify/rate-limit"), {
 		max: 30,
 		timeWindow: "1 minute",
 	});
@@ -71,16 +69,17 @@ export async function buildServer({
 	registerHealthRoute(fastify);
 	registerCountDocumentsRoute(fastify);
 	fastify.register(feedbackRoute, { prefix: "/feedbacks" });
+
 	registerSearchDocumentsRoute(
-		fastify,
+		server,
 		OPENAI_KEY,
 		OPENAI_EMBEDDING_MODEL,
 		OPENAI_MODEL,
 	);
-	registerGenerateAnswerRoute(fastify, OPENAI_MODEL, OPENAI_KEY);
-	registerLoadUserRequestRoute(fastify);
+	registerGenerateAnswerRoute(server, OPENAI_MODEL, OPENAI_KEY);
+	registerLoadUserRequestRoute(server);
 
-	fastify.setErrorHandler(function (error, request, reply) {
+	server.setErrorHandler(function (error, request, reply) {
 		if (error instanceof EnvError) {
 			this.log.error(error, "Env variable is not defined");
 			reply.status(500).send("Env variable is not defined");
@@ -101,7 +100,7 @@ export async function buildServer({
 			reply.send(error);
 		}
 	});
-	return fastify;
+	return server;
 }
 
 // Run the server!

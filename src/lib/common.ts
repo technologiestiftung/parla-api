@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { Database } from "./database.js";
 
 export type RegisteredDocument =
@@ -88,6 +86,7 @@ export interface DocumentSearchBody {
 }
 
 export interface SimilaritySearchConfig {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	embedding: any;
 	match_threshold: number;
 	document_limit: number;
@@ -97,6 +96,7 @@ export interface SimilaritySearchConfig {
 	num_probes_chunks: number;
 }
 
+// eslint-disable-next-line no-shadow
 export enum AvailableSearchAlgorithms {
 	ChunksOnly = "chunks-only",
 	ChunksAndSummaries = "chunks-and-summaries",

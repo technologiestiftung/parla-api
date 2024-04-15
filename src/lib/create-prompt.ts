@@ -5,7 +5,7 @@ import {
 	ResponseDocumentMatch,
 } from "./common.js";
 import { ApplicationError } from "./errors.js";
-import facts from "../fixtures/facts.js";
+import { facts } from "../fixtures/facts.js";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
@@ -25,6 +25,7 @@ export function createPrompt({
 	temperature,
 	includeSummary,
 }: CreatePromptOptions): OpenAIChatCompletionRequest {
+	// eslint-disable-next-line new-cap
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 	let tokenCount = 0;
 	let contextText = "";

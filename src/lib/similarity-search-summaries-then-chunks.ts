@@ -5,7 +5,7 @@ import {
 	SimilaritySearchConfig,
 } from "./common.js";
 import { ApplicationError } from "./errors.js";
-import supabase from "./supabase.js";
+import { supabase } from "./supabase.js";
 
 export async function similaritySearchFirstSummariesThenChunks(
 	config: SimilaritySearchConfig,

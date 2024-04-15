@@ -1,7 +1,7 @@
 import cors from "@fastify/cors";
 import { FastifyInstance } from "fastify";
 import { countSchema } from "../json-schemas.js";
-import supabase from "../supabase.js";
+import { supabase } from "../supabase.js";
 
 export async function registerCountDocumentsRoute(fastify: FastifyInstance) {
 	fastify.register(
