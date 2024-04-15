@@ -64,11 +64,11 @@ export async function buildServer({
 		timeWindow: "1 minute",
 	});
 
-	registerDocumentationRoute(fastify);
-	registerRootRoute(fastify);
-	registerHealthRoute(fastify);
-	registerCountDocumentsRoute(fastify);
-	fastify.register(feedbackRoute, { prefix: "/feedbacks" });
+	registerDocumentationRoute(server);
+	registerRootRoute(server);
+	registerHealthRoute(server);
+	registerCountDocumentsRoute(server);
+	server.register(feedbackRoute, { prefix: "/feedbacks" });
 
 	registerSearchDocumentsRoute(
 		server,
