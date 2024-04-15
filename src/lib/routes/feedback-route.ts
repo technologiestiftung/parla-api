@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
-import supabase from "../supabase.js";
+import { supabase } from "../supabase.js";
 import { UserError } from "../errors.js";
 
-const feedbackRoute = function (
+export function feedbackRoute(
 	app: FastifyInstance,
 	_options: unknown,
 	next: (err?: Error | undefined) => void,
@@ -26,23 +26,25 @@ const feedbackRoute = function (
 					reply.send();
 					break;
 				case "GET":
-					const { id } = request.query;
-					const supabaseRequest = supabase.from("feedbacks").select("*");
-					if (id) {
-						supabaseRequest.eq("id", id);
+					{
+						const { id } = request.query;
+						const supabaseRequest = supabase.from("feedbacks").select("*");
+						if (id) {
+							supabaseRequest.eq("id", id);
+						}
+						const { data, error } = await supabaseRequest;
+						if (error) {
+							//TODO: Replace with SupabaseError from PR: https://github.com/technologiestiftung/parla-api/pull/87
+							throw new Error("Error fetching feedback from supabase");
+						}
+						if (!data) {
+							throw new Error("No feedback found");
+						}
+						if (data.length === 0) {
+							reply.status(404).send();
+						}
+						reply.send(data);
 					}
-					const { data, error } = await supabaseRequest;
-					if (error) {
-						//TODO: Replace with SupabaseError from PR: https://github.com/technologiestiftung/parla-api/pull/87
-						throw new Error("Error fetching feedback from supabase");
-					}
-					if (!data) {
-						throw new Error("No feedback found");
-					}
-					if (data.length === 0) {
-						reply.status(404).send();
-					}
-					reply.send(data);
 					break;
 				default:
 					throw new UserError("Method not allowed");
@@ -67,7 +69,7 @@ const feedbackRoute = function (
 		method: ["POST"],
 		handler: async (request, reply) => {
 			switch (request.method) {
-				case "POST":
+				case "POST": {
 					const { feedback_id, user_request_id } = request.body;
 
 					// 1. look into feedbacks table and check if the feedback_id matches one id
@@ -97,7 +99,6 @@ const feedbackRoute = function (
 
 					if (userRequestError) {
 						// TODO: replace with SupabaseError from PR: https://github.com/technologiestiftung/parla-api/pull/87
-						console.log(userRequestError);
 						throw new Error("Error fetching user request from supabase");
 					}
 					if (!userRequestData || userRequestData.length === 0) {
@@ -121,12 +122,11 @@ const feedbackRoute = function (
 					}
 					reply.status(201).send(updateData);
 					break;
+				}
 				default:
 					throw new UserError("Method not allowed");
 			}
 		},
 	});
 	next();
-};
-
-export { feedbackRoute };
+}
