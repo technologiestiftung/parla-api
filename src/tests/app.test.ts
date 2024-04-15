@@ -21,18 +21,3 @@ test("default health check route should return 200", async (t) => {
 	t.is(response.statusCode, 200);
 	t.is(response.body, JSON.stringify({ message: "OK" }));
 });
-
-// test("documentation route should return 200", async (t) => {
-// 	const opts: InjectOptions = {
-// 		method: "GET",
-// 		url: {
-// 			pathname: "/documentation/static/index.html",
-// 			hostname: "localhost",
-// 			port: 8888,
-// 			protocol: "http",
-// 		},
-// 	};
-// 	const response = await t.context.server.inject(opts);
-
-// 	t.is(response.statusCode, 200);
-// });
