@@ -35,7 +35,8 @@ SELECT
 		SELECT
 			* FROM regenerate_embedding_indices_for_summaries() $$);
 
-INSERT INTO user_requests(created_at, request_payload, question, generated_answer, llm_model, llm_embedding_model, matching_documents) values (now(), '{
+INSERT INTO user_requests(created_at, request_payload, question, generated_answer, llm_model, llm_embedding_model, matching_documents)
+	VALUES (now(), '{
     "query": "Wie viele Dachflächen mit Solaranlagen gibt es?",
     "match_threshold": 0.5,
     "num_probes_chunks": 9,
@@ -65,3 +66,11 @@ INSERT INTO user_requests(created_at, request_payload, question, generated_answe
 	}
 ]
 ');
+
+INSERT INTO feedbacks(kind, tag)
+	VALUES ('positive', NULL),
+('negative', 'Antwort inhaltlich falsch oder missverständlich'),
+('negative', 'Es gab einen Fehler'),
+('negative', 'Antwort nicht ausführlich genug'),
+('negative', 'Dokumente unpassend');
+

@@ -17,8 +17,12 @@ async function main() {
 		if (!OPENAI_MODEL) {
 			throw new EnvError("OPENAI_MODEL");
 		}
-		if (!OPENAI_KEY) throw new EnvError("OPENAI_KEY");
-		if (!OPENAI_EMBEDDING_MODEL) throw new EnvError("OPENAI_EMBEDDING_MODEL");
+		if (!OPENAI_KEY) {
+			throw new EnvError("OPENAI_KEY");
+		}
+		if (!OPENAI_EMBEDDING_MODEL) {
+			throw new EnvError("OPENAI_EMBEDDING_MODEL");
+		}
 
 		const server = await buildServer({
 			OPENAI_MODEL,
@@ -37,6 +41,7 @@ async function main() {
 
 		// quit on ctrl-c when running docker in terminal
 		process.on("SIGINT", async function onSigint() {
+			// eslint-disable-next-line no-console
 			console.info(
 				"Got SIGINT (aka ctrl-c in docker). Graceful shutdown ",
 				new Date().toISOString(),
@@ -46,6 +51,7 @@ async function main() {
 
 		// quit properly on docker stop
 		process.on("SIGTERM", async function onSigterm() {
+			// eslint-disable-next-line no-console
 			console.info(
 				"Got SIGTERM (docker container stop). Graceful shutdown ",
 				new Date().toISOString(),
