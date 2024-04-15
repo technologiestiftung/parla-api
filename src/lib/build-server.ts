@@ -3,14 +3,20 @@ import fastifySwagger from "@fastify/swagger";
 import fastify from "fastify";
 import { Model } from "./common.js";
 import { ApplicationError, EnvError, UserError } from "./errors.js";
-import { registerDocumentationRoute } from "./routes/documentation-route.js";
-import { registerGenerateAnswerRoute } from "./routes/generate-answer-route.js";
-import { registerHealthRoute } from "./routes/health-route.js";
-import { registerRootRoute } from "./routes/root-route.js";
-import { registerSearchDocumentsRoute } from "./routes/search-documents-route.js";
-import { registerCountDocumentsRoute } from "./routes/count-documents-route.js";
-import { registerLoadUserRequestRoute } from "./routes/load-user-request-route.js";
+import {
+	documentationRouteOptions,
+	swaggerOptions,
+} from "./routes/documentation-route.js";
+import { generateAnswerRoute } from "./routes/generate-answer-route.js";
+import { healthRoute } from "./routes/health-route.js";
+import { rootRoute } from "./routes/root-route.js";
+import { searchDocumentsRoute } from "./routes/search-documents-route.js";
+import { countDocumentsRoute } from "./routes/count-documents-route.js";
+import { loadUserRequestRoute } from "./routes/load-user-request-route.js";
 import { feedbackRoute } from "./routes/feedback-route.js";
+import cors from "@fastify/cors";
+import { corsConfiguration } from "./handle-cors.js";
+import fastifySwaggerUi from "@fastify/swagger-ui";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -42,44 +48,36 @@ export async function buildServer({
 		logger: envToLogger[NODE_ENV] ?? true,
 		disableRequestLogging: !(NODE_ENV === "development" || NODE_ENV === "test"),
 	});
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
-	await server.register(fastifySwagger, {
-		mode: "dynamic",
-		openapi: {
-			info: {
-				title: String,
-				description: String,
-				version: String,
-			},
-			externalDocs: Object,
+	server.register(cors, corsConfiguration);
 
-			components: Object,
-		},
-	});
-
+	server.register(fastifySwagger, swaggerOptions);
 	// Set rate limit
-	await server.register(import("@fastify/rate-limit"), {
+	server.register(import("@fastify/rate-limit"), {
 		max: 30,
 		timeWindow: "1 minute",
 	});
-
-	registerDocumentationRoute(server);
-	registerRootRoute(server);
-	registerHealthRoute(server);
-	registerCountDocumentsRoute(server);
+	server.register(fastifySwaggerUi, documentationRouteOptions);
+	server.register(rootRoute);
+	server.register(healthRoute, { prefix: "/health" });
+	// FIXME: We register at /processed_documents and add one handler for /count. Why?
+	server.register(countDocumentsRoute, {
+		prefix: "/processed_documents",
+	});
 	server.register(feedbackRoute, { prefix: "/feedbacks" });
-
-	registerSearchDocumentsRoute(
-		server,
+	server.register(searchDocumentsRoute, {
+		prefix: "/vector-search",
 		OPENAI_KEY,
 		OPENAI_EMBEDDING_MODEL,
 		OPENAI_MODEL,
-	);
-	registerGenerateAnswerRoute(server, OPENAI_MODEL, OPENAI_KEY);
-	registerLoadUserRequestRoute(server);
+	});
+	server.register(generateAnswerRoute, {
+		prefix: "/generate-answer",
+		OPENAI_MODEL,
+		OPENAI_KEY,
+	});
+	server.register(loadUserRequestRoute, { prefix: "/requests" });
 
-	server.setErrorHandler(function (error, request, reply) {
+	-server.setErrorHandler(function (error, request, reply) {
 		if (error instanceof EnvError) {
 			this.log.error(error, "Env variable is not defined");
 			reply.status(500).send("Env variable is not defined");

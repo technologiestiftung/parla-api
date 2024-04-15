@@ -1,14 +1,12 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { supabase } from "../supabase.js";
 import { UserError } from "../errors.js";
-import { registerCors } from "../handle-cors.js";
 
-export async function feedbackRoute(
+export function feedbackRoute(
 	app: FastifyInstance,
-	_options: unknown,
+	_options: FastifyPluginOptions,
 	next: (err?: Error | undefined) => void,
 ) {
-	await registerCors(app);
 	app.route<{
 		Querystring: { id?: number };
 	}>({
