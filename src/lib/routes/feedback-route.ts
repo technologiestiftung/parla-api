@@ -1,14 +1,14 @@
 import { FastifyInstance } from "fastify";
 import { supabase } from "../supabase.js";
 import { UserError } from "../errors.js";
+import { registerCors } from "../handle-cors.js";
 
-export function feedbackRoute(
+export async function feedbackRoute(
 	app: FastifyInstance,
 	_options: unknown,
 	next: (err?: Error | undefined) => void,
 ) {
-	// app.get("/", (req, res) => {
-
+	await registerCors(app);
 	app.route<{
 		Querystring: { id?: number };
 	}>({
@@ -16,15 +16,9 @@ export function feedbackRoute(
 		schema: {
 			querystring: { id: { type: "number" } },
 		},
-		method: ["GET", "HEAD", "OPTIONS"],
+		method: ["GET"],
 		handler: async (request, reply) => {
 			switch (request.method) {
-				case "HEAD":
-					reply.send();
-					break;
-				case "OPTIONS":
-					reply.send();
-					break;
 				case "GET":
 					{
 						const { id } = request.query;
