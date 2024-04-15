@@ -1,0 +1,1 @@
+ALTER TABLE user_requests ALTER COLUMN id SET NOT NULL;
