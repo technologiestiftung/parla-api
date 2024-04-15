@@ -16,9 +16,8 @@ export const handlers = [
 				// fail the request
 				const res = new HttpResponse(undefined, { status: 404 });
 				return res;
-			} else {
-				return HttpResponse.json(testAnswer);
 			}
+			return HttpResponse.json(testAnswer);
 		},
 	),
 	http.post("https://api.openai.com/v1/moderations", async ({ request }) => {
@@ -27,9 +26,8 @@ export const handlers = [
 			return HttpResponse.json({
 				results: [{ flagged: true }],
 			});
-		} else {
-			return HttpResponse.json(testModerationResponse);
 		}
+		return HttpResponse.json(testModerationResponse);
 	}),
 	http.post("https://api.openai.com/v1/embeddings", () => {
 		return HttpResponse.json(testEmbeddingResponse);

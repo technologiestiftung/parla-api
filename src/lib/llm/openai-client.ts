@@ -11,11 +11,11 @@ export class OpenAIClient implements LLMClient {
 		payload: object,
 		deltaCallback: (delta: string) => void,
 	): Promise<Readable> {
-		//@ts-ignore
+		//@ts-expect-error: @Jaszkowic Why can we expect an error here?
 		const answerStream = await this.openAi.chat.completions.create(payload);
 		const buffer = new Readable();
 		buffer._read = () => {};
-		var emit = async () => {
+		const emit = async () => {
 			for await (const chunk of answerStream) {
 				const delta = chunk.choices[0]?.delta?.content || "";
 				deltaCallback(delta);

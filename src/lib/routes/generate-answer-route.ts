@@ -7,7 +7,7 @@ import {
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
 import { OpenAIClient } from "../llm/openai-client.js";
-import supabase from "../supabase.js";
+import { supabase } from "../supabase.js";
 
 export async function registerGenerateAnswerRoute(
 	fastify: FastifyInstance,

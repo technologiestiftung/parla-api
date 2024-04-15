@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-var-requires */
 //@ts-check
 const glob = require("glob");
@@ -16,7 +17,6 @@ require("esbuild")
 		sourcemap: true,
 		treeShaking: true,
 		banner: {
-			// eslint-disable-next-line quotes
 			js: '"use strict";',
 		},
 		target: ["esnext"],
@@ -28,9 +28,15 @@ require("esbuild")
 	.then((result) => {
 		console.info("Esbuild is processing these files:");
 		console.info(entryPoints.join("\n"));
-		if (result.outputFiles) console.info(result.outputFiles);
-		if (result.warnings.length > 0) console.warn(result.warnings);
-		if (result.errors.length > 0) console.error(result.errors);
+		if (result.outputFiles) {
+			console.info(result.outputFiles);
+		}
+		if (result.warnings.length > 0) {
+			console.warn(result.warnings);
+		}
+		if (result.errors.length > 0) {
+			console.error(result.errors);
+		}
 		console.log("⚡ Esbuild is done");
 	})
 	.catch((err) => {

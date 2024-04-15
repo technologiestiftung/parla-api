@@ -8,13 +8,16 @@ import {
 	UserRequest,
 } from "../common.js";
 import { registerCors } from "../handle-cors.js";
-import supabase from "../supabase.js";
+import { supabase } from "../supabase.js";
 import { getUserRequestSchema } from "../json-schemas.js";
 
 function findSimilarityForChunk(
 	chunkId: number,
 	matches: Array<ResponseDocumentMatchReference>,
 ): number {
+	// TODO: Refactor for not shadowing variable names
+
+	// eslint-disable-next-line no-shadow
 	const match = matches.find((match) => {
 		return match.processed_document_chunk_matches.some((chunkMatch) => {
 			return chunkMatch.processed_document_chunk_id === chunkId;
@@ -26,6 +29,7 @@ function findSimilarityForChunk(
 	}
 
 	const chunkMatch = match.processed_document_chunk_matches.find(
+		// eslint-disable-next-line no-shadow
 		(chunkMatch) => {
 			return chunkMatch.processed_document_chunk_id === chunkId;
 		},
@@ -38,6 +42,7 @@ function findSimilarityForSummary(
 	summaryId: number,
 	matches: Array<ResponseDocumentMatchReference>,
 ): number {
+	// eslint-disable-next-line no-shadow
 	const match = matches.find((match) => {
 		return (
 			match.processed_document_summary_match.processed_document_summary_id ===
@@ -66,7 +71,9 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 				},
 				async (request, reply) => {
 					const { requestId } = request.params as { requestId: string };
-
+					// TODO: Handle error using SupabaseError coming in
+					// PR https://github.com/technologiestiftung/parla-api/pull/87
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
 					const { data, error } = await supabase
 						.from("user_requests")
 						.select("*")
@@ -171,7 +178,9 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 									processed_document: processedDocument,
 									processed_document_summary_match: {
 										processed_document_summary: strippedSummary,
+
 										similarity: findSimilarityForSummary(
+											// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- warn
 											strippedSummary.id!,
 											matchingDocumentsReferences,
 										),
@@ -181,6 +190,7 @@ export async function registerLoadUserRequestRoute(fastify: FastifyInstance) {
 											return {
 												processed_document_chunk: chunk,
 												similarity: findSimilarityForChunk(
+													// eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- warn
 													chunk.id!,
 													matchingDocumentsReferences,
 												),
