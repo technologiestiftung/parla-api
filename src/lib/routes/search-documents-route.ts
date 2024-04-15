@@ -16,9 +16,11 @@ import {
 import { similaritySearchOnChunksAndSummaries } from "../similarity-search-chunks-and-summaries.js";
 import { similaritySearchOnChunksOnly } from "../similarity-search-chunks-only.js";
 import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-summaries-then-chunks.js";
-import supabase from "../supabase.js";
+import { supabase } from "../supabase.js";
 import { Json } from "../database.js";
 
+// TODO: Refactor document route registrations to be located in the scope of build-server
+// eslint-disable-next-line max-params
 export async function registerSearchDocumentsRoute(
 	fastify: FastifyInstance,
 	OPENAI_KEY: string,
@@ -54,7 +56,7 @@ export async function registerSearchDocumentsRoute(
 					// Moderate the content to comply with OpenAI T&C
 					const sanitizedQuery = query.trim();
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					//@ts-ignore
+					//@ts-expect-error
 					const moderationResponse = await fetch(
 						"https://api.openai.com/v1/moderations",
 						{
@@ -86,7 +88,7 @@ export async function registerSearchDocumentsRoute(
 					}
 					// 3. generate an embedding using openai api
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-ignore
+					// @ts-expect-error
 					const embeddingResponse = await fetch(
 						"https://api.openai.com/v1/embeddings",
 						{

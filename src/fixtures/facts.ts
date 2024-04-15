@@ -77,4 +77,4 @@ const facts = [
 	},
 ];
 
-export default facts;
+export { facts };

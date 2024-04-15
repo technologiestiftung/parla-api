@@ -6,11 +6,12 @@ import {
 	SimilaritySearchConfig,
 } from "./common.js";
 import { ApplicationError } from "./errors.js";
-import supabase from "./supabase.js";
+import { supabase } from "./supabase.js";
 
 export async function similaritySearchOnChunksAndSummaries(
 	config: SimilaritySearchConfig,
 ): Promise<Array<ResponseDocumentMatch>> {
+	// eslint-disable-next-line new-cap
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 
 	// vector search summaries

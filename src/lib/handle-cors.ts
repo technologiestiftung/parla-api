@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 
@@ -42,6 +43,8 @@ export async function registerCors(app: FastifyInstance) {
 			}
 			// Generate an error on other origins, disabling access
 			cb(new Error("Not allowed"), false);
+
+			return; // Add this line to return a value at the end of the method
 		},
 	});
 }

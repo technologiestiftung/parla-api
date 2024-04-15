@@ -3,7 +3,7 @@ import { FastifyInstance } from "fastify";
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
 import { createPrompt, CreatePromptOptions } from "../lib/create-prompt.js";
 import { testSearchQuery } from "./util/fixtures.js";
-import supabase from "../lib/supabase.js";
+import { supabase } from "../lib/supabase.js";
 test("create prompt", async (t) => {
 	const { data: regDoc } = await supabase
 		.from("registered_documents")
@@ -27,8 +27,9 @@ test("create prompt", async (t) => {
 		!procDocSummary ||
 		!procDocChunks ||
 		procDocChunks?.length === 0
-	)
+	) {
 		throw new Error("No documents found");
+	}
 	const options: CreatePromptOptions = {
 		documentMatches: [
 			{
