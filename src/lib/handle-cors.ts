@@ -2,6 +2,10 @@
 import type { FastifyPluginOptions } from "fastify";
 import type { OriginFunction } from "@fastify/cors";
 
+interface CorsPluginConfiguration extends FastifyPluginOptions {
+	origin: OriginFunction;
+}
+
 const originFunction: OriginFunction = (origin, cb) => {
 	if (process.env.DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS === "FOR_REAL_REAL") {
 		return cb(null, true);
@@ -42,6 +46,6 @@ const originFunction: OriginFunction = (origin, cb) => {
 	return; // Add this line to return a value at the end of the method
 };
 
-export const corsConfiguration: FastifyPluginOptions = {
+export const corsConfiguration: CorsPluginConfiguration = {
 	origin: originFunction,
 };
