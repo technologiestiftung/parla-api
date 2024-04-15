@@ -16,15 +16,9 @@ export async function feedbackRoute(
 		schema: {
 			querystring: { id: { type: "number" } },
 		},
-		method: ["GET", "HEAD", "OPTIONS"],
+		method: ["GET"],
 		handler: async (request, reply) => {
 			switch (request.method) {
-				case "HEAD":
-					reply.send();
-					break;
-				case "OPTIONS":
-					reply.send();
-					break;
 				case "GET":
 					{
 						const { id } = request.query;

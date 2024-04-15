@@ -5,9 +5,11 @@ import cors from "@fastify/cors";
 export async function registerCors(app: FastifyInstance) {
 	await app.register(cors, {
 		origin: (origin, cb) => {
+			// console.log("cors", origin);
 			if (
 				process.env.DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS === "FOR_REAL_REAL"
 			) {
+				// console.log("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
 				app.log.warn("DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS");
 				return cb(null, true);
 			}
@@ -18,6 +20,7 @@ export async function registerCors(app: FastifyInstance) {
 				return cb(null, true);
 			}
 			if (!origin) {
+				// console.log("No origin in request");
 				app.log.warn("No origin in request");
 				cb(new Error("Not allowed"), false);
 				return;

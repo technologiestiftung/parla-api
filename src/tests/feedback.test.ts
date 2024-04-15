@@ -80,23 +80,14 @@ test("feedbacks route options should return 200", async (t) => {
 			port: 8888,
 			protocol: "http",
 		},
-	};
-	const response = await t.context.server.inject(opts);
-	t.is(response.statusCode, 200);
-});
-
-test("feedbacks route head should return 200", async (t) => {
-	const opts: InjectOptions = {
-		method: "HEAD",
-		url: {
-			pathname: "/feedbacks",
-			hostname: "localhost",
-			port: 8888,
-			protocol: "http",
+		headers: {
+			"access-control-request-method": "GET",
+			"access-control-request-headers": "content-type",
+			origin: "http://localhost:3000",
 		},
 	};
 	const response = await t.context.server.inject(opts);
-	t.is(response.statusCode, 200);
+	t.is(response.statusCode, 204);
 });
 
 test("feedbacks route POST should return 400 due to missing body", async (t) => {
