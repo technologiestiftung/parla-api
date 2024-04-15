@@ -18,6 +18,7 @@
 	"devDependencies": {
 		"@ava/typescript": "4.1.0",
 		"@saithodev/semantic-release-backmerge": "4.0.1",
+		"@technologiestiftung/prettier-config": "1.0.0",
 		"@technologiestiftung/semantic-release-config": "1.2.4",
 		"@types/common-tags": "1.8.4",
 		"@types/node": "20.10.4",
@@ -41,24 +42,6 @@
 		"tsx": "4.6.2",
 		"typescript": "5.3.3"
 	},
-	"prettier": {
-		"tabWidth": 2,
-		"semi": true,
-		"singleQuote": false,
-		"useTabs": true,
-		"printWidth": 80,
-		"overrides": [
-			{
-				"files": [
-					"*.yml",
-					"*.yaml"
-				],
-				"options": {
-					"useTabs": false
-				}
-			}
-		]
-	},
 	"nodemonConfig": {
 		"restartable": "rs",
 		"verbose": true,
@@ -66,9 +49,7 @@
 			"js": "node --harmony"
 		},
 		"exec": "tsx ./src/index.ts",
-		"watch": [
-			"src"
-		],
+		"watch": ["src"],
 		"env": {
 			"NODE_ENV": "development"
 		},
