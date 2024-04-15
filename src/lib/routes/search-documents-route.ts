@@ -55,8 +55,6 @@ export async function registerSearchDocumentsRoute(
 					// 2. moderate content
 					// Moderate the content to comply with OpenAI T&C
 					const sanitizedQuery = query.trim();
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					//@ts-expect-error
 					const moderationResponse = await fetch(
 						"https://api.openai.com/v1/moderations",
 						{
@@ -87,8 +85,6 @@ export async function registerSearchDocumentsRoute(
 						});
 					}
 					// 3. generate an embedding using openai api
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-expect-error
 					const embeddingResponse = await fetch(
 						"https://api.openai.com/v1/embeddings",
 						{
