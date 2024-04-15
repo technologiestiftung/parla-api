@@ -4,12 +4,10 @@ import { UserError } from "../errors.js";
 
 const feedbackRoute = function (
 	app: FastifyInstance,
-	options: unknown,
+	_options: unknown,
 	next: (err?: Error | undefined) => void,
 ) {
 	// app.get("/", (req, res) => {
-	// 	res.send({ message: "Feedback route" });
-	// });
 
 	app.route<{
 		Querystring: { id?: number };
