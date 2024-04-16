@@ -73,6 +73,8 @@ export function generateAnswerRoute(
 
 			const llm = new OpenAIClient(options.OPENAI_KEY);
 			let generatedAnswer: string = "";
+
+			const then = new Date();
 			const stream = await llm.requestResponseStream(
 				chatCompletionRequest,
 				(delta) => {
@@ -81,10 +83,15 @@ export function generateAnswerRoute(
 			);
 
 			await reply.status(201).send(stream);
+			const now = new Date();
+			const elapsedMs = now.getTime() - then.getTime();
 
 			const { error } = await supabase
 				.from("user_requests")
-				.update({ generated_answer: generatedAnswer })
+				.update({
+					generated_answer: generatedAnswer,
+					chat_completion_time_ms: elapsedMs,
+				})
 				.eq("short_id", request.body.userRequestId)
 				.select("*");
 
