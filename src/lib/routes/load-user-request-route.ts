@@ -197,6 +197,7 @@ export function loadUserRequestRoute(
 			const finalResponse = {
 				id: data.short_id,
 				query: data.question,
+				feedbackId: data.feedback_id,
 				answerResponse: data.generated_answer,
 				searchResponse: {
 					documentMatches: matchingDocuments,
