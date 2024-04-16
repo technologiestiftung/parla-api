@@ -1,25 +1,21 @@
-import { FastifyInstance } from "fastify";
-import cors from "@fastify/cors";
+import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { healthSchema } from "../json-schemas.js";
 
-export async function registerHealthRoute(fastify: FastifyInstance) {
-	await fastify.register(
-		(app, options, next) => {
-			app.register(cors, { origin: "*" });
-
-			app.get(
-				"/",
-				{
-					schema: {
-						response: healthSchema,
-					},
-				},
-				async (_request, reply) => {
-					reply.status(200).send({ message: "OK" });
-				},
-			);
-			next();
+export function healthRoute(
+	app: FastifyInstance,
+	options: FastifyPluginOptions,
+	next: (err?: Error | undefined) => void,
+) {
+	app.get(
+		"/",
+		{
+			schema: {
+				response: healthSchema,
+			},
 		},
-		{ prefix: "/health" },
+		async (_request, reply) => {
+			reply.status(200).send({ message: "OK" });
+		},
 	);
+	next();
 }

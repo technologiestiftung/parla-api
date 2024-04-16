@@ -124,6 +124,7 @@ export const getUserRequestSchema = {
 	200: S.object()
 		.prop("id", S.string())
 		.prop("query", S.string())
+		.prop("feedbackId", S.anyOf([S.number(), S.null()]))
 		.prop("answerResponse", S.string())
 		.prop(
 			"searchResponse",
