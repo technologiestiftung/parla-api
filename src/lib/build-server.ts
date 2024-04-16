@@ -77,7 +77,7 @@ export async function buildServer({
 	});
 	server.register(loadUserRequestRoute, { prefix: "/requests" });
 
-	-server.setErrorHandler(function (error, request, reply) {
+	server.setErrorHandler(function (error, request, reply) {
 		if (error instanceof EnvError) {
 			this.log.error(error, "Env variable is not defined");
 			reply.status(500).send("Env variable is not defined");
