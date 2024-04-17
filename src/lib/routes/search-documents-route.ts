@@ -55,6 +55,7 @@ export function searchDocumentsRoute(
 			// 2. moderate content
 			// Moderate the content to comply with OpenAI T&C
 			const sanitizedQuery = query.trim();
+			let then = new Date();
 			const moderationResponse = await fetch(
 				"https://api.openai.com/v1/moderations",
 				{
@@ -68,6 +69,9 @@ export function searchDocumentsRoute(
 					}),
 				},
 			);
+			let now = new Date();
+			const moderationElapsedMs = now.getTime() - then.getTime();
+
 			if (!moderationResponse.ok) {
 				throw new ApplicationError(
 					`OpenAI moderation failed with status ${moderationResponse.status}`,
@@ -84,6 +88,8 @@ export function searchDocumentsRoute(
 					categories: results.categories,
 				});
 			}
+
+			then = new Date();
 			// 3. generate an embedding using openai api
 			const embeddingResponse = await fetch(
 				"https://api.openai.com/v1/embeddings",
@@ -99,6 +105,8 @@ export function searchDocumentsRoute(
 					}),
 				},
 			);
+			now = new Date();
+			const embeddingElapsedMs = now.getTime() - then.getTime();
 
 			if (embeddingResponse.status !== 200) {
 				throw new ApplicationError("Failed to create embedding for question", {
@@ -120,6 +128,7 @@ export function searchDocumentsRoute(
 				chunk_limit: chunk_limit,
 			} as SimilaritySearchConfig;
 
+			then = new Date();
 			let documentMatches: Array<ResponseDocumentMatch> = [];
 			if (search_algorithm === AvailableSearchAlgorithms.ChunksOnly) {
 				documentMatches = await similaritySearchOnChunksOnly(config);
@@ -136,6 +145,9 @@ export function searchDocumentsRoute(
 				throw new Error(`Algorithm ${search_algorithm} not supported.`);
 			}
 
+			now = new Date();
+			const databaseSearchElapsedMs = now.getTime() - then.getTime();
+
 			const { data, error } = await supabase
 				.from("user_requests")
 				.insert({
@@ -148,6 +160,9 @@ export function searchDocumentsRoute(
 					matching_documents: documentMatches.map((match) => {
 						return responseDocumentMatchToReference(match) as unknown as Json;
 					}),
+					moderation_time_ms: moderationElapsedMs,
+					embedding_time_ms: embeddingElapsedMs,
+					database_search_time_ms: databaseSearchElapsedMs,
 				})
 				.select("*");
 
