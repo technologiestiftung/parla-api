@@ -1,5 +1,5 @@
-import { OpenAIError } from "./errors.js";
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
+import { OpenAIError } from "./errors.js";
 
 /**
  * Custom Error Handler
@@ -24,6 +24,6 @@ export function customErrorHandler(
 			statusText,
 		});
 	} else {
-		reply.send(error);
+		reply.status(500).send(error);
 	}
 }

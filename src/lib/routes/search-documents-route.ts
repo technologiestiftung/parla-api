@@ -94,7 +94,7 @@ export function searchDocumentsRoute(
 
 			then = new Date();
 			// 3. generate an embedding using openai api
-			const embeddingResponse = await fetch(
+			let embeddingResponse = await fetch(
 				"https://api.openai.com/v1/embeddings",
 				{
 					method: "POST",
