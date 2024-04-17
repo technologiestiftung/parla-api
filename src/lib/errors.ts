@@ -16,6 +16,7 @@ export interface OpenAIErrorData {
 	endpoint: OpenAIendpointTypes;
 	status: number;
 	statusText: string;
+	userRequestId?: string;
 }
 
 export class OpenAIError extends Error {

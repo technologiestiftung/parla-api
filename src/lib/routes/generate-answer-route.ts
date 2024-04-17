@@ -90,6 +90,7 @@ export function generateAnswerRoute(
 						endpoint: "chat/completions",
 						status: 500,
 						statusText: error.message,
+						userRequestId: request.body.userRequestId,
 					});
 				}
 				throw error;

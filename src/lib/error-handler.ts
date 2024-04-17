@@ -1,11 +1,12 @@
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import { OpenAIError } from "./errors.js";
+import { supabase } from "./supabase.js";
 
 /**
  * Custom Error Handler
  * Currently handles OpenAIErrors for us
  */
-export function customErrorHandler(
+export async function customErrorHandler(
 	error: FastifyError,
 	request: FastifyRequest,
 	reply: FastifyReply,
@@ -17,6 +18,18 @@ export function customErrorHandler(
 			statusText = JSON.parse(error.data.statusText);
 		} catch (e) {
 			statusText = error.data.statusText;
+		}
+
+		// Try to update the error in the database, if the user request exists already
+		if (error.data.userRequestId) {
+			const { error: updateError } = await supabase
+				.from("user_requests")
+				.update({
+					error: statusText,
+				})
+				.eq("short_id", error.data.userRequestId)
+				.select("*");
+			console.log(updateError);
 		}
 
 		reply.status(error.data.status).send({
