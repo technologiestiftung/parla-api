@@ -51,7 +51,7 @@ export async function buildServer({
 	});
 
 	// Register custom error handler
-	fastify.setErrorHandler(customErrorHandler);
+	server.setErrorHandler(customErrorHandler);
 
 	server.register(cors, corsConfiguration);
 

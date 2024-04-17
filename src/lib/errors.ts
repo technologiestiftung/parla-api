@@ -11,6 +11,7 @@ export type OpenAIendpointTypes =
 	| "moderation"
 	| "embeddings"
 	| "chat/completions";
+
 export interface OpenAIErrorData {
 	endpoint: OpenAIendpointTypes;
 	status: number;
@@ -25,12 +26,13 @@ export class OpenAIError extends Error {
 		super(message);
 	}
 }
-// export class AuthError extends Error {}
 
 export class UserError extends ApplicationError {}
 
+export class DatabaseError extends ApplicationError {}
+
 /**
- * Does pretty hadnling of messages
+ * Does pretty handling of messages
  */
 export class EnvError extends Error {
 	constructor(message: string) {

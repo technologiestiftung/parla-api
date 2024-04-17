@@ -7,7 +7,8 @@ import {
 	SimilaritySearchConfig,
 	responseDocumentMatchToReference,
 } from "../common.js";
-import { ApplicationError, UserError } from "../errors.js";
+import { Json } from "../database.js";
+import { DatabaseError, OpenAIError, UserError } from "../errors.js";
 import {
 	documentSearchBodySchema,
 	documentSearchResponseSchema,
@@ -16,7 +17,6 @@ import { similaritySearchOnChunksAndSummaries } from "../similarity-search-chunk
 import { similaritySearchOnChunksOnly } from "../similarity-search-chunks-only.js";
 import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-summaries-then-chunks.js";
 import { supabase } from "../supabase.js";
-import { Json } from "../database.js";
 
 // TODO: Refactor document route registrations to be located in the scope of build-server
 // eslint-disable-next-line max-params
@@ -73,10 +73,13 @@ export function searchDocumentsRoute(
 			const moderationElapsedMs = now.getTime() - then.getTime();
 
 			if (!moderationResponse.ok) {
-				throw new ApplicationError(
-					`OpenAI moderation failed with status ${moderationResponse.status}`,
-				);
+				throw new OpenAIError("Failed to moderate content", {
+					endpoint: "moderation",
+					status: moderationResponse.status,
+					statusText: await moderationResponse.text(),
+				});
 			}
+
 			const moderationResponseJson = await moderationResponse.json();
 
 			const [results] = moderationResponseJson.results;
@@ -109,8 +112,10 @@ export function searchDocumentsRoute(
 			const embeddingElapsedMs = now.getTime() - then.getTime();
 
 			if (embeddingResponse.status !== 200) {
-				throw new ApplicationError("Failed to create embedding for question", {
-					embeddingResponse,
+				throw new OpenAIError("Failed to create embedding", {
+					endpoint: "embeddings",
+					status: embeddingResponse.status,
+					statusText: await embeddingResponse.text(),
 				});
 			}
 
@@ -166,8 +171,8 @@ export function searchDocumentsRoute(
 				})
 				.select("*");
 
-			if (!data) {
-				throw new Error(
+			if (error) {
+				throw new DatabaseError(
 					`Could not save user request to database: ${error.message}`,
 				);
 			}
