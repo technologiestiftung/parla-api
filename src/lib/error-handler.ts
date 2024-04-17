@@ -29,7 +29,13 @@ export async function customErrorHandler(
 				})
 				.eq("short_id", error.data.userRequestId)
 				.select("*");
-			console.log(updateError);
+			if (updateError) {
+				reply.status(500).send({
+					endpoint: error.data.endpoint,
+					statusText: "Could not save error to database",
+				});
+				return;
+			}
 		}
 
 		reply.status(error.data.status).send({

@@ -1,12 +1,8 @@
 import anyTest, { TestFn } from "ava";
 import { FastifyInstance, InjectOptions } from "fastify";
-import { buildTestServer } from "./util/test-server.js";
 import { mockServer } from "../mock/node.js";
-import {
-	XTestErrorTypes,
-	testOpenAIApiKeyError,
-	testSearchQueryFlagged,
-} from "./util/fixtures.js";
+import { XTestErrorTypes, testOpenAIApiKeyError } from "./util/fixtures.js";
+import { buildTestServer } from "./util/test-server.js";
 
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
 
