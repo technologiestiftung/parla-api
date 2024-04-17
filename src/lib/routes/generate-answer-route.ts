@@ -6,6 +6,7 @@ import {
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
 import { OpenAIClient } from "../llm/openai-client.js";
+import { DatabaseError, OpenAIError } from "../errors.js";
 import { supabase } from "../supabase.js";
 
 interface GenerateAnswerRoutePluginOptions extends FastifyPluginOptions {
@@ -75,14 +76,26 @@ export function generateAnswerRoute(
 			let generatedAnswer: string = "";
 
 			const then = new Date();
-			const stream = await llm.requestResponseStream(
-				chatCompletionRequest,
-				(delta) => {
-					generatedAnswer += delta;
-				},
-			);
+			try {
+				const stream = await llm.requestResponseStream(
+					chatCompletionRequest,
+					(delta) => {
+						generatedAnswer += delta;
+					},
+				);
+				await reply.status(201).send(stream);
+			} catch (error: unknown) {
+				if (error instanceof Error) {
+					throw new OpenAIError("Failed to create completion", {
+						endpoint: "chat/completions",
+						status: 500,
+						statusText: error.message,
+						userRequestId: request.body.userRequestId,
+					});
+				}
+				throw error;
+			}
 
-			await reply.status(201).send(stream);
 			const now = new Date();
 			const elapsedMs = now.getTime() - then.getTime();
 
@@ -96,7 +109,7 @@ export function generateAnswerRoute(
 				.select("*");
 
 			if (error) {
-				throw new Error(
+				throw new DatabaseError(
 					`Could not save generated answer to database: ${error.message}`,
 				);
 			}

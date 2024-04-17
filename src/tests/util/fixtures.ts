@@ -41,7 +41,20 @@ const testModerationResponse = {
 	],
 };
 
+export type XTestErrorTypes = "OPENAI_API_KEY_ERROR";
+
+const testOpenAIApiKeyError = {
+	error: {
+		message:
+			"Incorrect API key provided: $OPENAI_***_KEY. You can find your API key at https://platform.openai.com/account/api-keys.",
+		type: "invalid_request_error",
+		param: null,
+		code: "invalid_api_key",
+	},
+};
+
 export {
+	testOpenAIApiKeyError,
 	testEmbedding,
 	testSearchQuery,
 	testSearchQueryFlagged,
