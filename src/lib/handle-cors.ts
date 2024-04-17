@@ -16,11 +16,13 @@ const originFunction: OriginFunction = (origin, cb) => {
 	) {
 		return cb(null, true);
 	}
+
+	// We have to allow requests without origin (especially for /health requests coming from render.com)
 	if (!origin) {
-		// "No origin in request";
-		cb(new Error("Not allowed"), false);
+		cb(null, true);
 		return;
 	}
+
 	const hostname = new URL(origin as string).hostname;
 	if (
 		(hostname.includes("localhost") || hostname.includes("127.0.0.1")) &&
