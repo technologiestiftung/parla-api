@@ -61,7 +61,7 @@ export function searchDocumentsRoute(
 				{
 					method: "POST",
 					headers: {
-						"x-test-error": request.headers.hasOwnProperty("x-test-error")
+						"x-test-error": request.headers["x-test-error"]
 							? (request.headers["x-test-error"] as string)
 							: "", // This header is used to test the error handling in the tests
 						Authorization: `Bearer ${options.OPENAI_KEY}`,
