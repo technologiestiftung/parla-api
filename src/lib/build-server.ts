@@ -1,23 +1,22 @@
 // ESM
+import cors from "@fastify/cors";
 import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
 import fastify from "fastify";
 import { Model } from "./common.js";
-import { ApplicationError, EnvError, UserError } from "./errors.js";
+import { customErrorHandler } from "./error-handler.js";
+import { corsConfiguration } from "./handle-cors.js";
+import { countDocumentsRoute } from "./routes/count-documents-route.js";
 import {
 	documentationRouteOptions,
 	swaggerOptions,
 } from "./routes/documentation-route.js";
+import { feedbackRoute } from "./routes/feedback-route.js";
 import { generateAnswerRoute } from "./routes/generate-answer-route.js";
 import { healthRoute } from "./routes/health-route.js";
+import { loadUserRequestRoute } from "./routes/load-user-request-route.js";
 import { rootRoute } from "./routes/root-route.js";
 import { searchDocumentsRoute } from "./routes/search-documents-route.js";
-import { countDocumentsRoute } from "./routes/count-documents-route.js";
-import { loadUserRequestRoute } from "./routes/load-user-request-route.js";
-import { feedbackRoute } from "./routes/feedback-route.js";
-import cors from "@fastify/cors";
-import { corsConfiguration } from "./handle-cors.js";
-import fastifySwaggerUi from "@fastify/swagger-ui";
-import { customErrorHandler } from "./error-handler.js";
 
 export async function buildServer({
 	OPENAI_MODEL,
@@ -81,28 +80,6 @@ export async function buildServer({
 		OPENAI_KEY,
 	});
 	server.register(loadUserRequestRoute, { prefix: "/requests" });
-
-	server.setErrorHandler(function (error, request, reply) {
-		if (error instanceof EnvError) {
-			this.log.error(error, "Env variable is not defined");
-			reply.status(500).send("Env variable is not defined");
-		} else if (error instanceof ApplicationError) {
-			// Log error
-			this.log.error(error);
-			// Send error response
-			reply.status(500).send({ message: error.message, data: error.data });
-		} else if (error instanceof UserError) {
-			// Log error
-			this.log.error(error);
-			// Send error response
-			reply.status(400).send({ message: error.message, data: error.data });
-		} else {
-			this.log.error(error);
-
-			// fastify will use parent error handler to handle this
-			reply.send(error);
-		}
-	});
 	return server;
 }
 

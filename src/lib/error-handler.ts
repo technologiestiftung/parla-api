@@ -1,5 +1,10 @@
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
-import { OpenAIError } from "./errors.js";
+import {
+	ApplicationError,
+	EnvError,
+	OpenAIError,
+	UserError,
+} from "./errors.js";
 import { supabase } from "./supabase.js";
 
 /**
@@ -42,6 +47,12 @@ export async function customErrorHandler(
 			endpoint: error.data.endpoint,
 			statusText,
 		});
+	} else if (error instanceof EnvError) {
+		reply.status(500).send({ message: "Env variable is not defined" });
+	} else if (error instanceof ApplicationError) {
+		reply.status(500).send({ message: error.message, data: error.data });
+	} else if (error instanceof UserError) {
+		reply.status(400).send({ message: error.message, data: error.data });
 	} else {
 		reply.status(500).send(error);
 	}
