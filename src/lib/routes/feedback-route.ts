@@ -26,11 +26,10 @@ export function feedbackRoute(
 						}
 						const { data, error } = await supabaseRequest;
 						if (error) {
-							//TODO: Replace with SupabaseError from PR: https://github.com/technologiestiftung/parla-api/pull/87
-							throw new Error("Error fetching feedback from supabase");
+							throw new DatabaseError("Error fetching feedback from supabase");
 						}
 						if (!data) {
-							throw new Error("No feedback found");
+							throw new DatabaseError("No feedback found");
 						}
 						if (data.length === 0) {
 							reply.status(404).send();
@@ -45,16 +44,16 @@ export function feedbackRoute(
 	});
 
 	app.route<{
-		Body: { feedback_id: number; request_id: string; session_id: string };
+		Body: { feedback_id: number; user_request_id: string; session_id: string };
 	}>({
 		schema: {
 			body: {
 				type: "object",
 				properties: {
 					feedback_id: { type: "number" },
-					request_id: { type: "string" },
+					user_request_id: { type: "string" },
 				},
-				required: ["feedback_id", "request_id"],
+				required: ["feedback_id", "user_request_id"],
 			},
 		},
 		url: "/",
@@ -62,14 +61,33 @@ export function feedbackRoute(
 		handler: async (request, reply) => {
 			switch (request.method) {
 				case "POST": {
-					const { feedback_id, request_id, session_id } = request.body;
+					const { feedback_id, user_request_id, session_id } = request.body;
+
+					const { data: requestData, error: requestError } = await supabase
+						.from("user_requests")
+						.select("*")
+						.eq("short_id", user_request_id);
+
+					if (requestError || requestData.length === 0) {
+						throw new DatabaseError("No user request found");
+					}
+
+					const { data: feedbackData, error: feedbackError } = await supabase
+						.from("feedbacks")
+						.select("*")
+						.eq("id", feedback_id);
+
+					if (feedbackError || feedbackData.length === 0) {
+						throw new DatabaseError("No feedback found");
+					}
+
 					const { data: selectData, error: selectError } = await supabase
 						.from("user_request_feedbacks")
 						.select("*")
 						.eq("session_id", session_id);
 
 					if (selectError) {
-						throw new DatabaseError("Error fetching feedback");
+						throw new DatabaseError("Error finding feedback for session_id");
 					}
 
 					if (selectData?.length === 0) {
@@ -77,27 +95,31 @@ export function feedbackRoute(
 							.from("user_request_feedbacks")
 							.insert({
 								feedback_id,
-								request_id,
+								user_request_id: requestData[0].id,
 								session_id,
 							})
 							.select("*");
+
 						if (insertError) {
 							throw new DatabaseError("Error inserting feedback");
 						}
+
 						reply.status(201).send(insertData);
 					} else {
 						const { data: updateData, error: updateError } = await supabase
 							.from("user_request_feedbacks")
 							.update({
 								feedback_id,
-								request_id,
+								user_request_id: requestData[0].id,
 								session_id,
 							})
 							.eq("session_id", session_id)
 							.select("*");
+
 						if (updateError) {
 							throw new DatabaseError("Error updating feedback");
 						}
+
 						reply.status(201).send(updateData);
 					}
 

@@ -75,5 +75,5 @@ INSERT INTO feedbacks(kind, tag)
 ('negative', 'Dokumente unpassend'),
 ('negative', NULL);
 
-INSERT INTO user_request_feedbacks(feedback_id, request_id, session_id)
+INSERT INTO user_request_feedbacks(feedback_id, user_request_id, session_id)
 	VALUES (1, 1, 'session_id_1'), (2, 1, 'session_id_2'), (3, 1, 'session_id_3');

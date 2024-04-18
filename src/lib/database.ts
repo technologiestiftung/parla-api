@@ -191,22 +191,22 @@ export type Database = {
           created_at: string | null
           feedback_id: number
           id: number
-          request_id: number
           session_id: string
+          user_request_id: number
         }
         Insert: {
           created_at?: string | null
           feedback_id: number
           id?: number
-          request_id: number
           session_id: string
+          user_request_id: number
         }
         Update: {
           created_at?: string | null
           feedback_id?: number
           id?: number
-          request_id?: number
           session_id?: string
+          user_request_id?: number
         }
         Relationships: [
           {
@@ -217,8 +217,8 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_request_feedbacks_request_id_fkey"
-            columns: ["request_id"]
+            foreignKeyName: "user_request_feedbacks_user_request_id_fkey"
+            columns: ["user_request_id"]
             isOneToOne: false
             referencedRelation: "user_requests"
             referencedColumns: ["id"]

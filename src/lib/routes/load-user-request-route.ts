@@ -76,8 +76,6 @@ export function loadUserRequestRoute(
 				.eq("short_id", requestId)
 				.single<UserRequesWithFeedback>();
 
-			console.log(data);
-
 			if (!data || error) {
 				throw new Error(`Request with id ${requestId} not found`);
 			}
