@@ -2,6 +2,7 @@ import anyTest, { TestFn } from "ava";
 import { buildTestServer } from "./util/test-server.js";
 import { FastifyInstance, InjectOptions } from "fastify";
 import { mockServer } from "../mock/node.js";
+import { UserRequestFeedback } from "../lib/common.js";
 
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
 
@@ -33,9 +34,10 @@ test("load user request should return reconstructed request/response object", as
 		},
 	};
 	const response = await t.context.server.inject(opts);
-	let responseJson = response.json();
-	const feedbacks = responseJson.feedbacks.map((f: any) => {
+	const responseJson = response.json();
+	const feedbacks = responseJson.feedbacks.map((f: UserRequestFeedback) => {
 		const reduced = f;
+		//@ts-expect-error created_at should be optional
 		delete reduced.created_at;
 		return reduced;
 	});
