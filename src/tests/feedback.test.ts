@@ -36,6 +36,7 @@ test("feedbacks route should return all feedbacks and 200", async (t) => {
 			{ id: 3, tag: "Es gab einen Fehler", kind: "negative" },
 			{ id: 4, tag: "Antwort nicht ausführlich genug", kind: "negative" },
 			{ id: 5, tag: "Dokumente unpassend", kind: "negative" },
+			{ id: 6, tag: null, kind: "negative" },
 		]),
 	);
 });
@@ -254,7 +255,11 @@ test("feedbacks route POST should return 201", async (t) => {
 		headers: {
 			"content-type": "application/json",
 		},
-		body: JSON.stringify({ feedback_id, user_request_id: "jR" }),
+		body: JSON.stringify({
+			feedback_id,
+			user_request_id: "jR",
+			session_id: "abcdefg",
+		}),
 	};
 	const response = await t.context.server.inject(opts);
 	t.is(response.statusCode, 201);
