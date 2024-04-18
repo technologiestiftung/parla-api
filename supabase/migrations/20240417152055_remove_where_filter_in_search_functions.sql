@@ -13,8 +13,6 @@ BEGIN
 (processed_document_chunks.embedding <#> embedding) * -1 AS similarity
 	FROM
 		processed_document_chunks
-    -- This is the line that was removed compared to the previous version
-	-- WHERE(processed_document_chunks.embedding <#> embedding) * -1 > match_threshold
 ORDER BY
 	processed_document_chunks.embedding <#> embedding
 LIMIT match_count;
@@ -36,8 +34,6 @@ BEGIN
 (processed_document_summaries.summary_embedding <#> embedding) * -1 AS similarity
 	FROM
 		processed_document_summaries
-    -- This is the line that was removed compared to the previous version 
-	-- WHERE(processed_document_summaries.summary_embedding <#> embedding) * -1 > match_threshold
 ORDER BY
 	processed_document_summaries.summary_embedding <#> embedding
 LIMIT match_count;
