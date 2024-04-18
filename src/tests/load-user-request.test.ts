@@ -33,6 +33,13 @@ test("load user request should return reconstructed request/response object", as
 		},
 	};
 	const response = await t.context.server.inject(opts);
+	let responseJson = response.json();
+	const feedbacks = responseJson.feedbacks.map((f: any) => {
+		const reduced = f;
+		delete reduced.created_at;
+		return reduced;
+	});
+	responseJson.feedbacks = feedbacks;
 	t.is(response.statusCode, 200);
-	t.snapshot(response.json());
+	t.snapshot(responseJson);
 });
