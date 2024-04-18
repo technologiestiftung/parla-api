@@ -120,11 +120,18 @@ export const documentMatchSchema = S.object()
 		S.array().items(processedDocumentChunkMatch),
 	);
 
+export const feedbackSchema = S.object()
+	.prop("id", S.number())
+	.prop("feedback_id", S.number())
+	.prop("request_id", S.number())
+	.prop("created_at", S.string())
+	.prop("session_id", S.string());
+
 export const getUserRequestSchema = {
 	200: S.object()
 		.prop("id", S.string())
 		.prop("query", S.string())
-		.prop("feedbackId", S.anyOf([S.number(), S.null()]))
+		.prop("feedbacks", S.array().items(feedbackSchema))
 		.prop("answerResponse", S.string())
 		.prop(
 			"searchResponse",

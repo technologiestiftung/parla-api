@@ -14,6 +14,13 @@ export type ProcessedDocumentChunk =
 
 export type UserRequest = Database["public"]["Tables"]["user_requests"]["Row"];
 
+export type UserRequestFeedback =
+	Database["public"]["Tables"]["user_request_feedbacks"]["Row"];
+
+export type UserRequesWithFeedback = UserRequest & {
+	user_request_feedbacks: UserRequestFeedback[];
+};
+
 // https://platform.openai.com/docs/models/gpt-3-5
 // https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
 export type Model =

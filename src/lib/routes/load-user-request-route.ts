@@ -5,10 +5,10 @@ import {
 	ProcessedDocumentSummary,
 	RegisteredDocument,
 	ResponseDocumentMatchReference,
-	UserRequest,
+	UserRequesWithFeedback,
 } from "../common.js";
-import { supabase } from "../supabase.js";
 import { getUserRequestSchema } from "../json-schemas.js";
+import { supabase } from "../supabase.js";
 
 function findSimilarityForChunk(
 	chunkId: number,
@@ -69,16 +69,14 @@ export function loadUserRequestRoute(
 		},
 		async (request, reply) => {
 			const { requestId } = request.params as { requestId: string };
-			// TODO: Handle error using SupabaseError coming in
-			// PR https://github.com/technologiestiftung/parla-api/pull/87
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 			const { data, error } = await supabase
 				.from("user_requests")
-				.select("*")
+				.select("*, user_request_feedbacks(*)")
 				.eq("short_id", requestId)
-				.single<UserRequest>();
+				.single<UserRequesWithFeedback>();
 
-			if (!data) {
+			if (!data || error) {
 				throw new Error(`Request with id ${requestId} not found`);
 			}
 
@@ -197,7 +195,7 @@ export function loadUserRequestRoute(
 			const finalResponse = {
 				id: data.short_id,
 				query: data.question,
-				feedbackId: data.feedback_id,
+				feedbacks: data.user_request_feedbacks,
 				answerResponse: data.generated_answer,
 				searchResponse: {
 					documentMatches: matchingDocuments,
