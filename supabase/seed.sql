@@ -72,7 +72,8 @@ INSERT INTO feedbacks(kind, tag)
 ('negative', 'Antwort inhaltlich falsch oder missverständlich'),
 ('negative', 'Es gab einen Fehler'),
 ('negative', 'Antwort nicht ausführlich genug'),
-('negative', 'Dokumente unpassend');
+('negative', 'Dokumente unpassend'),
+('negative', NULL);
 
 INSERT INTO user_request_feedbacks(feedback_id, request_id, session_id)
 	VALUES (1, 1, 'session_id_1'), (2, 1, 'session_id_2'), (3, 1, 'session_id_3');
