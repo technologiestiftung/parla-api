@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { supabase } from "../supabase.js";
-import { UserError } from "../errors.js";
+import { DatabaseError, UserError } from "../errors.js";
 
 export function feedbackRoute(
 	app: FastifyInstance,
@@ -45,16 +45,16 @@ export function feedbackRoute(
 	});
 
 	app.route<{
-		Body: { feedback_id: number; user_request_id: string };
+		Body: { feedback_id: number; request_id: string; session_id: string };
 	}>({
 		schema: {
 			body: {
 				type: "object",
 				properties: {
 					feedback_id: { type: "number" },
-					user_request_id: { type: "string" },
+					request_id: { type: "string" },
 				},
-				required: ["feedback_id", "user_request_id"],
+				required: ["feedback_id", "request_id"],
 			},
 		},
 		url: "/",
@@ -62,57 +62,45 @@ export function feedbackRoute(
 		handler: async (request, reply) => {
 			switch (request.method) {
 				case "POST": {
-					const { feedback_id, user_request_id } = request.body;
-
-					// 1. look into feedbacks table and check if the feedback_id matches one id
-					const { data: feedbackData, error: feedbackError } = await supabase
-						.from("feedbacks")
+					const { feedback_id, request_id, session_id } = request.body;
+					const { data: selectData, error: selectError } = await supabase
+						.from("user_request_feedbacks")
 						.select("*")
-						.eq("id", feedback_id);
+						.eq("session_id", session_id);
 
-					if (feedbackError) {
-						console.error(feedbackData, feedbackError);
-						// TODO: replace with SupabaseError from PR: https://github.com/technologiestiftung/parla-api/pull/87
-						throw new Error(
-							`Error fetching feedback from supabase ${feedbackError.message}`,
-						);
+					if (selectError) {
+						throw new DatabaseError("Error fetching feedback");
 					}
-					if (!feedbackData || feedbackData.length === 0) {
-						// triggering a user error should give a 404 here
-						throw new UserError("No feedback found");
-					}
-					// Now we know that there is a feedback with the feedback_id provided by the user
-					// 2. check if there is a entry in the user_requests table with the user_request_id
-					const { data: userRequestData, error: userRequestError } =
-						await supabase
-							.from("user_requests")
-							.select("*")
-							.eq("short_id", user_request_id);
 
-					if (userRequestError) {
-						// TODO: replace with SupabaseError from PR: https://github.com/technologiestiftung/parla-api/pull/87
-						throw new Error("Error fetching user request from supabase");
+					if (selectData?.length === 0) {
+						const { data: insertData, error: insertError } = await supabase
+							.from("user_request_feedbacks")
+							.insert({
+								feedback_id,
+								request_id,
+								session_id,
+							})
+							.select("*");
+						if (insertError) {
+							throw new DatabaseError("Error inserting feedback");
+						}
+						reply.status(201).send(insertData);
+					} else {
+						const { data: updateData, error: updateError } = await supabase
+							.from("user_request_feedbacks")
+							.update({
+								feedback_id,
+								request_id,
+								session_id,
+							})
+							.eq("session_id", session_id)
+							.select("*");
+						if (updateError) {
+							throw new DatabaseError("Error updating feedback");
+						}
+						reply.status(201).send(updateData);
 					}
-					if (!userRequestData || userRequestData.length === 0) {
-						// this should be a 404
-						throw new UserError("No user request found");
-					}
-					// Now we know that there is a user request with the user_request_id provided by the user
-					// 3. update the user_request with the feedback_id
-					const { data: updateData, error: updateError } = await supabase
-						.from("user_requests")
-						.update({ feedback_id: feedback_id })
-						.eq("short_id", user_request_id)
-						.select("*");
-					if (updateError) {
-						// TODO: replace with SupabaseError from PR: https://github.com/technologiestiftung/parla-api/pull/87
-						throw new Error("Error updating user request with feedback id");
-					}
-					if (!updateData) {
-						// TODO: This should be a SupabaseError since we need to select the newly updated column
-						throw new Error("No data returned after updating user request");
-					}
-					reply.status(201).send(updateData);
+
 					break;
 				}
 				default:

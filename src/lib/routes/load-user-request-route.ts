@@ -5,6 +5,7 @@ import {
 	ProcessedDocumentSummary,
 	RegisteredDocument,
 	ResponseDocumentMatchReference,
+	UserRequesWithFeedback,
 	UserRequest,
 } from "../common.js";
 import { supabase } from "../supabase.js";
@@ -74,9 +75,11 @@ export function loadUserRequestRoute(
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { data, error } = await supabase
 				.from("user_requests")
-				.select("*")
+				.select("*, user_request_feedbacks(*)")
 				.eq("short_id", requestId)
-				.single<UserRequest>();
+				.single<UserRequesWithFeedback>();
+
+			console.log(data);
 
 			if (!data) {
 				throw new Error(`Request with id ${requestId} not found`);
@@ -197,7 +200,7 @@ export function loadUserRequestRoute(
 			const finalResponse = {
 				id: data.short_id,
 				query: data.question,
-				feedbackId: data.feedback_id,
+				feedbacks: data.user_request_feedbacks,
 				answerResponse: data.generated_answer,
 				searchResponse: {
 					documentMatches: matchingDocuments,
