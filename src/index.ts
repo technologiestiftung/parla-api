@@ -9,6 +9,7 @@ async function main() {
 		const PORT = parseInt(process.env.PORT ?? "8080");
 		const OPENAI_MODEL = process.env.OPENAI_MODEL as Model;
 		const OPENAI_KEY = process.env.OPENAI_KEY;
+		const OPENAI_EMBEDDING_MODEL = process.env.OPENAI_EMBEDDING_MODEL;
 
 		if (!PORT) {
 			throw new EnvError("PORT");
@@ -16,9 +17,18 @@ async function main() {
 		if (!OPENAI_MODEL) {
 			throw new EnvError("OPENAI_MODEL");
 		}
-		if (!OPENAI_KEY) throw new EnvError("OPENAI_KEY");
+		if (!OPENAI_KEY) {
+			throw new EnvError("OPENAI_KEY");
+		}
+		if (!OPENAI_EMBEDDING_MODEL) {
+			throw new EnvError("OPENAI_EMBEDDING_MODEL");
+		}
 
-		const server = await buildServer({ OPENAI_MODEL, OPENAI_KEY });
+		const server = await buildServer({
+			OPENAI_MODEL,
+			OPENAI_KEY,
+			OPENAI_EMBEDDING_MODEL,
+		});
 		await server.ready();
 		server.swagger();
 		server.listen({ port: PORT, host: "0.0.0.0" }, function (err) {
@@ -31,6 +41,7 @@ async function main() {
 
 		// quit on ctrl-c when running docker in terminal
 		process.on("SIGINT", async function onSigint() {
+			// eslint-disable-next-line no-console
 			console.info(
 				"Got SIGINT (aka ctrl-c in docker). Graceful shutdown ",
 				new Date().toISOString(),
@@ -40,6 +51,7 @@ async function main() {
 
 		// quit properly on docker stop
 		process.on("SIGTERM", async function onSigterm() {
+			// eslint-disable-next-line no-console
 			console.info(
 				"Got SIGTERM (docker container stop). Graceful shutdown ",
 				new Date().toISOString(),

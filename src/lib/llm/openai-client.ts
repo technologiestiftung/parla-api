@@ -7,14 +7,18 @@ export class OpenAIClient implements LLMClient {
 	constructor(apiKey: string) {
 		this.openAi = new OpenAI({ apiKey });
 	}
-	async requestResponseStream(payload: object): Promise<Readable> {
-		//@ts-ignore
+	async requestResponseStream(
+		payload: object,
+		deltaCallback: (delta: string) => void,
+	): Promise<Readable> {
+		//@ts-expect-error: @Jaszkowic Why can we expect an error here?
 		const answerStream = await this.openAi.chat.completions.create(payload);
 		const buffer = new Readable();
 		buffer._read = () => {};
-		var emit = async () => {
+		const emit = async () => {
 			for await (const chunk of answerStream) {
 				const delta = chunk.choices[0]?.delta?.content || "";
+				deltaCallback(delta);
 				buffer.push(delta);
 			}
 			buffer.push(null);

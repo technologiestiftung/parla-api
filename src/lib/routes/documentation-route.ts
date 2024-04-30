@@ -1,23 +1,45 @@
-import { FastifyInstance } from "fastify";
-import fastifySwaggerUi from "@fastify/swagger-ui";
+import { SwaggerOptions } from "@fastify/swagger";
+import {
+	FastifyPluginOptions,
+	FastifyReply,
+	FastifyRequest,
+	HookHandlerDoneFunction,
+} from "fastify";
 
-export async function registerDocumentationRoute(fastify: FastifyInstance) {
-	await fastify.register(fastifySwaggerUi, {
-		routePrefix: "/documentation",
-		initOAuth: {},
-		uiConfig: {
-			docExpansion: "full",
-			deepLinking: false,
+export const swaggerOptions: SwaggerOptions = {
+	mode: "dynamic",
+	openapi: {
+		info: {
+			title: "Parla",
+			description: "Swagger docs for paral",
+			version: "1",
 		},
-		uiHooks: {
-			onRequest: function (request, reply, next) {
-				next();
-			},
-			preHandler: function (request, reply, next) {
-				next();
-			},
+	},
+};
+
+export const documentationRouteOptions: FastifyPluginOptions = {
+	routePrefix: "/documentation",
+	initOAuth: {},
+	uiConfig: {
+		docExpansion: "full",
+		deepLinking: false,
+	},
+	uiHooks: {
+		onRequest: function (
+			request: FastifyRequest,
+			reply: FastifyReply,
+			next: HookHandlerDoneFunction,
+		) {
+			next();
 		},
-		staticCSP: true,
-		transformStaticCSP: (header) => header,
-	});
-}
+		preHandler: function (
+			request: FastifyRequest,
+			reply: FastifyReply,
+			next: HookHandlerDoneFunction,
+		) {
+			next();
+		},
+	},
+	staticCSP: true,
+	transformStaticCSP: (header: string) => header,
+};

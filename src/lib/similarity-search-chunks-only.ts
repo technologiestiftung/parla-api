@@ -5,7 +5,7 @@ import {
 	SimilaritySearchConfig,
 } from "./common.js";
 import { ApplicationError } from "./errors.js";
-import supabase from "./supabase.js";
+import { supabase } from "./supabase.js";
 
 export async function similaritySearchOnChunksOnly(
 	config: SimilaritySearchConfig,
@@ -18,6 +18,7 @@ export async function similaritySearchOnChunksOnly(
 			match_count: config.chunk_limit,
 			num_probes: config.num_probes_chunks,
 		})
+		.gte("similarity", config.match_threshold)
 		.order("similarity", { ascending: false });
 
 	if (matchChunksError) {
@@ -170,12 +171,15 @@ export async function similaritySearchOnChunksOnly(
 		} as ResponseDocumentMatch;
 	});
 
+	// TODO: Refactor to not shadow variable names
 	documentMatches.sort((l, r) => {
 		const leftAverage = l.processed_document_chunk_matches
 			.map((c) => c.similarity)
+			// eslint-disable-next-line no-shadow
 			.reduce((l, r) => l + r, 0);
 		const rightAverage = r.processed_document_chunk_matches
 			.map((c) => c.similarity)
+			// eslint-disable-next-line no-shadow
 			.reduce((l, r) => l + r, 0);
 		return leftAverage < rightAverage ? 1 : -1;
 	});

@@ -273,3 +273,4 @@ cython_debug/
 #.idea/
 playground/embedding.ts
 playground/req.ts
+.vscode/settings.json

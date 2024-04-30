@@ -1,7 +1,9 @@
 ![](https://img.shields.io/badge/Built%20with%20%E2%9D%A4%EF%B8%8F-at%20Technologiestiftung%20Berlin-blue)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # _Parla (api & database)_
@@ -22,17 +24,20 @@ This is a the api and database for the explorational project _Parla_. This is no
 See also `.envrc.sample`. (Might be more up to date).
 
 ```plain
-SUPABASE_URL="http://localhost:54321"
-SUPABASE_SERVICE_ROLE_KEY="ey..."
+export SUPABASE_URL="http://localhost:54321"
+export SUPABASE_ANON_KEY="ey..."
 # Get your key at https://platform.openai.com/account/api-keys
-OPENAI_KEY="sk-UY..."
+export OPENAI_KEY="sk-UY..."
+export SUPABASE_SERVICE_ROLE_KEY=
 # in dev we can use a lesser version to save some coins
-# OPENAI_MODEL="gpt-3.5-turbo-16k"
-# OPENAI_MODEL=gpt-4
-OPENAI_MODEL=gpt-3.5-turbo
-PORT="8080"
-NODE_ENV="development"
-LOG_LEVEL="info"
+export OPENAI_MODEL="gpt-3.5-turbo"
+export PORT="8080"
+export OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
+# should be one of "debug", "info", "warning", "error", "critical"
+export LOG_LEVEL="info"
+# This is only for testing purpose and should not be allowed in production
+# for real real!
+export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"
 ```
 
 Hint. We use `direnv` for development environment variables. See https://direnv.net/
@@ -89,6 +94,17 @@ select cron.schedule (
     $$ SELECT * from regenerate_embedding_indices_for_summaries() $$
 );
 ```
+
+## Feedback Feature
+
+To have feedback types and tags in the initial version you can use this snippet
+
+```sql
+INSERT INTO feedbacks (kind, tag)
+		values('positive', NULL), ('negative', 'Antwort inhaltlich falsch oder missverständlich'), ('negative', 'Es gab einen Fehler'), ('negative', 'Antwort nicht ausführlich genug'), ('negative', 'Dokumente unpassend');
+```
+
+It is also present in the `supabase/seed.sql`
 
 ## Tests
 

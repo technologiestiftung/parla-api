@@ -5,7 +5,7 @@ import {
 	SimilaritySearchConfig,
 } from "./common.js";
 import { ApplicationError } from "./errors.js";
-import supabase from "./supabase.js";
+import { supabase } from "./supabase.js";
 
 export async function similaritySearchFirstSummariesThenChunks(
 	config: SimilaritySearchConfig,
@@ -18,6 +18,7 @@ export async function similaritySearchFirstSummariesThenChunks(
 			match_count: config.summary_limit,
 			num_probes: config.num_probes_summaries,
 		})
+		.gte("similarity", config.match_threshold)
 		.order("similarity", { ascending: false })
 		.limit(config.document_limit);
 
