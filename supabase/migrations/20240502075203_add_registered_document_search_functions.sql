@@ -30,8 +30,7 @@ BEGIN
 RETURN query
 SELECT registered_documents.* FROM registered_documents FULL OUTER JOIN processed_documents ON registered_documents.id = processed_documents.registered_document_id WHERE registered_document_id IS NOT NULL AND (processed_documents.processing_finished_at IS NULL or processed_documents.processing_error IS NOT NULL or processed_documents.processing_started_at IS NULL);
 END;
-$function$
-
+$function$;
 
 /*
 Function: find_unprocessed_registered_documents
