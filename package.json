@@ -79,12 +79,12 @@
 		"@fastify/rate-limit": "9.1.0",
 		"@fastify/swagger": "8.14.0",
 		"@fastify/swagger-ui": "2.1.0",
-		"@supabase/supabase-js": "2.39.3",
+		"@supabase/supabase-js": "2.43.4",
 		"common-tags": "1.8.2",
-		"fastify": "4.26.0",
+		"fastify": "4.27.0",
 		"fluent-json-schema": "4.2.1",
 		"gpt3-tokenizer": "1.1.5",
-		"openai": "4.27.0",
+		"openai": "4.47.3",
 		"react-device-detect": "2.2.3"
 	},
 	"config": {
