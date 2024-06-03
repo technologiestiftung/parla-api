@@ -30,7 +30,7 @@ async function main() {
 			OPENAI_EMBEDDING_MODEL,
 		});
 		await server.ready();
-		server.swagger();
+
 		server.listen({ port: PORT, host: "0.0.0.0" }, function (err) {
 			if (err) {
 				server.log.error(err);
