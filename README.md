@@ -74,8 +74,6 @@ npm run dev
 
 Edit the files in `src`
 
-See also the swagger documentation at http://localhost:8080/documentation/static/index.html
-
 ## Periodically regenerate indices
 
 The indices on the `processed_document_chunks` and `processed_document_summaries` tables need be regenerated upon arrival of new data.
