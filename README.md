@@ -77,19 +77,19 @@ Edit the files in `src`
 ## Periodically regenerate indices
 
 The indices on the `processed_document_chunks` and `processed_document_summaries` tables need be regenerated upon arrival of new data.
-This is because the `lists` parameter should be changed accordingly to https://github.com/pgvector/pgvector. To do this, we use the `pg_cron` extension available: https://github.com/citusdata/pg_cron. To schedule the regeneration of indices, we create two jobs which use functions defined in the API and database definition: https://github.com/technologiestiftung/parla-api.
+This is because the `lists` parameter should be changed accordingly to https://github.com/pgvector/pgvector. To do this, we use the `pg_cron` extension available: https://github.com/citusdata/pg_cron. To schedule the regeneration of indices, we create two jobs which use functions defined in the API and database definition: https://github.com/technologiestiftung/parla-api. As those jobs run for quite a long time, we have to execute them in a session wrapped in `BEGIN` and `COMMIT` with the `statement_timeout` set to a high value (in our case, we use 600.000ms = 10min).
 
 ```
 select cron.schedule (
-    'regenerate_embedding_indices_for_chunks',
+    'regenerate_embedding_indices_for_summaries',
     '30 5 * * *',
-    $$ SELECT * from regenerate_embedding_indices_for_chunks() $$
+    $$ BEGIN; SET statement_timeout = '600000'; select * from regenerate_embedding_indices_for_summaries(); COMMIT; $$
 );
 
 select cron.schedule (
-    'regenerate_embedding_indices_for_summaries',
-    '30 5 * * *',
-    $$ SELECT * from regenerate_embedding_indices_for_summaries() $$
+    'regenerate_embedding_indices_for_chunks',
+    '30 4 * * *',
+    $$ BEGIN; SET statement_timeout = '600000'; select * from regenerate_embedding_indices_for_chunks(); COMMIT; $$
 );
 ```
 
