@@ -80,7 +80,7 @@
 		"@supabase/supabase-js": "2.43.4",
 		"common-tags": "1.8.2",
 		"fastify": "4.27.0",
-		"fluent-json-schema": "4.2.1",
+		"fluent-json-schema": "5.0.0",
 		"gpt3-tokenizer": "1.1.5",
 		"openai": "4.47.3",
 		"react-device-detect": "2.2.3"
