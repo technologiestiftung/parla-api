@@ -1,16 +1,11 @@
 // ESM
 import cors from "@fastify/cors";
-import fastifySwagger from "@fastify/swagger";
-import fastifySwaggerUi from "@fastify/swagger-ui";
+
 import fastify from "fastify";
 import { Model } from "./common.js";
 import { customErrorHandler } from "./error-handler.js";
 import { corsConfiguration } from "./handle-cors.js";
 import { countDocumentsRoute } from "./routes/count-documents-route.js";
-import {
-	documentationRouteOptions,
-	swaggerOptions,
-} from "./routes/documentation-route.js";
 import { feedbackRoute } from "./routes/feedback-route.js";
 import { generateAnswerRoute } from "./routes/generate-answer-route.js";
 import { healthRoute } from "./routes/health-route.js";
@@ -54,13 +49,11 @@ export async function buildServer({
 
 	server.register(cors, corsConfiguration);
 
-	server.register(fastifySwagger, swaggerOptions);
 	// Set rate limit
 	server.register(import("@fastify/rate-limit"), {
 		max: 30,
 		timeWindow: "1 minute",
 	});
-	server.register(fastifySwaggerUi, documentationRouteOptions);
 	server.register(rootRoute);
 	server.register(healthRoute, { prefix: "/health" });
 	// FIXME: We register at /processed_documents and add one handler for /count. Why?
