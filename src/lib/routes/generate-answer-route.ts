@@ -38,6 +38,10 @@ export function generateAnswerRoute(
 			// - gpt-3.5-turbo-16k has max tokens length of 16384
 			// Reference: https://platform.openai.com/docs/models/overview
 			switch (options.OPENAI_MODEL) {
+				case "gpt-4o-mini": {
+					MAX_CONTENT_TOKEN_LENGTH = 128000;
+					break;
+				}
 				case "gpt-4": {
 					MAX_CONTENT_TOKEN_LENGTH = 8192;
 					break;
