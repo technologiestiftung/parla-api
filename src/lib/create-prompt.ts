@@ -1,11 +1,11 @@
-import { codeBlock, oneLine } from "common-tags";
+import { codeBlock } from "common-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";
+import { facts } from "../fixtures/facts.js";
 import {
 	OpenAIChatCompletionRequest,
 	ResponseDocumentMatch,
 } from "./common.js";
 import { ApplicationError } from "./errors.js";
-import { facts } from "../fixtures/facts.js";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
