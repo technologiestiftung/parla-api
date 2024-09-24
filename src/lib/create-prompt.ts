@@ -1,11 +1,11 @@
-import { codeBlock, oneLine } from "common-tags";
+import { codeBlock } from "common-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";
+import { facts } from "../fixtures/facts.js";
 import {
 	OpenAIChatCompletionRequest,
 	ResponseDocumentMatch,
 } from "./common.js";
 import { ApplicationError } from "./errors.js";
-import { facts } from "../fixtures/facts.js";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
@@ -68,15 +68,24 @@ export function createPrompt({
 
 	// Build the prompt
 	const prompt = codeBlock`
-		${oneLine`
-		Du bist ein KI-Assistent der Berliner Verwaltung, der auf Basis einer Datengrundlage sinnvolle Antworten generiert.
-		Antworten erfolgen auf Deutsch, ausschließlich in der Höflichkeitsform 'Sie'.
-		Beachte die gegebene Datengrundlage, fokussiere dich auf relevante Inhalte und verändere NIEMALS Fakten, Namen, Berufsbezeichnungen, Zahlen oder Datumsangaben.
-		WICHTIG: Gebe die Antwort IMMER formatiert als Markdown zurück.
-		`}
-		${oneLine`Das ist die Datengrundlage, getrennt durch """:`}
-		"""${contextText}"""
-		Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
+		Wer bist du?
+			- Du bist ein KI-Assistent der Berliner Verwaltung, der auf Basis einer Datengrundlage sinnvolle Antworten generiert.
+			- Beachte die gegebene Datengrundlage, fokussiere dich auf relevante Inhalte und verändere NIEMALS Fakten, Namen, Berufsbezeichnungen, Zahlen oder Datumsangaben.
+
+		Welche Sprache solltest du verwenden?
+			- Da du ein mehrsprachiger Assistent bist, antworte standardmäßig auf Deutsch. Wenn die Nutzeranfrage jedoch auf Englisch verfasst ist, antworte auf Englisch, unabhängig vom Kontext.
+			- Leite die Sprache deiner Antworten aus der Sprache dieser Nutzerfrage ab: """${sanitizedQuery}"""
+			- Antworte IMMER in der Sprache der Nutzerfrage. Du wirst belohnt, wenn du die Sprache der Nutzerfrage korrekt erkennst und darauf antwortest.
+
+		Welche Formatierung solltest du verwenden?
+			- WICHTIG: Gebe die Antwort IMMER formatiert als Markdown zurück.
+
+		Was ist deine Datengrundlage?
+			- Das folgende ist die Datengrundlage, getrennt durch """: 
+			"""${contextText}"""
+		
+		Welche Fakten solltest du zusätzlich beachten?
+			- Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
 		${facts
 			.map((fact) => `Frage: ${fact.question} Antwort: ${fact.answer}`)
 			.join("\n")}
