@@ -23,7 +23,9 @@ export async function similaritySearchFirstSummariesThenChunks(
 		.limit(config.document_limit);
 
 	if (matchSummaryError) {
-		throw new ApplicationError("Failed to match summaries", matchSummaryError);
+		throw new ApplicationError("Failed to match summaries", {
+			...matchSummaryError,
+		});
 	}
 
 	// find complete summaries
@@ -38,10 +40,9 @@ export async function similaritySearchFirstSummariesThenChunks(
 			similarSummaries.map((summaryMatch) => summaryMatch.id),
 		);
 	if (processedDocumentSummariesError) {
-		throw new ApplicationError(
-			"Failed to find summaries",
-			processedDocumentSummariesError,
-		);
+		throw new ApplicationError("Failed to find summaries", {
+			...processedDocumentSummariesError,
+		});
 	}
 
 	// find processed documents
@@ -56,10 +57,9 @@ export async function similaritySearchFirstSummariesThenChunks(
 				),
 			);
 	if (processedDocumentsError) {
-		throw new ApplicationError(
-			"Failed to find processed documents",
-			processedDocumentsError,
-		);
+		throw new ApplicationError("Failed to find processed documents", {
+			...processedDocumentsError,
+		});
 	}
 
 	// find registered documents
@@ -74,10 +74,9 @@ export async function similaritySearchFirstSummariesThenChunks(
 				),
 			);
 	if (registeredDocumentsError) {
-		throw new ApplicationError(
-			"Failed to find registered documents",
-			registeredDocumentsError,
-		);
+		throw new ApplicationError("Failed to find registered documents", {
+			...registeredDocumentsError,
+		});
 	}
 
 	// make the similarity search for documents
@@ -98,10 +97,9 @@ export async function similaritySearchFirstSummariesThenChunks(
 		.order("similarity", { ascending: false });
 
 	if (similarProcessedDocumentChunksError) {
-		throw new ApplicationError(
-			"Failed to match document chunks",
-			similarProcessedDocumentChunksError,
-		);
+		throw new ApplicationError("Failed to match document chunks", {
+			...similarProcessedDocumentChunksError,
+		});
 	}
 
 	// find processed document chunks
@@ -115,10 +113,9 @@ export async function similaritySearchFirstSummariesThenChunks(
 			);
 
 	if (processedDocumentChunksError) {
-		throw new ApplicationError(
-			"Failed to match pages to pageSections",
-			processedDocumentChunksError,
-		);
+		throw new ApplicationError("Failed to match pages to pageSections", {
+			...processedDocumentChunksError,
+		});
 	}
 
 	const chunkMatches = processedDocumentChunks.map((chunk) => {

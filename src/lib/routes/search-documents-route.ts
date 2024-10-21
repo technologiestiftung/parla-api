@@ -84,6 +84,7 @@ export function searchDocumentsRoute(
 
 			const moderationResponseJson = await moderationResponse.json();
 
+			//@ts-expect-error 'moderationResponseJson' is of type 'unknown'
 			const [results] = moderationResponseJson.results;
 
 			// TODO: Should this really return 500?
@@ -122,6 +123,7 @@ export function searchDocumentsRoute(
 			}
 
 			const {
+				//@ts-expect-error 'embedding' is of type 'unknown'
 				data: [{ embedding }],
 			} = await embeddingResponse.json();
 

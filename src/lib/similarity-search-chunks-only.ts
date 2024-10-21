@@ -22,10 +22,9 @@ export async function similaritySearchOnChunksOnly(
 		.order("similarity", { ascending: false });
 
 	if (matchChunksError) {
-		throw new ApplicationError(
-			"Failed to match_document_chunks",
-			matchChunksError,
-		);
+		throw new ApplicationError("Failed to match_document_chunks", {
+			error: matchChunksError,
+		});
 	}
 
 	// find processed document chunks
@@ -39,10 +38,9 @@ export async function similaritySearchOnChunksOnly(
 			);
 
 	if (processedDocumentChunksError) {
-		throw new ApplicationError(
-			"Failed to match similar chunks to chunks",
-			processedDocumentChunksError,
-		);
+		throw new ApplicationError("Failed to match similar chunks to chunks", {
+			error: processedDocumentChunksError,
+		});
 	}
 
 	const chunkMatches = processedDocumentChunks.map((chunk) => {
@@ -66,10 +64,9 @@ export async function similaritySearchOnChunksOnly(
 			);
 
 	if (processedDocumentsError) {
-		throw new ApplicationError(
-			"Failed to find processed documents",
-			processedDocumentsError,
-		);
+		throw new ApplicationError("Failed to find processed documents", {
+			error: processedDocumentsError,
+		});
 	}
 
 	// documents with matches, capped to keep the best N documents
@@ -105,10 +102,9 @@ export async function similaritySearchOnChunksOnly(
 			),
 		);
 	if (processedDocumentSummariesError) {
-		throw new ApplicationError(
-			"Failed to find summaries",
-			processedDocumentSummariesError,
-		);
+		throw new ApplicationError("Failed to find summaries", {
+			error: processedDocumentSummariesError,
+		});
 	}
 
 	// find registered documents
@@ -124,10 +120,9 @@ export async function similaritySearchOnChunksOnly(
 				),
 			);
 	if (registeredDocumentsError) {
-		throw new ApplicationError(
-			"Failed to find registered documents",
-			registeredDocumentsError,
-		);
+		throw new ApplicationError("Failed to find registered documents", {
+			error: registeredDocumentsError,
+		});
 	}
 
 	// Assure that max context length of ~15000 tokens is not exceeded
