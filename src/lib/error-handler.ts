@@ -13,7 +13,7 @@ import { supabase } from "./supabase.js";
  */
 export async function customErrorHandler(
 	error: FastifyError,
-	request: FastifyRequest,
+	_: FastifyRequest,
 	reply: FastifyReply,
 ) {
 	if (error instanceof OpenAIError) {
@@ -21,7 +21,7 @@ export async function customErrorHandler(
 		let statusText;
 		try {
 			statusText = JSON.parse(error.data.statusText);
-		} catch (e) {
+		} catch {
 			statusText = error.data.statusText;
 		}
 

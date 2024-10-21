@@ -3,7 +3,7 @@ import { healthSchema } from "../json-schemas.js";
 
 export function healthRoute(
 	app: FastifyInstance,
-	options: FastifyPluginOptions,
+	_: FastifyPluginOptions,
 	next: (err?: Error | undefined) => void,
 ) {
 	app.get(

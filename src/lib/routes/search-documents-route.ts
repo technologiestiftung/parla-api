@@ -19,7 +19,6 @@ import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-s
 import { supabase } from "../supabase.js";
 
 // TODO: Refactor document route registrations to be located in the scope of build-server
-// eslint-disable-next-line max-params
 interface SearchRoutePluginOptions extends FastifyPluginOptions {
 	OPENAI_KEY: string;
 	OPENAI_EMBEDDING_MODEL: string;
