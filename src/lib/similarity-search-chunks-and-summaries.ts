@@ -30,10 +30,9 @@ export async function similaritySearchOnChunksAndSummaries(
 			.limit(config.document_limit);
 
 	if (mathSummaryAndChunksError) {
-		throw new ApplicationError(
-			"Failed to match_summaries_and_chunks",
-			mathSummaryAndChunksError,
-		);
+		throw new ApplicationError("Failed to match_summaries_and_chunks", {
+			...mathSummaryAndChunksError,
+		});
 	}
 
 	// find processed documents
@@ -48,10 +47,9 @@ export async function similaritySearchOnChunksAndSummaries(
 				),
 			);
 	if (processedDocumentsError) {
-		throw new ApplicationError(
-			"Failed to find processed documents",
-			processedDocumentsError,
-		);
+		throw new ApplicationError("Failed to find processed documents", {
+			...processedDocumentsError,
+		});
 	}
 
 	// find complete summaries
@@ -67,10 +65,9 @@ export async function similaritySearchOnChunksAndSummaries(
 		);
 
 	if (processedDocumentSummariesError) {
-		throw new ApplicationError(
-			"Failed to find summaries",
-			processedDocumentSummariesError,
-		);
+		throw new ApplicationError("Failed to find summaries", {
+			...processedDocumentSummariesError,
+		});
 	}
 
 	// find registered documents
@@ -86,10 +83,9 @@ export async function similaritySearchOnChunksAndSummaries(
 			);
 
 	if (registeredDocumentsError) {
-		throw new ApplicationError(
-			"Failed to find registered documents",
-			registeredDocumentsError,
-		);
+		throw new ApplicationError("Failed to find registered documents", {
+			...registeredDocumentsError,
+		});
 	}
 
 	// find processed document chunks
@@ -105,10 +101,9 @@ export async function similaritySearchOnChunksAndSummaries(
 			);
 
 	if (processedDocumentChunksError) {
-		throw new ApplicationError(
-			"Failed to match pages to pageSections",
-			processedDocumentChunksError,
-		);
+		throw new ApplicationError("Failed to match pages to pageSections", {
+			...processedDocumentChunksError,
+		});
 	}
 
 	// Assure that max context length of ~15000 tokens is not exceeded

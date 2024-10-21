@@ -19,7 +19,6 @@ import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-s
 import { supabase } from "../supabase.js";
 
 // TODO: Refactor document route registrations to be located in the scope of build-server
-// eslint-disable-next-line max-params
 interface SearchRoutePluginOptions extends FastifyPluginOptions {
 	OPENAI_KEY: string;
 	OPENAI_EMBEDDING_MODEL: string;
@@ -85,6 +84,7 @@ export function searchDocumentsRoute(
 
 			const moderationResponseJson = await moderationResponse.json();
 
+			//@ts-expect-error 'moderationResponseJson' is of type 'unknown'
 			const [results] = moderationResponseJson.results;
 
 			// TODO: Should this really return 500?
@@ -123,6 +123,7 @@ export function searchDocumentsRoute(
 			}
 
 			const {
+				//@ts-expect-error 'embedding' is of type 'unknown'
 				data: [{ embedding }],
 			} = await embeddingResponse.json();
 

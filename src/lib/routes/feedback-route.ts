@@ -12,7 +12,13 @@ export function feedbackRoute(
 	}>({
 		url: "/",
 		schema: {
-			querystring: { id: { type: "number" } },
+			querystring: {
+				type: "object",
+				properties: {
+					id: { type: "number" },
+				},
+				required: [],
+			},
 		},
 		method: ["GET"],
 		handler: async (request, reply) => {

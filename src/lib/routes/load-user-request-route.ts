@@ -57,7 +57,7 @@ function findSimilarityForSummary(
 }
 export function loadUserRequestRoute(
 	app: FastifyInstance,
-	options: FastifyPluginOptions,
+	_: FastifyPluginOptions,
 	next: (err?: Error | undefined) => void,
 ) {
 	app.get(
