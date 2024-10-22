@@ -1,4 +1,3 @@
-import GPT3Tokenizer from "gpt3-tokenizer";
 import {
 	ProcessedDocumentChunkMatch,
 	ProcessedDocumentSummaryMatch,
@@ -11,9 +10,6 @@ import { supabase } from "./supabase.js";
 export async function similaritySearchOnChunksAndSummaries(
 	config: SimilaritySearchConfig,
 ): Promise<Array<ResponseDocumentMatch>> {
-	// eslint-disable-next-line new-cap
-	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
-
 	// vector search summaries
 	const { error: mathSummaryAndChunksError, data: similarSummariesAndChunks } =
 		await supabase
@@ -106,21 +102,7 @@ export async function similaritySearchOnChunksAndSummaries(
 		});
 	}
 
-	// Assure that max context length of ~15000 tokens is not exceeded
-	// Assume 1000 tokens per chunk
-	// Distribute chunks equally across documents
-	const MAX_CONTEXT_SIZE = 15000;
-	const TOKENS_PER_CHUNK = 1000;
-	const summaryTokens = processedDocumentSummaries
-		.map((s) => tokenizer.encode(s.summary).text.length)
-		.reduce((l, r) => l + r, 0);
-	const MAX_CHUNKS_PER_DOCUMENT = Math.floor(
-		(MAX_CONTEXT_SIZE - summaryTokens) /
-			TOKENS_PER_CHUNK /
-			similarSummariesAndChunks.length,
-	);
-
-	const chunkMatches = processedDocumentChunks.map((chunk) => {
+	const allChunkMatches = processedDocumentChunks.map((chunk) => {
 		const similarityFound = similarSummariesAndChunks.filter(
 			(s) => (s.chunk_ids ?? []).filter((cid) => cid === chunk.id).length > 0,
 		)[0];
@@ -145,14 +127,13 @@ export async function similaritySearchOnChunksAndSummaries(
 			(s) => s.processed_document_id === processedDocument.id,
 		)[0];
 
-		const chunks = chunkMatches
+		const chunksForThisDocument = allChunkMatches
 			.filter(
 				(cm) =>
 					cm.processed_document_chunk.processed_document_id ===
 					processedDocument.id,
 			)
-			.sort((l, r) => (l.similarity < r.similarity ? 1 : -1))
-			.slice(0, MAX_CHUNKS_PER_DOCUMENT);
+			.sort((l, r) => (l.similarity < r.similarity ? 1 : -1));
 
 		return {
 			registered_document: registeredDocument,
@@ -161,7 +142,7 @@ export async function similaritySearchOnChunksAndSummaries(
 				processed_document_summary: processedDocumentSummary,
 				similarity: processedDocumentSummaryMatch.summary_similarity,
 			} as ProcessedDocumentSummaryMatch,
-			processed_document_chunk_matches: chunks,
+			processed_document_chunk_matches: chunksForThisDocument,
 			similarity: processedDocumentSummaryMatch.similarity,
 		} as ResponseDocumentMatch;
 	});

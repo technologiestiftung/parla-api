@@ -5,7 +5,6 @@ import {
 	OpenAIChatCompletionRequest,
 	ResponseDocumentMatch,
 } from "./common.js";
-import { ApplicationError } from "./errors.js";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
@@ -27,43 +26,49 @@ export function createPrompt({
 }: CreatePromptOptions): OpenAIChatCompletionRequest {
 	// eslint-disable-next-line new-cap
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
-	let tokenCount = 0;
-	let contextText = "";
 
-	// Max. 3 of the top documents to assure that we do not exceed the token limit
-	const includedDocumentMatches = documentMatches.slice(0, 3);
+	let context = "";
 
-	// Concatenate the context
-	for (let i = 0; i < includedDocumentMatches.length; i++) {
-		const documentMatch = includedDocumentMatches[i];
+	const orderedDocumentMatches = documentMatches.sort((a, b) => {
+		return b.similarity - a.similarity;
+	});
 
-		const chunkContent = documentMatch.processed_document_chunk_matches
-			.map((chunk) => chunk.processed_document_chunk.content)
-			.join("\n");
-
-		let content = chunkContent;
+	// Build the context:
+	// Starting with the best document:
+	// - add the summary
+	// - add chunks
+	// until the context token limit is reached
+	for (let i = 0; i < orderedDocumentMatches.length; i++) {
+		const documentMatch = documentMatches[i];
 
 		if (includeSummary) {
 			const summaryContent =
 				documentMatch.processed_document_summary_match
 					.processed_document_summary.summary;
 
-			content = content + "\n" + summaryContent;
+			const existingContentPlusSummary = context + "\n\n" + summaryContent;
+			const tokenSize = tokenizer.encode(existingContentPlusSummary).text
+				.length;
+
+			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
+				context = existingContentPlusSummary;
+			} else {
+				// If context full, break
+				break;
+			}
 		}
 
-		const encoded = tokenizer.encode(content);
-		tokenCount += encoded.text.length;
-
-		if (tokenCount >= MAX_CONTENT_TOKEN_LENGTH) {
-			throw new ApplicationError(
-				`Reached max token count of ${MAX_CONTENT_TOKEN_LENGTH}.`,
-				{
-					tokenCount,
-				},
-			);
+		for (const chunk of documentMatch.processed_document_chunk_matches) {
+			const existingContentPlusChunk =
+				context + "\n\n" + chunk.processed_document_chunk.content;
+			const tokenSize = tokenizer.encode(existingContentPlusChunk).text.length;
+			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
+				context = existingContentPlusChunk;
+			} else {
+				// If context full, break
+				break;
+			}
 		}
-
-		contextText += `${content.trim()}\n\n`;
 	}
 
 	// Build the prompt
@@ -82,7 +87,7 @@ export function createPrompt({
 
 		Was ist deine Datengrundlage?
 			- Das folgende ist die Datengrundlage, getrennt durch """: 
-			"""${contextText}"""
+			"""${context}"""
 		
 		Welche Fakten solltest du zusätzlich beachten?
 			- Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
