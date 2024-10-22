@@ -2,6 +2,7 @@ import { codeBlock } from "common-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";
 import { facts } from "../fixtures/facts.js";
 import {
+	GeneratedPrompt,
 	OpenAIChatCompletionRequest,
 	ResponseDocumentMatch,
 } from "./common.js";
@@ -23,11 +24,13 @@ export function createPrompt({
 	MAX_TOKENS,
 	temperature,
 	includeSummary,
-}: CreatePromptOptions): OpenAIChatCompletionRequest {
+}: CreatePromptOptions): GeneratedPrompt {
 	// eslint-disable-next-line new-cap
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 
 	let context = "";
+	let usedSummaries = 0;
+	let usedChunks = 0;
 
 	const orderedDocumentMatches = documentMatches.sort((a, b) => {
 		return b.similarity - a.similarity;
@@ -52,6 +55,7 @@ export function createPrompt({
 
 			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
 				context = existingContentPlusSummary;
+				usedSummaries++;
 			} else {
 				// If context full, break
 				break;
@@ -64,12 +68,18 @@ export function createPrompt({
 			const tokenSize = tokenizer.encode(existingContentPlusChunk).text.length;
 			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
 				context = existingContentPlusChunk;
+				usedChunks++;
 			} else {
 				// If context full, break
 				break;
 			}
 		}
 	}
+
+	const totalContextSize = tokenizer.encode(context).text.length;
+	console.log(
+		`Total context size: ${totalContextSize}, used summaries: ${usedSummaries}, used chunks: ${usedChunks}`,
+	);
 
 	// Build the prompt
 	const prompt = codeBlock`
@@ -115,5 +125,12 @@ export function createPrompt({
 		seed: 1024,
 	};
 
-	return completionOptions;
+	const generatedPrompt = {
+		openAIChatCompletionRequest: completionOptions,
+		totalContextTokenSize: totalContextSize,
+		numberOfUsedSummaries: usedSummaries,
+		numberOfUsedChunks: usedChunks,
+	};
+
+	return generatedPrompt;
 }

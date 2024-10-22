@@ -1,3 +1,4 @@
+import { OpenAIChatCompletionRequest } from "./common";
 import { Database } from "./database.js";
 
 export type RegisteredDocument =
@@ -114,6 +115,7 @@ export interface OpenAIMessage {
 	role: string;
 	content: string;
 }
+
 export interface OpenAIChatCompletionRequest {
 	model: string;
 	messages: Array<OpenAIMessage>;
@@ -121,6 +123,13 @@ export interface OpenAIChatCompletionRequest {
 	temperature: number;
 	stream: boolean;
 	seed: number;
+}
+
+export interface GeneratedPrompt {
+	openAIChatCompletionRequest: OpenAIChatCompletionRequest;
+	totalContextTokenSize: number;
+	numberOfUsedSummaries: number;
+	numberOfUsedChunks: number;
 }
 
 export function responseDocumentMatchToReference(

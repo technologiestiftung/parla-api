@@ -66,7 +66,7 @@ export function generateAnswerRoute(
 				documentMatches,
 			} = request.body;
 
-			const chatCompletionRequest = createPrompt({
+			const generatedPrompt = createPrompt({
 				documentMatches,
 				MAX_CONTENT_TOKEN_LENGTH,
 				OPENAI_MODEL: options.OPENAI_MODEL,
@@ -82,7 +82,7 @@ export function generateAnswerRoute(
 			const then = new Date();
 			try {
 				const stream = await llm.requestResponseStream(
-					chatCompletionRequest,
+					generatedPrompt.openAIChatCompletionRequest,
 					(delta) => {
 						generatedAnswer += delta;
 					},
@@ -108,6 +108,9 @@ export function generateAnswerRoute(
 				.update({
 					generated_answer: generatedAnswer,
 					chat_completion_time_ms: elapsedMs,
+
+					//TODO: log more
+					// generated_prompt: generatedPrompt.numberOfUsedChunks
 				})
 				.eq("short_id", request.body.userRequestId)
 				.select("*");
