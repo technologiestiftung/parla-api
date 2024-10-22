@@ -29,8 +29,8 @@ export function createPrompt({
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 
 	let context = "";
-	let usedSummaries = 0;
-	let usedChunks = 0;
+	let numberOfSummariesInContext = 0;
+	let numberOfChunksInContext = 0;
 
 	const orderedDocumentMatches = documentMatches.sort((a, b) => {
 		return b.similarity - a.similarity;
@@ -55,7 +55,7 @@ export function createPrompt({
 
 			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
 				context = existingContentPlusSummary;
-				usedSummaries++;
+				numberOfSummariesInContext++;
 			} else {
 				// If context full, break
 				break;
@@ -68,18 +68,13 @@ export function createPrompt({
 			const tokenSize = tokenizer.encode(existingContentPlusChunk).text.length;
 			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
 				context = existingContentPlusChunk;
-				usedChunks++;
+				numberOfChunksInContext++;
 			} else {
 				// If context full, break
 				break;
 			}
 		}
 	}
-
-	const totalContextSize = tokenizer.encode(context).text.length;
-	console.log(
-		`Total context size: ${totalContextSize}, used summaries: ${usedSummaries}, used chunks: ${usedChunks}`,
-	);
 
 	// Build the prompt
 	const prompt = codeBlock`
@@ -106,15 +101,17 @@ export function createPrompt({
 			.join("\n")}
 	`;
 
+	const allMessages = [
+		{
+			role: "system",
+			content: prompt,
+		},
+		{ role: "user", content: sanitizedQuery },
+	];
+
 	const completionOptions: OpenAIChatCompletionRequest = {
 		model: OPENAI_MODEL,
-		messages: [
-			{
-				role: "system",
-				content: prompt,
-			},
-			{ role: "user", content: sanitizedQuery },
-		],
+		messages: allMessages,
 		max_tokens: MAX_TOKENS,
 		temperature: temperature,
 		stream: true,
@@ -125,11 +122,15 @@ export function createPrompt({
 		seed: 1024,
 	};
 
+	const totalContextTokenSize = tokenizer.encode(
+		allMessages.map((m) => m.content).join(""),
+	).text.length;
+
 	const generatedPrompt = {
 		openAIChatCompletionRequest: completionOptions,
-		totalContextTokenSize: totalContextSize,
-		numberOfUsedSummaries: usedSummaries,
-		numberOfUsedChunks: usedChunks,
+		totalContextTokenSize: totalContextTokenSize,
+		numberOfSummariesInContext: numberOfSummariesInContext,
+		numberOfChunksInContext: numberOfChunksInContext,
 	};
 
 	return generatedPrompt;
