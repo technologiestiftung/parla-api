@@ -5,6 +5,7 @@ import {
 	OpenAIChatCompletionRequest,
 	ResponseDocumentMatch,
 } from "./common.js";
+import { getCleanedMetadata } from "./util.js";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
@@ -41,6 +42,8 @@ export function createPrompt({
 	// - add chunks
 	// until the context token limit is reached
 	for (const documentMatch of orderedDocumentMatches) {
+		const metadata = getCleanedMetadata(documentMatch.registered_document);
+
 		if (includeSummary) {
 			const summaryContent =
 				documentMatch.processed_document_summary_match
@@ -48,7 +51,7 @@ export function createPrompt({
 
 			const existingContentPlusSummary =
 				context +
-				`\n\nAus dem Dokument: ${documentMatch.registered_document.source_url}\n` +
+				`\n\nAus dem Dokument ${metadata.documentName} mit dem Titel "${metadata.title}" vom ${metadata.formattedDate}:\n` +
 				summaryContent;
 
 			const tokenSize = tokenizer.encode(existingContentPlusSummary).text
