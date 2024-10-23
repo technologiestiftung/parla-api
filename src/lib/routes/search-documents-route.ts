@@ -1,6 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import {
-	AvailableSearchAlgorithms,
 	DocumentSearchBody,
 	DocumentSearchResponse,
 	ResponseDocumentMatch,
@@ -14,8 +13,6 @@ import {
 	documentSearchResponseSchema,
 } from "../json-schemas.js";
 import { similaritySearchOnChunksAndSummaries } from "../similarity-search-chunks-and-summaries.js";
-import { similaritySearchOnChunksOnly } from "../similarity-search-chunks-only.js";
-import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-summaries-then-chunks.js";
 import { supabase } from "../supabase.js";
 
 // TODO: Refactor document route registrations to be located in the scope of build-server
