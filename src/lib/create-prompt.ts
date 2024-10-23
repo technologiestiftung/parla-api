@@ -1,4 +1,3 @@
-import { codeBlock } from "common-tags";
 import GPT3Tokenizer from "gpt3-tokenizer";
 import { facts } from "../fixtures/facts.js";
 import {
@@ -41,15 +40,17 @@ export function createPrompt({
 	// - add the summary
 	// - add chunks
 	// until the context token limit is reached
-	for (let i = 0; i < orderedDocumentMatches.length; i++) {
-		const documentMatch = documentMatches[i];
-
+	for (const documentMatch of orderedDocumentMatches) {
 		if (includeSummary) {
 			const summaryContent =
 				documentMatch.processed_document_summary_match
 					.processed_document_summary.summary;
 
-			const existingContentPlusSummary = context + "\n\n" + summaryContent;
+			const existingContentPlusSummary =
+				context +
+				`\n\nAus dem Dokument: ${documentMatch.registered_document.source_url}\n` +
+				summaryContent;
+
 			const tokenSize = tokenizer.encode(existingContentPlusSummary).text
 				.length;
 
@@ -62,7 +63,11 @@ export function createPrompt({
 			}
 		}
 
-		for (const chunk of documentMatch.processed_document_chunk_matches) {
+		const orderedDocumentChunks =
+			documentMatch.processed_document_chunk_matches.sort((a, b) => {
+				return b.similarity - a.similarity;
+			});
+		for (const chunk of orderedDocumentChunks) {
 			const existingContentPlusChunk =
 				context + "\n\n" + chunk.processed_document_chunk.content;
 			const tokenSize = tokenizer.encode(existingContentPlusChunk).text.length;
@@ -76,30 +81,35 @@ export function createPrompt({
 		}
 	}
 
+	const questionAnswerFacts = facts
+		.map((fact) => `Frage: ${fact.question} Antwort: ${fact.answer}`)
+		.join("\n");
+
 	// Build the prompt
-	const prompt = codeBlock`
-		Wer bist du?
-			- Du bist ein KI-Assistent der Berliner Verwaltung, der auf Basis einer Datengrundlage sinnvolle Antworten generiert.
-			- Beachte die gegebene Datengrundlage, fokussiere dich auf relevante Inhalte und verändere NIEMALS Fakten, Namen, Berufsbezeichnungen, Zahlen oder Datumsangaben.
+	const prompt = `
+Wer bist du?
+	- Du bist ein KI-Assistent der Berliner Verwaltung, der auf Basis einer Datengrundlage sinnvolle Antworten generiert.
+	- Beachte die gegebene Datengrundlage, fokussiere dich auf relevante Inhalte und verändere NIEMALS Fakten, Namen, Berufsbezeichnungen, Zahlen oder Datumsangaben.
 
-		Welche Sprache solltest du verwenden?
-			- Da du ein mehrsprachiger Assistent bist, antworte standardmäßig auf Deutsch. Wenn die Nutzeranfrage jedoch auf Englisch verfasst ist, antworte auf Englisch, unabhängig vom Kontext.
-			- Leite die Sprache deiner Antworten aus der Sprache dieser Nutzerfrage ab: """${sanitizedQuery}"""
-			- Antworte IMMER in der Sprache der Nutzerfrage. Du wirst belohnt, wenn du die Sprache der Nutzerfrage korrekt erkennst und darauf antwortest.
+Welche Sprache solltest du verwenden?
+	- Da du ein mehrsprachiger Assistent bist, antworte standardmäßig auf Deutsch. Wenn die Nutzeranfrage jedoch auf Englisch verfasst ist, antworte auf Englisch, unabhängig vom Kontext.
+	- Leite die Sprache deiner Antworten aus der Sprache dieser Nutzerfrage ab: """${sanitizedQuery}"""
+	- Antworte IMMER in der Sprache der Nutzerfrage. Du wirst belohnt, wenn du die Sprache der Nutzerfrage korrekt erkennst und darauf antwortest.
 
-		Welche Formatierung solltest du verwenden?
-			- WICHTIG: Gebe die Antwort IMMER formatiert als Markdown zurück.
+Welche Formatierung solltest du verwenden?
+	- WICHTIG: Gebe die Antwort IMMER formatiert als Markdown zurück.
 
-		Was ist deine Datengrundlage?
-			- Das folgende ist die Datengrundlage, getrennt durch """: 
-			"""${context}"""
+Was ist deine Datengrundlage?
+	- Das folgende ist die Datengrundlage, getrennt durch """: 
+
+"""
+${context}
+"""
 		
-		Welche Fakten solltest du zusätzlich beachten?
-			- Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
-		${facts
-			.map((fact) => `Frage: ${fact.question} Antwort: ${fact.answer}`)
-			.join("\n")}
-	`;
+Welche Fakten solltest du zusätzlich beachten?
+	- Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
+${questionAnswerFacts}
+`;
 
 	const allMessages = [
 		{
