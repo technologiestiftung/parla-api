@@ -1,0 +1,2 @@
+alter table processed_document_chunks drop column embedding_temp;
+alter table processed_document_summaries drop column summary_embedding_temp;
