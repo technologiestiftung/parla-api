@@ -6,6 +6,7 @@ import {
 	ResponseDocumentMatch,
 } from "./common.js";
 import { getCleanedMetadata } from "./util.js";
+import fs from "fs";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
@@ -29,8 +30,8 @@ export function createPrompt({
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 
 	let context = "";
-	let numberOfSummariesInContext = 0;
-	let numberOfChunksInContext = 0;
+	const summaryIdsInContext = [];
+	const chunkIdsInContext = [];
 
 	const orderedDocumentMatches = documentMatches.sort((a, b) => {
 		return b.similarity - a.similarity;
@@ -59,7 +60,10 @@ export function createPrompt({
 
 			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
 				context = existingContentPlusSummary;
-				numberOfSummariesInContext++;
+				summaryIdsInContext.push(
+					documentMatch.processed_document_summary_match
+						.processed_document_summary.id,
+				);
 			} else {
 				// If context full, break
 				break;
@@ -76,7 +80,7 @@ export function createPrompt({
 			const tokenSize = tokenizer.encode(existingContentPlusChunk).text.length;
 			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
 				context = existingContentPlusChunk;
-				numberOfChunksInContext++;
+				chunkIdsInContext.push(chunk.processed_document_chunk.id);
 			} else {
 				// If context full, break
 				break;
@@ -114,6 +118,8 @@ Welche Fakten solltest du zusätzlich beachten?
 ${questionAnswerFacts}
 `;
 
+	fs.writeFileSync("prompt.md", prompt, "utf-8");
+
 	const allMessages = [
 		{
 			role: "system",
@@ -142,8 +148,8 @@ ${questionAnswerFacts}
 	const generatedPrompt = {
 		openAIChatCompletionRequest: completionOptions,
 		totalContextTokenSize: totalContextTokenSize,
-		numberOfSummariesInContext: numberOfSummariesInContext,
-		numberOfChunksInContext: numberOfChunksInContext,
+		summaryIdsInContext: summaryIdsInContext,
+		chunkIdsInContext: chunkIdsInContext,
 	};
 
 	return generatedPrompt;

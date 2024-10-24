@@ -109,9 +109,8 @@ export function generateAnswerRoute(
 					generated_answer: generatedAnswer,
 					chat_completion_time_ms: elapsedMs,
 					total_context_token_size: generatedPrompt.totalContextTokenSize,
-					number_of_summaries_in_context:
-						generatedPrompt.numberOfSummariesInContext,
-					number_of_chunks_in_context: generatedPrompt.numberOfChunksInContext,
+					summary_ids_in_context: generatedPrompt.summaryIdsInContext,
+					chunk_ids_in_context: generatedPrompt.chunkIdsInContext,
 				})
 				.eq("short_id", request.body.userRequestId)
 				.select("*");

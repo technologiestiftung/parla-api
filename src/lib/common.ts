@@ -128,8 +128,8 @@ export interface OpenAIChatCompletionRequest {
 export interface GeneratedPrompt {
 	openAIChatCompletionRequest: OpenAIChatCompletionRequest;
 	totalContextTokenSize: number;
-	numberOfSummariesInContext: number;
-	numberOfChunksInContext: number;
+	summaryIdsInContext: number[];
+	chunkIdsInContext: number[];
 }
 
 export function responseDocumentMatchToReference(
