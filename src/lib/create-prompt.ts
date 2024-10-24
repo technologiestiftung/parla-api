@@ -6,7 +6,6 @@ import {
 	ResponseDocumentMatch,
 } from "./common.js";
 import { getCleanedMetadata } from "./util.js";
-import fs from "fs";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
@@ -117,8 +116,6 @@ Welche Fakten solltest du zusätzlich beachten?
 	- Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
 ${questionAnswerFacts}
 `;
-
-	fs.writeFileSync("prompt.md", prompt, "utf-8");
 
 	const allMessages = [
 		{
