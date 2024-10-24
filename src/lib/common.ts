@@ -1,4 +1,3 @@
-import { OpenAIChatCompletionRequest } from "./common";
 import { Database } from "./database.js";
 
 export type RegisteredDocument =
