@@ -11,17 +11,15 @@ export interface CreatePromptOptions {
 	sanitizedQuery: string;
 	OPENAI_MODEL: string;
 	documentMatches: Array<ResponseDocumentMatch>;
-	MAX_CONTENT_TOKEN_LENGTH: number;
-	MAX_TOKENS: number;
+	MAX_CHAT_COMPLETION_TOKENS: number;
 	temperature: number;
 	includeSummary: boolean;
 }
 export function createPrompt({
 	documentMatches,
-	MAX_CONTENT_TOKEN_LENGTH,
 	OPENAI_MODEL,
 	sanitizedQuery,
-	MAX_TOKENS,
+	MAX_CHAT_COMPLETION_TOKENS,
 	temperature,
 	includeSummary,
 }: CreatePromptOptions): GeneratedPrompt {
@@ -60,24 +58,15 @@ export function createPrompt({
 				documentMatch.processed_document_summary_match
 					.processed_document_summary.summary;
 
-			const existingContentPlusSummary =
+			context =
 				context +
 				`\n\nAus dem Dokument ${metadata.documentName} mit dem Titel "${metadata.title}" vom ${metadata.formattedDate}:\n` +
 				summaryContent;
 
-			const tokenSize = tokenizer.encode(existingContentPlusSummary).text
-				.length;
-
-			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
-				context = existingContentPlusSummary;
-				summaryIdsInContext.push(
-					documentMatch.processed_document_summary_match
-						.processed_document_summary.id,
-				);
-			} else {
-				// If context full, break
-				break;
-			}
+			summaryIdsInContext.push(
+				documentMatch.processed_document_summary_match
+					.processed_document_summary.id,
+			);
 		}
 
 		const orderedDocumentChunks = documentMatch.processed_document_chunk_matches
@@ -87,16 +76,8 @@ export function createPrompt({
 			.slice(0, MAX_PAGES_PER_DOCUMENT_FOR_PROMPT);
 
 		for (const chunk of orderedDocumentChunks) {
-			const existingContentPlusChunk =
-				context + "\n\n" + chunk.processed_document_chunk.content;
-			const tokenSize = tokenizer.encode(existingContentPlusChunk).text.length;
-			if (tokenSize < MAX_CONTENT_TOKEN_LENGTH) {
-				context = existingContentPlusChunk;
-				chunkIdsInContext.push(chunk.processed_document_chunk.id);
-			} else {
-				// If context full, break
-				break;
-			}
+			context = context + "\n\n" + chunk.processed_document_chunk.content;
+			chunkIdsInContext.push(chunk.processed_document_chunk.id);
 		}
 	}
 
@@ -141,7 +122,7 @@ ${questionAnswerFacts}
 	const completionOptions: OpenAIChatCompletionRequest = {
 		model: OPENAI_MODEL,
 		messages: allMessages,
-		max_tokens: MAX_TOKENS,
+		max_tokens: MAX_CHAT_COMPLETION_TOKENS,
 		temperature: temperature,
 		stream: true,
 		// https://platform.openai.com/docs/api-reference/chat
