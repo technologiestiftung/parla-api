@@ -29,36 +29,10 @@ export function generateAnswerRoute(
 			},
 		},
 		async (request, reply) => {
-			let MAX_CONTENT_TOKEN_LENGTH = 1500;
-			const MAX_TOKENS = 2048;
-			// set MAX_CONTENT_LENGTH based on the openai model
-			// models we use
-			// - gpt-4 has max tokens length of 8192
-			// - gpt-3.5-turbo has max tokens length of 4096
-			// - gpt-3.5-turbo-16k has max tokens length of 16384
-			// Reference: https://platform.openai.com/docs/models/overview
-			switch (options.OPENAI_MODEL) {
-				case "gpt-4o-mini": {
-					MAX_CONTENT_TOKEN_LENGTH = 128000;
-					break;
-				}
-				case "gpt-4": {
-					MAX_CONTENT_TOKEN_LENGTH = 8192;
-					break;
-				}
-				case "gpt-3.5-turbo": {
-					MAX_CONTENT_TOKEN_LENGTH = 4096;
-					break;
-				}
-				case "gpt-3.5-turbo-16k": {
-					MAX_CONTENT_TOKEN_LENGTH = 16384;
-					break;
-				}
-				default: {
-					MAX_CONTENT_TOKEN_LENGTH = 1500;
-					break;
-				}
-			}
+			const MAX_CHAT_COMPLETION_TOKENS = process.env.MAX_CHAT_COMPLETION_TOKENS
+				? parseInt(process.env.MAX_CHAT_COMPLETION_TOKENS)
+				: 2048;
+
 			const {
 				query,
 				include_summary_in_response_generation,
@@ -66,12 +40,11 @@ export function generateAnswerRoute(
 				documentMatches,
 			} = request.body;
 
-			const chatCompletionRequest = createPrompt({
+			const generatedPrompt = createPrompt({
 				documentMatches,
-				MAX_CONTENT_TOKEN_LENGTH,
 				OPENAI_MODEL: options.OPENAI_MODEL,
 				sanitizedQuery: query,
-				MAX_TOKENS,
+				MAX_CHAT_COMPLETION_TOKENS,
 				temperature,
 				includeSummary: include_summary_in_response_generation,
 			});
@@ -82,7 +55,7 @@ export function generateAnswerRoute(
 			const then = new Date();
 			try {
 				const stream = await llm.requestResponseStream(
-					chatCompletionRequest,
+					generatedPrompt.openAIChatCompletionRequest,
 					(delta) => {
 						generatedAnswer += delta;
 					},
@@ -108,6 +81,9 @@ export function generateAnswerRoute(
 				.update({
 					generated_answer: generatedAnswer,
 					chat_completion_time_ms: elapsedMs,
+					total_context_token_size: generatedPrompt.totalContextTokenSize,
+					summary_ids_in_context: generatedPrompt.summaryIdsInContext,
+					chunk_ids_in_context: generatedPrompt.chunkIdsInContext,
 				})
 				.eq("short_id", request.body.userRequestId)
 				.select("*");

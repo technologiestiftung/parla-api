@@ -1,6 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import {
-	AvailableSearchAlgorithms,
 	DocumentSearchBody,
 	DocumentSearchResponse,
 	ResponseDocumentMatch,
@@ -14,8 +13,6 @@ import {
 	documentSearchResponseSchema,
 } from "../json-schemas.js";
 import { similaritySearchOnChunksAndSummaries } from "../similarity-search-chunks-and-summaries.js";
-import { similaritySearchOnChunksOnly } from "../similarity-search-chunks-only.js";
-import { similaritySearchFirstSummariesThenChunks } from "../similarity-search-summaries-then-chunks.js";
 import { supabase } from "../supabase.js";
 
 // TODO: Refactor document route registrations to be located in the scope of build-server
@@ -48,7 +45,6 @@ export function searchDocumentsRoute(
 				chunk_limit,
 				summary_limit,
 				document_limit,
-				search_algorithm,
 			} = request.body;
 
 			// 2. moderate content
@@ -138,21 +134,8 @@ export function searchDocumentsRoute(
 			} as SimilaritySearchConfig;
 
 			then = new Date();
-			let documentMatches: Array<ResponseDocumentMatch> = [];
-			if (search_algorithm === AvailableSearchAlgorithms.ChunksOnly) {
-				documentMatches = await similaritySearchOnChunksOnly(config);
-			} else if (
-				search_algorithm === AvailableSearchAlgorithms.ChunksAndSummaries
-			) {
-				documentMatches = await similaritySearchOnChunksAndSummaries(config);
-			} else if (
-				search_algorithm === AvailableSearchAlgorithms.SummaryThenChunks
-			) {
-				documentMatches =
-					await similaritySearchFirstSummariesThenChunks(config);
-			} else {
-				throw new Error(`Algorithm ${search_algorithm} not supported.`);
-			}
+			const documentMatches: Array<ResponseDocumentMatch> =
+				await similaritySearchOnChunksAndSummaries(config);
 
 			now = new Date();
 			const databaseSearchElapsedMs = now.getTime() - then.getTime();
