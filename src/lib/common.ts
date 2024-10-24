@@ -114,6 +114,7 @@ export interface OpenAIMessage {
 	role: string;
 	content: string;
 }
+
 export interface OpenAIChatCompletionRequest {
 	model: string;
 	messages: Array<OpenAIMessage>;
@@ -121,6 +122,13 @@ export interface OpenAIChatCompletionRequest {
 	temperature: number;
 	stream: boolean;
 	seed: number;
+}
+
+export interface GeneratedPrompt {
+	openAIChatCompletionRequest: OpenAIChatCompletionRequest;
+	totalContextTokenSize: number;
+	summaryIdsInContext: number[];
+	chunkIdsInContext: number[];
 }
 
 export function responseDocumentMatchToReference(
