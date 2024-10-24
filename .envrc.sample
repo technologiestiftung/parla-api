@@ -12,3 +12,5 @@ export LOG_LEVEL="info"
 # This is only for testing purpose and should not be allowed in production
 # for real real!
 export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"
+export MAX_DOCUMENTS_FOR_PROMPT=5
+export MAX_PAGES_PER_DOCUMENT_FOR_PROMPT=5

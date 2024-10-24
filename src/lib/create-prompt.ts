@@ -25,6 +25,15 @@ export function createPrompt({
 	temperature,
 	includeSummary,
 }: CreatePromptOptions): GeneratedPrompt {
+	const MAX_DOCUMENTS_FOR_PROMPT = process.env.MAX_DOCUMENTS_FOR_PROMPT
+		? parseInt(process.env.MAX_DOCUMENTS_FOR_PROMPT)
+		: 5;
+
+	const MAX_PAGES_PER_DOCUMENT_FOR_PROMPT = process.env
+		.MAX_PAGES_PER_DOCUMENT_FOR_PROMPT
+		? parseInt(process.env.MAX_PAGES_PER_DOCUMENT_FOR_PROMPT)
+		: 5;
+
 	// eslint-disable-next-line new-cap
 	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 
@@ -32,9 +41,11 @@ export function createPrompt({
 	const summaryIdsInContext = [];
 	const chunkIdsInContext = [];
 
-	const orderedDocumentMatches = documentMatches.sort((a, b) => {
-		return b.similarity - a.similarity;
-	});
+	const orderedDocumentMatches = documentMatches
+		.sort((a, b) => {
+			return b.similarity - a.similarity;
+		})
+		.slice(0, MAX_DOCUMENTS_FOR_PROMPT);
 
 	// Build the context:
 	// Starting with the best document:
@@ -69,10 +80,12 @@ export function createPrompt({
 			}
 		}
 
-		const orderedDocumentChunks =
-			documentMatch.processed_document_chunk_matches.sort((a, b) => {
+		const orderedDocumentChunks = documentMatch.processed_document_chunk_matches
+			.sort((a, b) => {
 				return b.similarity - a.similarity;
-			});
+			})
+			.slice(0, MAX_PAGES_PER_DOCUMENT_FOR_PROMPT);
+
 		for (const chunk of orderedDocumentChunks) {
 			const existingContentPlusChunk =
 				context + "\n\n" + chunk.processed_document_chunk.content;
