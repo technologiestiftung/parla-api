@@ -122,7 +122,7 @@ ${questionAnswerFacts}
 	const completionOptions: OpenAIChatCompletionRequest = {
 		model: parlaConfig.OPENAI_MODEL,
 		messages: allMessages,
-		max_tokens: parlaConfig.CHAT_COMPLETION_GENERATED_TOKEN_LIMIT,
+		max_tokens: parlaConfig.CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT,
 		temperature: parlaConfig.CHAT_COMPLETION_TEMPERATURE,
 		stream: true,
 		// https://platform.openai.com/docs/api-reference/chat
