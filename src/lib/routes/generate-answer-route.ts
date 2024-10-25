@@ -1,21 +1,18 @@
-import { FastifyInstance, FastifyPluginOptions } from "fastify";
+import { FastifyInstance } from "fastify";
+import { ParlaConfig } from "../../index.js";
 import { GenerateAnswerBody } from "../common.js";
 import { createPrompt } from "../create-prompt.js";
+import { DatabaseError, OpenAIError } from "../errors.js";
 import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
 import { OpenAIClient } from "../llm/openai-client.js";
-import { DatabaseError, OpenAIError } from "../errors.js";
 import { supabase } from "../supabase.js";
 
-interface GenerateAnswerRoutePluginOptions extends FastifyPluginOptions {
-	OPENAI_MODEL: string;
-	OPENAI_KEY: string;
-}
 export function generateAnswerRoute(
 	app: FastifyInstance,
-	options: GenerateAnswerRoutePluginOptions,
+	parlaConfig: ParlaConfig,
 	next: (err?: Error | undefined) => void,
 ) {
 	app.post<{
@@ -29,27 +26,18 @@ export function generateAnswerRoute(
 			},
 		},
 		async (request, reply) => {
-			const MAX_CHAT_COMPLETION_TOKENS = process.env.MAX_CHAT_COMPLETION_TOKENS
-				? parseInt(process.env.MAX_CHAT_COMPLETION_TOKENS)
-				: 2048;
+			const { query, include_summary_in_response_generation, documentMatches } =
+				request.body;
 
-			const {
-				query,
-				include_summary_in_response_generation,
-				temperature,
+			const createPromptOptions = {
 				documentMatches,
-			} = request.body;
-
-			const generatedPrompt = createPrompt({
-				documentMatches,
-				OPENAI_MODEL: options.OPENAI_MODEL,
 				sanitizedQuery: query,
-				MAX_CHAT_COMPLETION_TOKENS,
-				temperature,
 				includeSummary: include_summary_in_response_generation,
-			});
+			};
 
-			const llm = new OpenAIClient(options.OPENAI_KEY);
+			const generatedPrompt = createPrompt(createPromptOptions, parlaConfig);
+
+			const llm = new OpenAIClient(parlaConfig.OPENAI_KEY);
 			let generatedAnswer: string = "";
 
 			const then = new Date();

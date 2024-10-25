@@ -2,7 +2,7 @@
 import cors from "@fastify/cors";
 
 import fastify from "fastify";
-import { Model } from "./common.js";
+import { ParlaConfig } from "../index.js";
 import { customErrorHandler } from "./error-handler.js";
 import { corsConfiguration } from "./handle-cors.js";
 import { countDocumentsRoute } from "./routes/count-documents-route.js";
@@ -13,15 +13,7 @@ import { loadUserRequestRoute } from "./routes/load-user-request-route.js";
 import { rootRoute } from "./routes/root-route.js";
 import { searchDocumentsRoute } from "./routes/search-documents-route.js";
 
-export async function buildServer({
-	OPENAI_MODEL,
-	OPENAI_KEY,
-	OPENAI_EMBEDDING_MODEL,
-}: {
-	OPENAI_MODEL: Model;
-	OPENAI_KEY: string;
-	OPENAI_EMBEDDING_MODEL: string;
-}) {
+export async function buildServer(parlaConfig: ParlaConfig) {
 	const NODE_ENV = process.env.NODE_ENV ?? "none";
 	const LOG_LEVEL = process.env.LOG_LEVEL ?? "info";
 	const envToLogger: Record<string, unknown> = {
@@ -63,14 +55,11 @@ export async function buildServer({
 	server.register(feedbackRoute, { prefix: "/feedbacks" });
 	server.register(searchDocumentsRoute, {
 		prefix: "/vector-search",
-		OPENAI_KEY,
-		OPENAI_EMBEDDING_MODEL,
-		OPENAI_MODEL,
+		...parlaConfig,
 	});
 	server.register(generateAnswerRoute, {
 		prefix: "/generate-answer",
-		OPENAI_MODEL,
-		OPENAI_KEY,
+		...parlaConfig,
 	});
 	server.register(loadUserRequestRoute, { prefix: "/requests" });
 	return server;

@@ -1,4 +1,5 @@
 import { facts } from "../fixtures/facts.js";
+import { ParlaConfig } from "../index.js";
 import {
 	GeneratedPrompt,
 	OpenAIChatCompletionRequest,
@@ -8,40 +9,26 @@ import { getCleanedMetadata } from "./util.js";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
-	OPENAI_MODEL: string;
 	documentMatches: Array<ResponseDocumentMatch>;
-	MAX_CHAT_COMPLETION_TOKENS: number;
-	temperature: number;
 	includeSummary: boolean;
 }
-export function createPrompt({
-	documentMatches,
-	OPENAI_MODEL,
-	sanitizedQuery,
-	MAX_CHAT_COMPLETION_TOKENS,
-	temperature,
-	includeSummary,
-}: CreatePromptOptions): GeneratedPrompt {
-	// The maximum number of documents to include in the prompt
-	const MAX_DOCUMENTS_FOR_PROMPT = process.env.MAX_DOCUMENTS_FOR_PROMPT
-		? parseInt(process.env.MAX_DOCUMENTS_FOR_PROMPT)
-		: 5;
 
-	// The maximum number of pages per document to include in the prompt
-	const MAX_PAGES_PER_DOCUMENT_FOR_PROMPT = process.env
-		.MAX_PAGES_PER_DOCUMENT_FOR_PROMPT
-		? parseInt(process.env.MAX_PAGES_PER_DOCUMENT_FOR_PROMPT)
-		: 5;
+export function createPrompt(
+	createPromptOptions: CreatePromptOptions,
+	parlaConfig: ParlaConfig,
+): GeneratedPrompt {
+	const LIMIT = parlaConfig.CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT;
+	const FACTOR = parlaConfig.BEST_GUESS_ESTIMATION_TOKEN_FACTOR;
 
 	let context = "";
 	const summaryIdsInContext = [];
 	const chunkIdsInContext = [];
 
-	const orderedDocumentMatches = documentMatches
-		.sort((a, b) => {
+	const orderedDocumentMatches = createPromptOptions.documentMatches.sort(
+		(a, b) => {
 			return b.similarity - a.similarity;
-		})
-		.slice(0, MAX_DOCUMENTS_FOR_PROMPT);
+		},
+	);
 
 	// Build the context:
 	// Starting with the best document:
@@ -51,31 +38,46 @@ export function createPrompt({
 	for (const documentMatch of orderedDocumentMatches) {
 		const metadata = getCleanedMetadata(documentMatch.registered_document);
 
-		if (includeSummary) {
+		if (createPromptOptions.includeSummary) {
+			const summaryId =
+				documentMatch.processed_document_summary_match
+					.processed_document_summary.id;
+
 			const summaryContent =
 				documentMatch.processed_document_summary_match
 					.processed_document_summary.summary;
 
-			context =
+			const existingContentPlusSummary =
 				context +
 				`\n\nAus dem Dokument ${metadata.documentName} mit dem Titel "${metadata.title}" vom ${metadata.formattedDate}:\n` +
 				summaryContent;
 
-			summaryIdsInContext.push(
-				documentMatch.processed_document_summary_match
-					.processed_document_summary.id,
-			);
+			const estimatedTokenSize = existingContentPlusSummary.length / FACTOR;
+
+			if (estimatedTokenSize < LIMIT) {
+				context = existingContentPlusSummary;
+				summaryIdsInContext.push(summaryId);
+			} else {
+				// If context full, break
+				break;
+			}
 		}
 
-		const orderedDocumentChunks = documentMatch.processed_document_chunk_matches
-			.sort((a, b) => {
+		const orderedDocumentChunks =
+			documentMatch.processed_document_chunk_matches.sort((a, b) => {
 				return b.similarity - a.similarity;
-			})
-			.slice(0, MAX_PAGES_PER_DOCUMENT_FOR_PROMPT);
-
+			});
 		for (const chunk of orderedDocumentChunks) {
-			context = context + "\n\n" + chunk.processed_document_chunk.content;
-			chunkIdsInContext.push(chunk.processed_document_chunk.id);
+			const existingContentPlusChunk =
+				context + "\n\n" + chunk.processed_document_chunk.content;
+			const estimatedChunkTokenSize = existingContentPlusChunk.length / LIMIT;
+			if (estimatedChunkTokenSize < LIMIT) {
+				context = existingContentPlusChunk;
+				chunkIdsInContext.push(chunk.processed_document_chunk.id);
+			} else {
+				// If context full, break
+				break;
+			}
 		}
 	}
 
@@ -91,7 +93,7 @@ Wer bist du?
 
 Welche Sprache solltest du verwenden?
 	- Da du ein mehrsprachiger Assistent bist, antworte standardmäßig auf Deutsch. Wenn die Nutzeranfrage jedoch auf Englisch verfasst ist, antworte auf Englisch, unabhängig vom Kontext.
-	- Leite die Sprache deiner Antworten aus der Sprache dieser Nutzerfrage ab: """${sanitizedQuery}"""
+	- Leite die Sprache deiner Antworten aus der Sprache dieser Nutzerfrage ab: """${createPromptOptions.sanitizedQuery}"""
 	- Antworte IMMER in der Sprache der Nutzerfrage. Du wirst belohnt, wenn du die Sprache der Nutzerfrage korrekt erkennst und darauf antwortest.
 
 Welche Formatierung solltest du verwenden?
@@ -114,14 +116,14 @@ ${questionAnswerFacts}
 			role: "system",
 			content: prompt,
 		},
-		{ role: "user", content: sanitizedQuery },
+		{ role: "user", content: createPromptOptions.sanitizedQuery },
 	];
 
 	const completionOptions: OpenAIChatCompletionRequest = {
-		model: OPENAI_MODEL,
+		model: parlaConfig.OPENAI_MODEL,
 		messages: allMessages,
-		max_tokens: MAX_CHAT_COMPLETION_TOKENS,
-		temperature: temperature,
+		max_tokens: parlaConfig.CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT,
+		temperature: parlaConfig.CHAT_COMPLETION_TEMPERATURE,
 		stream: true,
 		// https://platform.openai.com/docs/api-reference/chat
 		// seed feature is in Beta. If specified, our system will make a best effort to

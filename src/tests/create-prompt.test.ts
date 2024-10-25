@@ -47,12 +47,17 @@ test("create prompt", async (t) => {
 			},
 		],
 		sanitizedQuery: testSearchQuery,
-		OPENAI_MODEL: "gpt-3.5-turbo",
-		MAX_CHAT_COMPLETION_TOKENS: 2048,
-		temperature: 0,
 		includeSummary: true,
 	};
-	const prompt = await createPrompt(options);
+	const prompt = await createPrompt(options, {
+		OPENAI_KEY: "",
+		OPENAI_MODEL: "gpt-4o-mini",
+		OPENAI_EMBEDDING_MODEL: "text-embedding-ada-002",
+		CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT: 30000,
+		CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT: 2048,
+		BEST_GUESS_ESTIMATION_TOKEN_FACTOR: 4.5,
+		CHAT_COMPLETION_TEMPERATURE: 0,
+	});
 	t.snapshot(prompt);
 	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "model"));
 	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "stream"));
