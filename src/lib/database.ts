@@ -277,7 +277,6 @@ export type Database = {
 					request_payload: Json;
 					short_id: string | null;
 					summary_ids_in_context: number[] | null;
-					total_context_token_size: number | null;
 				};
 				Insert: {
 					chat_completion_time_ms?: number | null;
@@ -296,7 +295,6 @@ export type Database = {
 					request_payload: Json;
 					short_id?: string | null;
 					summary_ids_in_context?: number[] | null;
-					total_context_token_size?: number | null;
 				};
 				Update: {
 					chat_completion_time_ms?: number | null;
@@ -315,7 +313,6 @@ export type Database = {
 					request_payload?: Json;
 					short_id?: string | null;
 					summary_ids_in_context?: number[] | null;
-					total_context_token_size?: number | null;
 				};
 				Relationships: [];
 			};

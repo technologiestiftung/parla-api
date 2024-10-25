@@ -1,4 +1,3 @@
-import GPT3Tokenizer from "gpt3-tokenizer";
 import { facts } from "../fixtures/facts.js";
 import {
 	GeneratedPrompt,
@@ -23,17 +22,16 @@ export function createPrompt({
 	temperature,
 	includeSummary,
 }: CreatePromptOptions): GeneratedPrompt {
+	// The maximum number of documents to include in the prompt
 	const MAX_DOCUMENTS_FOR_PROMPT = process.env.MAX_DOCUMENTS_FOR_PROMPT
 		? parseInt(process.env.MAX_DOCUMENTS_FOR_PROMPT)
 		: 5;
 
+	// The maximum number of pages per document to include in the prompt
 	const MAX_PAGES_PER_DOCUMENT_FOR_PROMPT = process.env
 		.MAX_PAGES_PER_DOCUMENT_FOR_PROMPT
 		? parseInt(process.env.MAX_PAGES_PER_DOCUMENT_FOR_PROMPT)
 		: 5;
-
-	// eslint-disable-next-line new-cap
-	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
 
 	let context = "";
 	const summaryIdsInContext = [];
@@ -132,13 +130,8 @@ ${questionAnswerFacts}
 		seed: 1024,
 	};
 
-	const totalContextTokenSize = tokenizer.encode(
-		allMessages.map((m) => m.content).join(""),
-	).text.length;
-
 	const generatedPrompt = {
 		openAIChatCompletionRequest: completionOptions,
-		totalContextTokenSize: totalContextTokenSize,
 		summaryIdsInContext: summaryIdsInContext,
 		chunkIdsInContext: chunkIdsInContext,
 	};

@@ -126,7 +126,6 @@ export interface OpenAIChatCompletionRequest {
 
 export interface GeneratedPrompt {
 	openAIChatCompletionRequest: OpenAIChatCompletionRequest;
-	totalContextTokenSize: number;
 	summaryIdsInContext: number[];
 	chunkIdsInContext: number[];
 }

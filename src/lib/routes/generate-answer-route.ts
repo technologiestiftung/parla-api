@@ -81,7 +81,6 @@ export function generateAnswerRoute(
 				.update({
 					generated_answer: generatedAnswer,
 					chat_completion_time_ms: elapsedMs,
-					total_context_token_size: generatedPrompt.totalContextTokenSize,
 					summary_ids_in_context: generatedPrompt.summaryIdsInContext,
 					chunk_ids_in_context: generatedPrompt.chunkIdsInContext,
 				})
