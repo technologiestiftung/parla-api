@@ -15,52 +15,38 @@ This is a the api and database for the explorational project _Parla_. This is no
 - docker
 - vercel.com account
 - supabase.com account
+- openai.com account
 - running instance of the related frontend https://github.com/technologiestiftung/parla-frontend
 - running instance of the database, defined in [./supabase](./supabase)
 - populated database. Using these tools https://github.com/technologiestiftung/parla-document-processor
 
-## Needed Environment Variables
+## Required Environment Variables
 
-See also `.envrc.sample`. (Might be more up to date).
-
-```plain
-export SUPABASE_URL="http://localhost:54321"
-export SUPABASE_ANON_KEY="ey..."
-# Get your key at https://platform.openai.com/account/api-keys
-export OPENAI_KEY="sk-UY..."
-export SUPABASE_SERVICE_ROLE_KEY=
-# in dev we can use a lesser version to save some coins
-export OPENAI_MODEL="gpt-3.5-turbo"
-export PORT="8080"
-export OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
-# should be one of "debug", "info", "warning", "error", "critical"
-export LOG_LEVEL="info"
-# This is only for testing purpose and should not be allowed in production
-# for real real!
-export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"
-```
+See `.envrc.sample` for the required environment variables.
 
 Hint. We use `direnv` for development environment variables. See https://direnv.net/
 
-## Installation
+## Development
+
+Install dependencies:
 
 ```bash
 npm ci
 ```
 
-## Deployment
+Setup environment variables:
 
-Currently we deploy using docker on render.com.
+```bash
+cp .envrc.sample .envrc
+```
 
-- Go to render.com
-- allow render to access your github repository
-- create a new web service (type should be docker)
-- populate the environment variables
-- deploy
+Change variables in .envrc according to your needs and load the env:
 
-## Development
+```bash
+direnv allow
+```
 
-Startup a local database:
+Startup a local Supabase database:
 
 ```bash
 npx supabase start
@@ -72,7 +58,17 @@ Run the API:
 npm run dev
 ```
 
-Edit the files in `src`
+API is now running (default on http://127.0.0.1:8080)
+
+## Deployment
+
+Currently we deploy using docker on render.com.
+
+- Go to render.com
+- allow render to access your github repository
+- create a new web service (type should be docker)
+- populate the environment variables
+- deploy
 
 ## Periodically regenerate indices
 
