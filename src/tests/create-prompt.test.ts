@@ -47,9 +47,8 @@ test("create prompt", async (t) => {
 			},
 		],
 		sanitizedQuery: testSearchQuery,
-		MAX_CONTENT_TOKEN_LENGTH: 4096,
 		OPENAI_MODEL: "gpt-3.5-turbo",
-		MAX_TOKENS: 2048,
+		MAX_CHAT_COMPLETION_TOKENS: 2048,
 		temperature: 0,
 		includeSummary: true,
 	};
