@@ -2,11 +2,10 @@
 // https://fastify.dev/docs/latest/Guides/Getting-Started
 import { FastifyPluginOptions } from "fastify";
 import { buildServer } from "./lib/build-server.js";
-import { Model } from "./lib/common.js";
 import { EnvError } from "./lib/errors.js";
 
 export interface ParlaConfig extends FastifyPluginOptions {
-	OPENAI_MODEL: Model;
+	OPENAI_MODEL: string;
 	OPENAI_KEY: string;
 	OPENAI_EMBEDDING_MODEL: string;
 	CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT: number;
@@ -18,7 +17,7 @@ export interface ParlaConfig extends FastifyPluginOptions {
 async function main() {
 	try {
 		const PORT = parseInt(process.env.PORT ?? "8080");
-		const OPENAI_MODEL = process.env.OPENAI_MODEL as Model;
+		const OPENAI_MODEL = process.env.OPENAI_MODEL;
 		const OPENAI_KEY = process.env.OPENAI_KEY;
 		const OPENAI_EMBEDDING_MODEL = process.env.OPENAI_EMBEDDING_MODEL;
 		const CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT =
@@ -73,7 +72,7 @@ async function main() {
 		}
 
 		const parlaConfig = {
-			OPENAI_MODEL: OPENAI_MODEL as Model,
+			OPENAI_MODEL: OPENAI_MODEL,
 			OPENAI_KEY: OPENAI_KEY,
 			OPENAI_EMBEDDING_MODEL: OPENAI_EMBEDDING_MODEL,
 			CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT: parseInt(

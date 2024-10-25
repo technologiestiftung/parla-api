@@ -21,14 +21,6 @@ export type UserRequesWithFeedback = UserRequest & {
 	user_request_feedbacks: UserRequestFeedback[];
 };
 
-// https://platform.openai.com/docs/models/gpt-3-5
-// https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
-export type Model =
-	| "gpt-4"
-	| "gpt-3.5-turbo"
-	| "gpt-3.5-turbo-1106" // will be default turbo 2023 12 11
-	| "gpt-3.5-turbo-16k"; // 16k will be depreacted 2023 12 11
-
 export interface ProcessedDocumentSummaryMatch {
 	processed_document_summary: ProcessedDocumentSummary;
 	similarity: number;
