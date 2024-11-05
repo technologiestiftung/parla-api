@@ -2,7 +2,7 @@
 	"id": "chatcmpl-8RN3zH0mG7AEcok0FUmmdHBlKtIuD",
 	"object": "chat.completion",
 	"created": 1701534203,
-	"model": "gpt-3.5-turbo-16k-0613",
+	"model": "gpt-4o-mini",
 	"choices": [
 		{
 			"index": 0,

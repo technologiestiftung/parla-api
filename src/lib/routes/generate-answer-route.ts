@@ -1,21 +1,18 @@
-import { FastifyInstance, FastifyPluginOptions } from "fastify";
+import { FastifyInstance } from "fastify";
+import { ParlaConfig } from "../../index.js";
 import { GenerateAnswerBody } from "../common.js";
 import { createPrompt } from "../create-prompt.js";
+import { DatabaseError, OpenAIError } from "../errors.js";
 import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
 import { OpenAIClient } from "../llm/openai-client.js";
-import { DatabaseError, OpenAIError } from "../errors.js";
 import { supabase } from "../supabase.js";
 
-interface GenerateAnswerRoutePluginOptions extends FastifyPluginOptions {
-	OPENAI_MODEL: string;
-	OPENAI_KEY: string;
-}
 export function generateAnswerRoute(
 	app: FastifyInstance,
-	options: GenerateAnswerRoutePluginOptions,
+	parlaConfig: ParlaConfig,
 	next: (err?: Error | undefined) => void,
 ) {
 	app.post<{
@@ -29,60 +26,24 @@ export function generateAnswerRoute(
 			},
 		},
 		async (request, reply) => {
-			let MAX_CONTENT_TOKEN_LENGTH = 1500;
-			const MAX_TOKENS = 2048;
-			// set MAX_CONTENT_LENGTH based on the openai model
-			// models we use
-			// - gpt-4 has max tokens length of 8192
-			// - gpt-3.5-turbo has max tokens length of 4096
-			// - gpt-3.5-turbo-16k has max tokens length of 16384
-			// Reference: https://platform.openai.com/docs/models/overview
-			switch (options.OPENAI_MODEL) {
-				case "gpt-4o-mini": {
-					MAX_CONTENT_TOKEN_LENGTH = 128000;
-					break;
-				}
-				case "gpt-4": {
-					MAX_CONTENT_TOKEN_LENGTH = 8192;
-					break;
-				}
-				case "gpt-3.5-turbo": {
-					MAX_CONTENT_TOKEN_LENGTH = 4096;
-					break;
-				}
-				case "gpt-3.5-turbo-16k": {
-					MAX_CONTENT_TOKEN_LENGTH = 16384;
-					break;
-				}
-				default: {
-					MAX_CONTENT_TOKEN_LENGTH = 1500;
-					break;
-				}
-			}
-			const {
-				query,
-				include_summary_in_response_generation,
-				temperature,
-				documentMatches,
-			} = request.body;
+			const { query, include_summary_in_response_generation, documentMatches } =
+				request.body;
 
-			const chatCompletionRequest = createPrompt({
+			const createPromptOptions = {
 				documentMatches,
-				MAX_CONTENT_TOKEN_LENGTH,
-				OPENAI_MODEL: options.OPENAI_MODEL,
 				sanitizedQuery: query,
-				MAX_TOKENS,
-				temperature,
 				includeSummary: include_summary_in_response_generation,
-			});
+			};
 
-			const llm = new OpenAIClient(options.OPENAI_KEY);
+			const generatedPrompt = createPrompt(createPromptOptions, parlaConfig);
+
+			const llm = new OpenAIClient(parlaConfig.OPENAI_KEY);
 			let generatedAnswer: string = "";
 
 			const then = new Date();
 			try {
 				const stream = await llm.requestResponseStream(
-					chatCompletionRequest,
+					generatedPrompt.openAIChatCompletionRequest,
 					(delta) => {
 						generatedAnswer += delta;
 					},
@@ -108,6 +69,8 @@ export function generateAnswerRoute(
 				.update({
 					generated_answer: generatedAnswer,
 					chat_completion_time_ms: elapsedMs,
+					summary_ids_in_context: generatedPrompt.summaryIdsInContext,
+					chunk_ids_in_context: generatedPrompt.chunkIdsInContext,
 				})
 				.eq("short_id", request.body.userRequestId)
 				.select("*");

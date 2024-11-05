@@ -45,7 +45,7 @@ INSERT INTO user_requests(created_at, request_payload, question, generated_answe
     "chunk_limit": 128,
     "summary_limit": 16,
     "document_limit": 3
-}', 'Wie viele Dachflächen mit Solaranlagen gibt es?','Das Bezirksamt Pankow plant, bis zum 31. Dezember 2024 Solaranlagen auf allen technisch nutzbaren Dachflächen öffentlicher Gebäude zu installieren. Es gibt etwa 257 solcher Gebäude im Bezirk Pankow. Das Bezirksamt ist für die Umsetzung der Solarpflicht zuständig, aber es gibt auch andere öffentliche Einrichtungen, die Gebäude im Bezirk betreiben und unter die Solarpflicht fallen. Die genaue Größe der Dachflächen ist derzeit nicht bekannt, aber bisher wurden etwa 29.000 m² mit Solaranlagen belegt. Für die Jahre 2021 und 2022 wurden Verträge für 24 PV-Anlagen abgeschlossen, und es werden weitere geeignete Dachflächen gesucht.', 'gpt-3.5-turbo-16k', 'text-embedding-ada-002', 200, 500, 8000, 4000, '[
+}', 'Wie viele Dachflächen mit Solaranlagen gibt es?','Das Bezirksamt Pankow plant, bis zum 31. Dezember 2024 Solaranlagen auf allen technisch nutzbaren Dachflächen öffentlicher Gebäude zu installieren. Es gibt etwa 257 solcher Gebäude im Bezirk Pankow. Das Bezirksamt ist für die Umsetzung der Solarpflicht zuständig, aber es gibt auch andere öffentliche Einrichtungen, die Gebäude im Bezirk betreiben und unter die Solarpflicht fallen. Die genaue Größe der Dachflächen ist derzeit nicht bekannt, aber bisher wurden etwa 29.000 m² mit Solaranlagen belegt. Für die Jahre 2021 und 2022 wurden Verträge für 24 PV-Anlagen abgeschlossen, und es werden weitere geeignete Dachflächen gesucht.', 'gpt-4o-mini', 'text-embedding-ada-002', 200, 500, 8000, 4000, '[
 	{
 		"registered_document_id": 1,
 		"processed_document_id": 5,

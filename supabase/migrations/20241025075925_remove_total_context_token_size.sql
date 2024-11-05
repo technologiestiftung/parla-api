@@ -1,0 +1,1 @@
+alter table user_requests drop column total_context_token_size;

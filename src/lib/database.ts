@@ -77,6 +77,7 @@ export type Database = {
 				Row: {
 					chunk_index: number;
 					content: string;
+					content_temp: string | null;
 					embedding: string;
 					embedding_temp: string | null;
 					id: number;
@@ -86,6 +87,7 @@ export type Database = {
 				Insert: {
 					chunk_index: number;
 					content: string;
+					content_temp?: string | null;
 					embedding: string;
 					embedding_temp?: string | null;
 					id?: number;
@@ -95,6 +97,7 @@ export type Database = {
 				Update: {
 					chunk_index?: number;
 					content?: string;
+					content_temp?: string | null;
 					embedding?: string;
 					embedding_temp?: string | null;
 					id?: number;
@@ -118,7 +121,9 @@ export type Database = {
 					summary: string;
 					summary_embedding: string;
 					summary_embedding_temp: string | null;
+					summary_temp: string | null;
 					tags: string[];
+					tags_temp: string[] | null;
 				};
 				Insert: {
 					id?: number;
@@ -126,7 +131,9 @@ export type Database = {
 					summary: string;
 					summary_embedding: string;
 					summary_embedding_temp?: string | null;
+					summary_temp?: string | null;
 					tags: string[];
+					tags_temp?: string[] | null;
 				};
 				Update: {
 					id?: number;
@@ -134,7 +141,9 @@ export type Database = {
 					summary?: string;
 					summary_embedding?: string;
 					summary_embedding_temp?: string | null;
+					summary_temp?: string | null;
 					tags?: string[];
+					tags_temp?: string[] | null;
 				};
 				Relationships: [
 					{
@@ -253,6 +262,7 @@ export type Database = {
 			user_requests: {
 				Row: {
 					chat_completion_time_ms: number | null;
+					chunk_ids_in_context: number[] | null;
 					created_at: string;
 					database_search_time_ms: number | null;
 					embedding_time_ms: number | null;
@@ -266,9 +276,11 @@ export type Database = {
 					question: string;
 					request_payload: Json;
 					short_id: string | null;
+					summary_ids_in_context: number[] | null;
 				};
 				Insert: {
 					chat_completion_time_ms?: number | null;
+					chunk_ids_in_context?: number[] | null;
 					created_at: string;
 					database_search_time_ms?: number | null;
 					embedding_time_ms?: number | null;
@@ -282,9 +294,11 @@ export type Database = {
 					question: string;
 					request_payload: Json;
 					short_id?: string | null;
+					summary_ids_in_context?: number[] | null;
 				};
 				Update: {
 					chat_completion_time_ms?: number | null;
+					chunk_ids_in_context?: number[] | null;
 					created_at?: string;
 					database_search_time_ms?: number | null;
 					embedding_time_ms?: number | null;
@@ -298,6 +312,7 @@ export type Database = {
 					question?: string;
 					request_payload?: Json;
 					short_id?: string | null;
+					summary_ids_in_context?: number[] | null;
 				};
 				Relationships: [];
 			};
@@ -386,21 +401,6 @@ export type Database = {
 			};
 			match_document_chunks: {
 				Args: {
-					embedding: string;
-					match_threshold: number;
-					match_count: number;
-					num_probes: number;
-				};
-				Returns: {
-					id: number;
-					processed_document_id: number;
-					content: string;
-					similarity: number;
-				}[];
-			};
-			match_document_chunks_for_specific_documents: {
-				Args: {
-					processed_document_ids: number[];
 					embedding: string;
 					match_threshold: number;
 					match_count: number;

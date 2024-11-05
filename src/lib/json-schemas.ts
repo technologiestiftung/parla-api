@@ -1,11 +1,5 @@
 import { S } from "fluent-json-schema";
-import { AvailableSearchAlgorithms, Model } from "./common.js";
-
-export const MODELS: Record<string, Model> = {
-	GPT_4: "gpt-4",
-	GPT_3_5_TURBO: "gpt-3.5-turbo",
-	GPT_3_5_TURBO_16K: "gpt-3.5-turbo-16k",
-};
+import { AvailableSearchAlgorithms } from "./common.js";
 
 export const documentSearchBodySchema = S.object()
 	.prop("query", S.string())

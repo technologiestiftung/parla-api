@@ -1,14 +1,32 @@
+# Supabase Settings
 export SUPABASE_URL="http://localhost:54321"
 export SUPABASE_ANON_KEY="ey..."
-# Get your key at https://platform.openai.com/account/api-keys
 export OPENAI_KEY="sk-UY..."
 export SUPABASE_SERVICE_ROLE_KEY=
-# in dev we can use a lesser version to save some coins
-export OPENAI_MODEL="gpt-3.5-turbo"
-export PORT="8080"
-export OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
-# should be one of "debug", "info", "warning", "error", "critical"
+
+# Log level should be one of "debug", "info", "warning", "error", "critical"
 export LOG_LEVEL="info"
-# This is only for testing purpose and should not be allowed in production
-# for real real!
+
+# API Settings
+export PORT="8080"
 export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"
+
+# OpenAI Settings
+
+# The used OpenAI model
+export OPENAI_MODEL="gpt-4o-mini"
+
+# The used embedding model
+export OPENAI_EMBEDDING_MODEL="text-embedding-ada-002"
+
+# The context token limit, i.e. how much data we put into the context for answering the user question
+export CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT=30000
+
+# The answer token limit, i.e. the maximum length of the answer
+export CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT=2048
+
+# The temperatur of the chat completion request
+export CHAT_COMPLETION_TEMPERATURE=0
+
+# Best guess estimation factor for estimating token length (depends on OPENAI_EMBEDDING_MODEL)
+export BEST_GUESS_ESTIMATION_TOKEN_FACTOR=4.5

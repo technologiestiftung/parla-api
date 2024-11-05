@@ -1,107 +1,129 @@
-import { codeBlock } from "common-tags";
-import GPT3Tokenizer from "gpt3-tokenizer";
 import { facts } from "../fixtures/facts.js";
+import { ParlaConfig } from "../index.js";
 import {
+	GeneratedPrompt,
 	OpenAIChatCompletionRequest,
 	ResponseDocumentMatch,
 } from "./common.js";
-import { ApplicationError } from "./errors.js";
+import { getCleanedMetadata } from "./util.js";
 
 export interface CreatePromptOptions {
 	sanitizedQuery: string;
-	OPENAI_MODEL: string;
 	documentMatches: Array<ResponseDocumentMatch>;
-	MAX_CONTENT_TOKEN_LENGTH: number;
-	MAX_TOKENS: number;
-	temperature: number;
 	includeSummary: boolean;
 }
-export function createPrompt({
-	documentMatches,
-	MAX_CONTENT_TOKEN_LENGTH,
-	OPENAI_MODEL,
-	sanitizedQuery,
-	MAX_TOKENS,
-	temperature,
-	includeSummary,
-}: CreatePromptOptions): OpenAIChatCompletionRequest {
-	// eslint-disable-next-line new-cap
-	const tokenizer = new GPT3Tokenizer.default({ type: "gpt3" });
-	let tokenCount = 0;
-	let contextText = "";
 
-	// Max. 3 of the top documents to assure that we do not exceed the token limit
-	const includedDocumentMatches = documentMatches.slice(0, 3);
+export function createPrompt(
+	createPromptOptions: CreatePromptOptions,
+	parlaConfig: ParlaConfig,
+): GeneratedPrompt {
+	const LIMIT = parlaConfig.CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT;
+	const FACTOR = parlaConfig.BEST_GUESS_ESTIMATION_TOKEN_FACTOR;
 
-	// Concatenate the context
-	for (let i = 0; i < includedDocumentMatches.length; i++) {
-		const documentMatch = includedDocumentMatches[i];
+	let context = "";
+	const summaryIdsInContext = [];
+	const chunkIdsInContext = [];
 
-		const chunkContent = documentMatch.processed_document_chunk_matches
-			.map((chunk) => chunk.processed_document_chunk.content)
-			.join("\n");
+	const orderedDocumentMatches = createPromptOptions.documentMatches.sort(
+		(a, b) => {
+			return b.similarity - a.similarity;
+		},
+	);
 
-		let content = chunkContent;
+	// Build the context:
+	// Starting with the best document:
+	// - add the summary
+	// - add chunks
+	// until the context token limit is reached
+	for (const documentMatch of orderedDocumentMatches) {
+		const metadata = getCleanedMetadata(documentMatch.registered_document);
 
-		if (includeSummary) {
+		if (createPromptOptions.includeSummary) {
+			const summaryId =
+				documentMatch.processed_document_summary_match
+					.processed_document_summary.id;
+
 			const summaryContent =
 				documentMatch.processed_document_summary_match
 					.processed_document_summary.summary;
 
-			content = content + "\n" + summaryContent;
+			const existingContentPlusSummary =
+				context +
+				`\n\nAus dem Dokument ${metadata.documentName} mit dem Titel "${metadata.title}" vom ${metadata.formattedDate}:\n` +
+				summaryContent;
+
+			const estimatedTokenSize = existingContentPlusSummary.length / FACTOR;
+
+			if (estimatedTokenSize < LIMIT) {
+				context = existingContentPlusSummary;
+				summaryIdsInContext.push(summaryId);
+			} else {
+				// If context full, break
+				break;
+			}
 		}
 
-		const encoded = tokenizer.encode(content);
-		tokenCount += encoded.text.length;
-
-		if (tokenCount >= MAX_CONTENT_TOKEN_LENGTH) {
-			throw new ApplicationError(
-				`Reached max token count of ${MAX_CONTENT_TOKEN_LENGTH}.`,
-				{
-					tokenCount,
-				},
-			);
+		const orderedDocumentChunks =
+			documentMatch.processed_document_chunk_matches.sort((a, b) => {
+				return b.similarity - a.similarity;
+			});
+		for (const chunk of orderedDocumentChunks) {
+			const existingContentPlusChunk =
+				context + "\n\n" + chunk.processed_document_chunk.content;
+			const estimatedChunkTokenSize = existingContentPlusChunk.length / LIMIT;
+			if (estimatedChunkTokenSize < LIMIT) {
+				context = existingContentPlusChunk;
+				chunkIdsInContext.push(chunk.processed_document_chunk.id);
+			} else {
+				// If context full, break
+				break;
+			}
 		}
-
-		contextText += `${content.trim()}\n\n`;
 	}
 
+	const questionAnswerFacts = facts
+		.map((fact) => `Frage: ${fact.question} Antwort: ${fact.answer}`)
+		.join("\n");
+
 	// Build the prompt
-	const prompt = codeBlock`
-		Wer bist du?
-			- Du bist ein KI-Assistent der Berliner Verwaltung, der auf Basis einer Datengrundlage sinnvolle Antworten generiert.
-			- Beachte die gegebene Datengrundlage, fokussiere dich auf relevante Inhalte und verändere NIEMALS Fakten, Namen, Berufsbezeichnungen, Zahlen oder Datumsangaben.
+	const prompt = `
+Wer bist du?
+	- Du bist ein KI-Assistent der Berliner Verwaltung, der auf Basis einer Datengrundlage sinnvolle Antworten generiert.
+	- Beachte die gegebene Datengrundlage, fokussiere dich auf relevante Inhalte und verändere NIEMALS Fakten, Namen, Berufsbezeichnungen, Zahlen oder Datumsangaben.
 
-		Welche Sprache solltest du verwenden?
-			- Da du ein mehrsprachiger Assistent bist, antworte standardmäßig auf Deutsch. Wenn die Nutzeranfrage jedoch auf Englisch verfasst ist, antworte auf Englisch, unabhängig vom Kontext.
-			- Leite die Sprache deiner Antworten aus der Sprache dieser Nutzerfrage ab: """${sanitizedQuery}"""
-			- Antworte IMMER in der Sprache der Nutzerfrage. Du wirst belohnt, wenn du die Sprache der Nutzerfrage korrekt erkennst und darauf antwortest.
+Welche Sprache solltest du verwenden?
+	- Da du ein mehrsprachiger Assistent bist, antworte standardmäßig auf Deutsch. Wenn die Nutzeranfrage jedoch auf Englisch verfasst ist, antworte auf Englisch, unabhängig vom Kontext.
+	- Leite die Sprache deiner Antworten aus der Sprache dieser Nutzerfrage ab: """${createPromptOptions.sanitizedQuery}"""
+	- Antworte IMMER in der Sprache der Nutzerfrage. Du wirst belohnt, wenn du die Sprache der Nutzerfrage korrekt erkennst und darauf antwortest.
 
-		Welche Formatierung solltest du verwenden?
-			- WICHTIG: Gebe die Antwort IMMER formatiert als Markdown zurück.
+Welche Formatierung solltest du verwenden?
+	- WICHTIG: Gebe die Antwort IMMER formatiert als Markdown zurück.
 
-		Was ist deine Datengrundlage?
-			- Das folgende ist die Datengrundlage, getrennt durch """: 
-			"""${contextText}"""
+Was ist deine Datengrundlage?
+	- Das folgende ist die Datengrundlage, getrennt durch """: 
+
+"""
+${context}
+"""
 		
-		Welche Fakten solltest du zusätzlich beachten?
-			- Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
-		${facts
-			.map((fact) => `Frage: ${fact.question} Antwort: ${fact.answer}`)
-			.join("\n")}
-	`;
+Welche Fakten solltest du zusätzlich beachten?
+	- Beachte zusätzlich IMMER die folgenden Fakten, präsentiert als Frage-Antwort-Paare:
+${questionAnswerFacts}
+`;
+
+	const allMessages = [
+		{
+			role: "system",
+			content: prompt,
+		},
+		{ role: "user", content: createPromptOptions.sanitizedQuery },
+	];
 
 	const completionOptions: OpenAIChatCompletionRequest = {
-		model: OPENAI_MODEL,
-		messages: [
-			{
-				role: "system",
-				content: prompt,
-			},
-			{ role: "user", content: sanitizedQuery },
-		],
-		max_tokens: MAX_TOKENS,
-		temperature: temperature,
+		model: parlaConfig.OPENAI_MODEL,
+		messages: allMessages,
+		max_tokens: parlaConfig.CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT,
+		temperature: parlaConfig.CHAT_COMPLETION_TEMPERATURE,
 		stream: true,
 		// https://platform.openai.com/docs/api-reference/chat
 		// seed feature is in Beta. If specified, our system will make a best effort to
@@ -110,5 +132,11 @@ export function createPrompt({
 		seed: 1024,
 	};
 
-	return completionOptions;
+	const generatedPrompt = {
+		openAIChatCompletionRequest: completionOptions,
+		summaryIdsInContext: summaryIdsInContext,
+		chunkIdsInContext: chunkIdsInContext,
+	};
+
+	return generatedPrompt;
 }

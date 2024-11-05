@@ -47,23 +47,27 @@ test("create prompt", async (t) => {
 			},
 		],
 		sanitizedQuery: testSearchQuery,
-		MAX_CONTENT_TOKEN_LENGTH: 4096,
-		OPENAI_MODEL: "gpt-3.5-turbo",
-		MAX_TOKENS: 2048,
-		temperature: 0,
 		includeSummary: true,
 	};
-	const prompt = await createPrompt(options);
+	const prompt = await createPrompt(options, {
+		OPENAI_KEY: "",
+		OPENAI_MODEL: "gpt-4o-mini",
+		OPENAI_EMBEDDING_MODEL: "text-embedding-ada-002",
+		CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT: 30000,
+		CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT: 2048,
+		BEST_GUESS_ESTIMATION_TOKEN_FACTOR: 4.5,
+		CHAT_COMPLETION_TEMPERATURE: 0,
+	});
 	t.snapshot(prompt);
-	t.truthy(Object.hasOwn(prompt, "model"));
-	t.truthy(Object.hasOwn(prompt, "stream"));
-	t.truthy(Object.hasOwn(prompt, "temperature"));
-	t.truthy(Object.hasOwn(prompt, "max_tokens"));
-	t.truthy(Object.hasOwn(prompt, "messages"));
-	t.truthy(Array.isArray(prompt.messages));
-	t.truthy(prompt.messages.length > 0);
-	t.truthy(prompt.messages.length === 2);
-	t.is(prompt.messages[0].role, "system");
-	t.is(prompt.messages[1].role, "user");
-	t.is(prompt.messages[1].content, testSearchQuery);
+	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "model"));
+	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "stream"));
+	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "temperature"));
+	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "max_tokens"));
+	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "messages"));
+	t.truthy(Array.isArray(prompt.openAIChatCompletionRequest.messages));
+	t.truthy(prompt.openAIChatCompletionRequest.messages.length > 0);
+	t.truthy(prompt.openAIChatCompletionRequest.messages.length === 2);
+	t.is(prompt.openAIChatCompletionRequest.messages[0].role, "system");
+	t.is(prompt.openAIChatCompletionRequest.messages[1].role, "user");
+	t.is(prompt.openAIChatCompletionRequest.messages[1].content, testSearchQuery);
 });
