@@ -1,11 +1,11 @@
 
-FROM node:20.16.0-bookworm-slim AS build
+FROM node:22.12.0-bookworm-slim AS build
 WORKDIR /usr/src/app
 RUN apt-get update && apt-get install -y python3 build-essential
 COPY . .
 RUN npm ci && npm run build
 
-FROM node:20.16.0-bookworm-slim
+FROM node:22.12.0-bookworm-slim
 
 ARG PORT=8080
 ENV PORT $PORT
