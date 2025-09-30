@@ -81,7 +81,7 @@
 		"common-tags": "1.8.2",
 		"fastify": "5.0.0",
 		"fluent-json-schema": "5.0.0",
-		"openai": "4.68.1",
+		"openai": "5.23.2",
 		"react-device-detect": "2.2.3"
 	},
 	"config": {
