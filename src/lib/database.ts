@@ -275,7 +275,7 @@ export type Database = {
 					moderation_time_ms: number | null;
 					question: string;
 					request_payload: Json;
-					short_id: string | null;
+					short_id: string;
 					summary_ids_in_context: number[] | null;
 				};
 				Insert: {
@@ -293,7 +293,7 @@ export type Database = {
 					moderation_time_ms?: number | null;
 					question: string;
 					request_payload: Json;
-					short_id?: string | null;
+					short_id?: string;
 					summary_ids_in_context?: number[] | null;
 				};
 				Update: {
@@ -311,7 +311,7 @@ export type Database = {
 					moderation_time_ms?: number | null;
 					question?: string;
 					request_payload?: Json;
-					short_id?: string | null;
+					short_id?: string;
 					summary_ids_in_context?: number[] | null;
 				};
 				Relationships: [];
@@ -341,37 +341,10 @@ export type Database = {
 					metadata: Json;
 				}[];
 			};
-			hash_encode: {
-				Args: {
-					"": number;
-				};
+			generate_random_short_id: {
+				Args: Record<PropertyKey, never>;
 				Returns: string;
 			};
-			id_decode: {
-				Args: {
-					"": string;
-				};
-				Returns: number[];
-			};
-			id_decode_once: {
-				Args: {
-					"": string;
-				};
-				Returns: number;
-			};
-			id_encode:
-				| {
-						Args: {
-							"": number[];
-						};
-						Returns: string;
-				  }
-				| {
-						Args: {
-							"": number;
-						};
-						Returns: string;
-				  };
 			json_matches_schema: {
 				Args: {
 					schema: Json;
