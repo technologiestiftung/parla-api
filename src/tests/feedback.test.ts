@@ -230,7 +230,10 @@ test("feedbacks route POST should return 400 due to wrong property feedback_id i
 		headers: {
 			"content-type": "application/json",
 		},
-		body: JSON.stringify({ feedback_id: 999999, user_request_id: "jR" }),
+		body: JSON.stringify({
+			feedback_id: 999999,
+			user_request_id: "seeded_short_id_1",
+		}),
 	};
 	const response = await t.context.server.inject(opts);
 	// FIXME: This will change with PR https://github.com/technologiestiftung/parla-api/pull/87
@@ -257,7 +260,7 @@ test("feedbacks route POST should return 201", async (t) => {
 		},
 		body: JSON.stringify({
 			feedback_id,
-			user_request_id: "jR",
+			user_request_id: "seeded_short_id_1",
 			session_id: "abcdefg",
 		}),
 	};
