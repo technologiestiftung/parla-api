@@ -40,6 +40,7 @@ export function searchDocumentsRoute(
 				chunk_limit,
 				summary_limit,
 				document_limit,
+				anonymous,
 			} = request.body;
 
 			// 2. moderate content
@@ -134,6 +135,17 @@ export function searchDocumentsRoute(
 
 			now = new Date();
 			const databaseSearchElapsedMs = now.getTime() - then.getTime();
+
+			// When the request is anonymous, skip persisting it to the database.
+			// No user request is stored, so no userRequestId is returned.
+			if (anonymous) {
+				const response = {
+					documentMatches: documentMatches,
+				};
+
+				reply.status(201).send(response);
+				return;
+			}
 
 			const { data, error } = await supabase
 				.from("user_requests")
