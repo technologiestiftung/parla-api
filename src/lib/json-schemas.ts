@@ -15,6 +15,7 @@ export const documentSearchBodySchema = S.object()
 			.enum(Object.values(AvailableSearchAlgorithms))
 			.default(AvailableSearchAlgorithms.ChunksAndSummaries),
 	)
+	.prop("anonymous", S.boolean().default(false))
 	.required(["query"]);
 
 export const healthSchema = {

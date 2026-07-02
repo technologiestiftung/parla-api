@@ -57,7 +57,7 @@ export interface ResponseDocumentMatchReference {
 }
 
 export interface DocumentSearchResponse {
-	userRequestId: string;
+	userRequestId?: string;
 	documentMatches: ResponseDocumentMatch[];
 }
 
@@ -82,6 +82,7 @@ export interface DocumentSearchBody {
 	summary_limit: number;
 	document_limit: number;
 	search_algorithm: string;
+	anonymous: boolean;
 }
 
 export interface SimilaritySearchConfig {
@@ -95,7 +96,6 @@ export interface SimilaritySearchConfig {
 	num_probes_chunks: number;
 }
 
-// eslint-disable-next-line no-shadow
 export enum AvailableSearchAlgorithms {
 	ChunksOnly = "chunks-only",
 	ChunksAndSummaries = "chunks-and-summaries",
