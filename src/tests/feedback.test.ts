@@ -1,6 +1,7 @@
 import anyTest, { TestFn } from "ava";
 import { FastifyInstance, InjectOptions } from "fastify";
 import { buildTestServer } from "./util/test-server.js";
+import { seededUserRequestShortId } from "./util/fixtures.js";
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
 
 test.beforeEach(async (t) => {
@@ -232,7 +233,7 @@ test("feedbacks route POST should return 400 due to wrong property feedback_id i
 		},
 		body: JSON.stringify({
 			feedback_id: 999999,
-			user_request_id: "seeded_short_id_1",
+			user_request_id: seededUserRequestShortId,
 		}),
 	};
 	const response = await t.context.server.inject(opts);
@@ -260,7 +261,7 @@ test("feedbacks route POST should return 201", async (t) => {
 		},
 		body: JSON.stringify({
 			feedback_id,
-			user_request_id: "seeded_short_id_1",
+			user_request_id: seededUserRequestShortId,
 			session_id: "abcdefg",
 		}),
 	};
