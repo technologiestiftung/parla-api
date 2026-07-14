@@ -3,6 +3,7 @@ import { buildTestServer } from "./util/test-server.js";
 import { FastifyInstance, InjectOptions } from "fastify";
 import { mockServer } from "../mock/node.js";
 import { UserRequestFeedback } from "../lib/common.js";
+import { seededUserRequestShortId } from "./util/fixtures.js";
 
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
 
@@ -24,7 +25,7 @@ test("load user request should return reconstructed request/response object", as
 	const opts: InjectOptions = {
 		method: "GET",
 		url: {
-			pathname: "/requests/jR", // jR is encoded short id for numeric id = 1
+			pathname: `/requests/${seededUserRequestShortId}`,
 			hostname: "localhost",
 			port: 8888,
 			protocol: "http",
