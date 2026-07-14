@@ -93,6 +93,31 @@ test("search document (summary then chunks) should return a document", async (t)
 	t.is(response.statusCode, 201);
 	checkSearchDocStructure(t, json);
 });
+
+test("anonymous search document should return a document without a userRequestId", async (t) => {
+	const opts: InjectOptions = {
+		method: "POST",
+		url: {
+			pathname: "/vector-search",
+			hostname: "localhost",
+			port: 8888,
+			protocol: "http",
+		},
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			query: testSearchQuery,
+			anonymous: true,
+		}),
+	};
+	const response = await t.context.server.inject(opts);
+	const json = JSON.parse(response.payload) as DocumentSearchResponse;
+	t.is(response.statusCode, 201);
+	t.false(Object.hasOwn(json, "userRequestId"));
+	checkSearchDocStructure(t, json);
+});
+
 test("search document with flagged moderation should return 500", async (t) => {
 	const opts: InjectOptions = {
 		method: "POST",

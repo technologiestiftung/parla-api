@@ -35,8 +35,8 @@ SELECT
 		SELECT
 			* FROM regenerate_embedding_indices_for_summaries() $$);
 
-INSERT INTO user_requests(created_at, request_payload, question, generated_answer, llm_model, llm_embedding_model, moderation_time_ms, embedding_time_ms, database_search_time_ms, chat_completion_time_ms, matching_documents)
-	VALUES (now(), '{
+INSERT INTO user_requests(created_at, short_id, request_payload, question, generated_answer, llm_model, llm_embedding_model, moderation_time_ms, embedding_time_ms, database_search_time_ms, chat_completion_time_ms, matching_documents)
+	VALUES (now(), 'seeded_short_id_1', '{
     "query": "Wie viele Dachflächen mit Solaranlagen gibt es?",
     "match_threshold": 0.5,
     "num_probes_chunks": 9,

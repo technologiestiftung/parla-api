@@ -5,6 +5,7 @@ const testEmbedding: number[] = testEmbeddingResponse.data[0].embedding;
 
 const testSearchQuery = "Wann kommen die Solaranlagen nach Pankow?";
 const testSearchQueryFlagged = "profanity";
+const seededUserRequestShortId = "seeded_short_id_1";
 const testModerationResponse = {
 	id: "modr-8RG0mWuGNr9iNgOS3NOKFy9EOXXTJ",
 	model: "text-moderation-006",
@@ -58,6 +59,7 @@ export {
 	testEmbedding,
 	testSearchQuery,
 	testSearchQueryFlagged,
+	seededUserRequestShortId,
 	testModerationResponse,
 	testEmbeddingResponse,
 	testAnswer,
