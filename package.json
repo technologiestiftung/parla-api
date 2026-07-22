@@ -75,7 +75,7 @@
 		"ext": "ts,json"
 	},
 	"dependencies": {
-		"@fastify/cors": "10.0.1",
+		"@fastify/cors": "11.3.0",
 		"@fastify/rate-limit": "10.1.1",
 		"@supabase/supabase-js": "2.45.6",
 		"common-tags": "1.8.2",
