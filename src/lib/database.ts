@@ -198,6 +198,7 @@ export type Database = {
 			};
 			registered_documents: {
 				Row: {
+					electoral_term: number | null;
 					id: number;
 					metadata: Json | null;
 					registered_at: string;
@@ -205,6 +206,7 @@ export type Database = {
 					source_url: string;
 				};
 				Insert: {
+					electoral_term?: number | null;
 					id?: number;
 					metadata?: Json | null;
 					registered_at: string;
@@ -212,6 +214,7 @@ export type Database = {
 					source_url: string;
 				};
 				Update: {
+					electoral_term?: number | null;
 					id?: number;
 					metadata?: Json | null;
 					registered_at?: string;
@@ -324,21 +327,23 @@ export type Database = {
 			find_registered_documents_with_errors: {
 				Args: Record<PropertyKey, never>;
 				Returns: {
+					electoral_term: number | null;
 					id: number;
-					source_url: string;
-					source_type: string;
+					metadata: Json | null;
 					registered_at: string;
-					metadata: Json;
+					source_type: string;
+					source_url: string;
 				}[];
 			};
 			find_unprocessed_registered_documents: {
 				Args: Record<PropertyKey, never>;
 				Returns: {
+					electoral_term: number | null;
 					id: number;
-					source_url: string;
-					source_type: string;
+					metadata: Json | null;
 					registered_at: string;
-					metadata: Json;
+					source_type: string;
+					source_url: string;
 				}[];
 			};
 			generate_random_short_id: {
