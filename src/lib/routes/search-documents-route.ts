@@ -7,7 +7,7 @@ import {
 	responseDocumentMatchToReference,
 } from "../common.js";
 import { Json } from "../database.js";
-import { DatabaseError, OpenAIError, UserError } from "../errors.js";
+import { DatabaseError, OpenAIError } from "../errors.js";
 import {
 	documentSearchBodySchema,
 	documentSearchResponseSchema,
@@ -43,12 +43,12 @@ export function searchDocumentsRoute(
 				anonymous,
 			} = request.body;
 
-			// 2. moderate content
-			// Moderate the content to comply with OpenAI T&C
 			const sanitizedQuery = query.trim();
+
 			let then = new Date();
-			const moderationResponse = await fetch(
-				"https://api.openai.com/v1/moderations",
+			// generate an embedding using openai api
+			const embeddingResponse = await fetch(
+				"https://api.openai.com/v1/embeddings",
 				{
 					method: "POST",
 					headers: {
@@ -59,51 +59,12 @@ export function searchDocumentsRoute(
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
-						input: sanitizedQuery,
-					}),
-				},
-			);
-			let now = new Date();
-			const moderationElapsedMs = now.getTime() - then.getTime();
-
-			if (!moderationResponse.ok) {
-				throw new OpenAIError("Failed to moderate content", {
-					endpoint: "moderation",
-					status: moderationResponse.status,
-					statusText: await moderationResponse.text(),
-				});
-			}
-
-			const moderationResponseJson = await moderationResponse.json();
-
-			//@ts-expect-error 'moderationResponseJson' is of type 'unknown'
-			const [results] = moderationResponseJson.results;
-
-			// TODO: Should this really return 500?
-			if (results.flagged) {
-				throw new UserError("Flagged content", {
-					flagged: true,
-					categories: results.categories,
-				});
-			}
-
-			then = new Date();
-			// 3. generate an embedding using openai api
-			const embeddingResponse = await fetch(
-				"https://api.openai.com/v1/embeddings",
-				{
-					method: "POST",
-					headers: {
-						Authorization: `Bearer ${parlaConfig.OPENAI_KEY}`,
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
 						model: parlaConfig.OPENAI_EMBEDDING_MODEL,
 						input: sanitizedQuery.replaceAll("\n", " "),
 					}),
 				},
 			);
-			now = new Date();
+			let now = new Date();
 			const embeddingElapsedMs = now.getTime() - then.getTime();
 
 			if (embeddingResponse.status !== 200) {
@@ -159,7 +120,6 @@ export function searchDocumentsRoute(
 					matching_documents: documentMatches.map((match) => {
 						return responseDocumentMatchToReference(match) as unknown as Json;
 					}),
-					moderation_time_ms: moderationElapsedMs,
 					embedding_time_ms: embeddingElapsedMs,
 					database_search_time_ms: databaseSearchElapsedMs,
 				})

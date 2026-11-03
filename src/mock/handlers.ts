@@ -2,8 +2,6 @@ import { http, HttpResponse } from "msw";
 import {
 	testAnswer,
 	testOpenAIApiKeyError,
-	testModerationResponse,
-	testSearchQueryFlagged,
 	XTestErrorTypes,
 } from "../tests/util/fixtures.js";
 import { testEmbeddingResponse } from "../tests/util/fixtures.js";
@@ -22,7 +20,7 @@ export const handlers = [
 			return HttpResponse.json(testAnswer);
 		},
 	),
-	http.post("https://api.openai.com/v1/moderations", async ({ request }) => {
+	http.post("https://api.openai.com/v1/embeddings", ({ request }) => {
 		if (
 			request.headers.has("x-test-error") &&
 			request.headers.get("x-test-error") ===
@@ -32,16 +30,6 @@ export const handlers = [
 				status: 401,
 			});
 		}
-
-		const body = (await request.json()) as { input: string };
-		if (body.input.includes(testSearchQueryFlagged)) {
-			return HttpResponse.json({
-				results: [{ flagged: true }],
-			});
-		}
-		return HttpResponse.json(testModerationResponse);
-	}),
-	http.post("https://api.openai.com/v1/embeddings", () => {
 		return HttpResponse.json(testEmbeddingResponse);
 	}),
 ];

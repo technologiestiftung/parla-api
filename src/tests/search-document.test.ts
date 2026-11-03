@@ -1,7 +1,7 @@
 import anyTest, { TestFn } from "ava";
 import { FastifyInstance, InjectOptions } from "fastify";
 import { buildTestServer } from "./util/test-server.js";
-import { testSearchQuery, testSearchQueryFlagged } from "./util/fixtures.js";
+import { testSearchQuery } from "./util/fixtures.js";
 import { mockServer } from "../mock/node.js";
 import {
 	AvailableSearchAlgorithms,
@@ -116,25 +116,4 @@ test("anonymous search document should return a document without a userRequestId
 	t.is(response.statusCode, 201);
 	t.false(Object.hasOwn(json, "userRequestId"));
 	checkSearchDocStructure(t, json);
-});
-
-test("search document with flagged moderation should return 500", async (t) => {
-	const opts: InjectOptions = {
-		method: "POST",
-		url: {
-			pathname: "/vector-search",
-			hostname: "localhost",
-			port: 8888,
-			protocol: "http",
-		},
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			query: testSearchQueryFlagged,
-		}),
-	};
-	const response = await t.context.server.inject(opts);
-	t.is(response.statusCode, 500);
-	t.snapshot(response.json());
 });

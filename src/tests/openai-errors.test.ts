@@ -42,7 +42,7 @@ test.only("openai error vector search 401 due to missing or wrong openai api key
 	t.is(
 		response.body,
 		JSON.stringify({
-			endpoint: "moderation",
+			endpoint: "embeddings",
 			statusText: testOpenAIApiKeyError,
 		}),
 	);

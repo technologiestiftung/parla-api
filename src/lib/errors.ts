@@ -7,10 +7,7 @@ export class ApplicationError extends Error {
 	}
 }
 
-export type OpenAIendpointTypes =
-	| "moderation"
-	| "embeddings"
-	| "chat/completions";
+export type OpenAIendpointTypes = "embeddings" | "chat/completions";
 
 export interface OpenAIErrorData {
 	endpoint: OpenAIendpointTypes;
