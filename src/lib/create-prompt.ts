@@ -1,8 +1,8 @@
 import { facts } from "../fixtures/facts.js";
 import { ParlaConfig } from "../index.js";
 import {
+	ChatCompletionRequest,
 	GeneratedPrompt,
-	OpenAIChatCompletionRequest,
 	ResponseDocumentMatch,
 } from "./common.js";
 import { getCleanedMetadata } from "./util.js";
@@ -70,7 +70,7 @@ export function createPrompt(
 		for (const chunk of orderedDocumentChunks) {
 			const existingContentPlusChunk =
 				context + "\n\n" + chunk.processed_document_chunk.content;
-			const estimatedChunkTokenSize = existingContentPlusChunk.length / LIMIT;
+			const estimatedChunkTokenSize = existingContentPlusChunk.length / FACTOR;
 			if (estimatedChunkTokenSize < LIMIT) {
 				context = existingContentPlusChunk;
 				chunkIdsInContext.push(chunk.processed_document_chunk.id);
@@ -119,8 +119,12 @@ ${questionAnswerFacts}
 		{ role: "user", content: createPromptOptions.sanitizedQuery },
 	];
 
-	const completionOptions: OpenAIChatCompletionRequest = {
-		model: parlaConfig.OPENAI_MODEL,
+	const completionOptions: ChatCompletionRequest = {
+		model: parlaConfig.LLM_CHAT_MODEL,
+		// Only sent if set, as not every model supports it (e.g. models without reasoning reject it)
+		...(parlaConfig.LLM_CHAT_REASONING_EFFORT
+			? { reasoning_effort: parlaConfig.LLM_CHAT_REASONING_EFFORT }
+			: {}),
 		messages: allMessages,
 		max_tokens: parlaConfig.CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT,
 		temperature: parlaConfig.CHAT_COMPLETION_TEMPERATURE,
@@ -133,7 +137,7 @@ ${questionAnswerFacts}
 	};
 
 	const generatedPrompt = {
-		openAIChatCompletionRequest: completionOptions,
+		chatCompletionRequest: completionOptions,
 		summaryIdsInContext: summaryIdsInContext,
 		chunkIdsInContext: chunkIdsInContext,
 	};

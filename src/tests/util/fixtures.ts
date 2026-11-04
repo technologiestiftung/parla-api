@@ -1,53 +1,31 @@
 import testEmbeddingResponse from "./embeddings.json" assert { type: "json" };
 import testGenAnswerReqBody from "./generate-answer-req-body.json" assert { type: "json" };
 import testAnswer from "./answer.json" assert { type: "json" };
+import type { ParlaConfig } from "../../index.js";
 const testEmbedding: number[] = testEmbeddingResponse.data[0].embedding;
 
 const testSearchQuery = "Wann kommen die Solaranlagen nach Pankow?";
-const testSearchQueryFlagged = "profanity";
 const seededUserRequestShortId = "seeded_short_id_1";
-const testModerationResponse = {
-	id: "modr-8RG0mWuGNr9iNgOS3NOKFy9EOXXTJ",
-	model: "text-moderation-006",
-	results: [
-		{
-			flagged: false,
-			categories: {
-				sexual: false,
-				hate: false,
-				harassment: false,
-				"self-harm": false,
-				"sexual/minors": false,
-				"hate/threatening": false,
-				"violence/graphic": false,
-				"self-harm/intent": false,
-				"self-harm/instructions": false,
-				"harassment/threatening": false,
-				violence: false,
-			},
-			category_scores: {
-				sexual: 7.6275423452898394e-6,
-				hate: 0.00018050531798508018,
-				harassment: 0.00006977801240282133,
-				"self-harm": 7.8282550930453e-7,
-				"sexual/minors": 9.998919949794072e-7,
-				"hate/threatening": 0.00002451168984407559,
-				"violence/graphic": 1.8784436406349414e-7,
-				"self-harm/intent": 9.122623545465558e-9,
-				"self-harm/instructions": 2.8750774205832386e-8,
-				"harassment/threatening": 0.00007345735502894968,
-				violence: 0.0001552872417960316,
-			},
-		},
-	],
+// Placeholder base URL for the LLM API; the mocks in src/mock/handlers.ts intercept it
+const testLLMBaseUrl = "https://llm.test/v1";
+
+// All LLM requests are mocked, so key and model names are placeholders
+const testParlaConfig: ParlaConfig = {
+	LLM_API_KEY: "test-api-key",
+	LLM_BASE_URL: testLLMBaseUrl,
+	LLM_CHAT_MODEL: "test-chat-model",
+	LLM_EMBEDDING_MODEL: "test-embedding-model",
+	CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT: 30000,
+	CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT: 2048,
+	BEST_GUESS_ESTIMATION_TOKEN_FACTOR: 4.5,
+	CHAT_COMPLETION_TEMPERATURE: 0,
 };
 
-export type XTestErrorTypes = "OPENAI_API_KEY_ERROR";
+export type XTestErrorTypes = "LLM_API_KEY_ERROR";
 
-const testOpenAIApiKeyError = {
+const testLLMApiKeyError = {
 	error: {
-		message:
-			"Incorrect API key provided: $OPENAI_***_KEY. You can find your API key at https://platform.openai.com/account/api-keys.",
+		message: "Incorrect API key provided.",
 		type: "invalid_request_error",
 		param: null,
 		code: "invalid_api_key",
@@ -55,12 +33,12 @@ const testOpenAIApiKeyError = {
 };
 
 export {
-	testOpenAIApiKeyError,
+	testLLMApiKeyError,
 	testEmbedding,
 	testSearchQuery,
-	testSearchQueryFlagged,
 	seededUserRequestShortId,
-	testModerationResponse,
+	testLLMBaseUrl,
+	testParlaConfig,
 	testEmbeddingResponse,
 	testAnswer,
 	testGenAnswerReqBody,

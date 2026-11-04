@@ -1,9 +1,9 @@
-version: '3.4'
+version: "3.4"
 
 services:
   api:
     image: parla-api
-    platform:  linux/arm64/v8
+    platform: linux/arm64/v8
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -11,8 +11,11 @@ services:
       NODE_ENV: production
       SUPABASE_URL: "${SUPABASE_URL}"
       SUPABASE_ANON_KEY: "${SUPABASE_ANON_KEY}"
-      OPENAI_KEY: "${OPENAI_KEY}"
-      OPENAI_MODEL: "${OPENAI_MODEL}"
+      LLM_API_KEY: "${LLM_API_KEY}"
+      LLM_BASE_URL: "${LLM_BASE_URL}"
+      LLM_CHAT_MODEL: "${LLM_CHAT_MODEL}"
+      LLM_CHAT_REASONING_EFFORT: "${LLM_CHAT_REASONING_EFFORT}"
+      LLM_EMBEDDING_MODEL: "${LLM_EMBEDDING_MODEL}"
 
     ports:
       - 8080:8080

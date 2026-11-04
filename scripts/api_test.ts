@@ -9,8 +9,9 @@ const availableAlgorithms = [
 	{
 		temperature: 0,
 		match_threshold: 0.85,
-		num_probes: 8,
-		openai_model: "gpt-4o-mini",
+		num_probes_chunks: 8,
+		num_probes_summaries: 8,
+		llm_chat_model: "gpt-4o-mini",
 		chunk_limit: 128,
 		summary_limit: 16,
 		document_limit: 3,

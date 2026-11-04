@@ -5,15 +5,15 @@ import { testSearchQuery } from "./fixtures.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 async function main() {
-	const response = await fetch("https://api.openai.com/v1/embeddings", {
+	const response = await fetch(`${process.env.LLM_BASE_URL}/embeddings`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			Authorization: `Bearer ${process.env.OPENAI_KEY}`,
+			Authorization: `Bearer ${process.env.LLM_API_KEY}`,
 		},
 		body: JSON.stringify({
 			input: testSearchQuery,
-			model: "text-embedding-ada-002",
+			model: process.env.LLM_EMBEDDING_MODEL,
 		}),
 	});
 	if (response.ok) {
