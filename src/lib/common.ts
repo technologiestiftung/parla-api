@@ -114,7 +114,6 @@ export interface ChatCompletionRequest {
 	max_tokens: number;
 	temperature: number;
 	stream: boolean;
-	seed: number;
 }
 
 export interface GeneratedPrompt {
