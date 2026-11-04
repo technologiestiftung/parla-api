@@ -1,8 +1,6 @@
 # Supabase Settings
 export SUPABASE_URL="http://localhost:54321"
 export SUPABASE_ANON_KEY="ey..."
-export OPENAI_KEY="sk-UY..."
-export SUPABASE_SERVICE_ROLE_KEY=
 
 # Log level should be one of "debug", "info", "warning", "error", "critical"
 export LOG_LEVEL="info"
@@ -11,13 +9,19 @@ export LOG_LEVEL="info"
 export PORT="8080"
 export DANGEROUSLY_ALLOW_CORS_FOR_ALL_ORIGINS="FOR_REAL_REAL"
 
-# OpenAI Settings
+# Model Settings
 
-# The used OpenAI model
-export OPENAI_MODEL="gpt-4o-mini"
+# Model API Settings
+export LLM_API_KEY=
+export LLM_BASE_URL=https://api.mistral.ai/v1
+
+# The used Chat model
+export LLM_CHAT_MODEL="zai-glm-5-3-flash"
+# leave reasoning effort empty for models without reasoning
+export LLM_CHAT_REASONING_EFFORT="low"
 
 # The used embedding model
-export OPENAI_EMBEDDING_MODEL="text-embedding-ada-002"
+export LLM_EMBEDDING_MODEL="mistral-embed"
 
 # The context token limit, i.e. how much data we put into the context for answering the user question
 export CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT=30000
@@ -28,5 +32,5 @@ export CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT=2048
 # The temperatur of the chat completion request
 export CHAT_COMPLETION_TEMPERATURE=0
 
-# Best guess estimation factor for estimating token length (depends on OPENAI_EMBEDDING_MODEL)
+# Best guess estimation factor (characters per token) for estimating the prompt context size (depends on LLM_CHAT_MODEL's tokenizer)
 export BEST_GUESS_ESTIMATION_TOKEN_FACTOR=4.5

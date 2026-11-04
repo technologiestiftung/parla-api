@@ -13,8 +13,11 @@ docker-build:
 docker-run:
 	docker run --env SUPABASE_URL="$SUPABASE_URL" \
 		--env SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
-		--env OPENAI_MODEL="$OPENAI_MODEL" \
-		--env OPENAI_KEY="$OPENAI_KEY" \
+		--env LLM_API_KEY="$LLM_API_KEY" \
+		--env LLM_BASE_URL="$LLM_BASE_URL" \
+		--env LLM_CHAT_MODEL="$LLM_CHAT_MODEL" \
+		--env LLM_CHAT_REASONING_EFFORT="$LLM_CHAT_REASONING_EFFORT" \
+		--env LLM_EMBEDDING_MODEL="$LLM_EMBEDDING_MODEL" \
 		 --platform linux/amd64 \
 		--interactive \
 		--tty \

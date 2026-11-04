@@ -7,7 +7,7 @@ import {
 	responseDocumentMatchToReference,
 } from "../common.js";
 import { Json } from "../database.js";
-import { DatabaseError, OpenAIError } from "../errors.js";
+import { DatabaseError, LLMError } from "../errors.js";
 import {
 	documentSearchBodySchema,
 	documentSearchResponseSchema,
@@ -46,20 +46,20 @@ export function searchDocumentsRoute(
 			const sanitizedQuery = query.trim();
 
 			let then = new Date();
-			// generate an embedding using openai api
+			// generate an embedding using the llm api
 			const embeddingResponse = await fetch(
-				"https://api.openai.com/v1/embeddings",
+				`${parlaConfig.LLM_BASE_URL}/embeddings`,
 				{
 					method: "POST",
 					headers: {
 						"x-test-error": request.headers["x-test-error"]
 							? (request.headers["x-test-error"] as string)
 							: "", // This header is used to test the error handling in the tests
-						Authorization: `Bearer ${parlaConfig.OPENAI_KEY}`,
+						Authorization: `Bearer ${parlaConfig.LLM_API_KEY}`,
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
-						model: parlaConfig.OPENAI_EMBEDDING_MODEL,
+						model: parlaConfig.LLM_EMBEDDING_MODEL,
 						input: sanitizedQuery.replaceAll("\n", " "),
 					}),
 				},
@@ -68,7 +68,7 @@ export function searchDocumentsRoute(
 			const embeddingElapsedMs = now.getTime() - then.getTime();
 
 			if (embeddingResponse.status !== 200) {
-				throw new OpenAIError("Failed to create embedding", {
+				throw new LLMError("Failed to create embedding", {
 					endpoint: "embeddings",
 					status: embeddingResponse.status,
 					statusText: await embeddingResponse.text(),
@@ -115,8 +115,8 @@ export function searchDocumentsRoute(
 					request_payload: request.body as unknown as Json,
 					question: sanitizedQuery,
 					generated_answer: undefined,
-					llm_model: parlaConfig.OPENAI_MODEL,
-					llm_embedding_model: parlaConfig.OPENAI_EMBEDDING_MODEL,
+					llm_model: parlaConfig.LLM_CHAT_MODEL,
+					llm_embedding_model: parlaConfig.LLM_EMBEDDING_MODEL,
 					matching_documents: documentMatches.map((match) => {
 						return responseDocumentMatchToReference(match) as unknown as Json;
 					}),

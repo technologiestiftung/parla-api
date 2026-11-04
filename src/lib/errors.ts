@@ -7,19 +7,19 @@ export class ApplicationError extends Error {
 	}
 }
 
-export type OpenAIendpointTypes = "embeddings" | "chat/completions";
+export type LLMEndpointTypes = "embeddings" | "chat/completions";
 
-export interface OpenAIErrorData {
-	endpoint: OpenAIendpointTypes;
+export interface LLMErrorData {
+	endpoint: LLMEndpointTypes;
 	status: number;
 	statusText: string;
 	userRequestId?: string;
 }
 
-export class OpenAIError extends Error {
+export class LLMError extends Error {
 	constructor(
 		message: string,
-		public data: OpenAIErrorData,
+		public data: LLMErrorData,
 	) {
 		super(message);
 	}

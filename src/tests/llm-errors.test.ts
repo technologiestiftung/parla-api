@@ -1,7 +1,7 @@
 import anyTest, { TestFn } from "ava";
 import { FastifyInstance, InjectOptions } from "fastify";
 import { mockServer } from "../mock/node.js";
-import { XTestErrorTypes, testOpenAIApiKeyError } from "./util/fixtures.js";
+import { XTestErrorTypes, testLLMApiKeyError } from "./util/fixtures.js";
 import { buildTestServer } from "./util/test-server.js";
 
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
@@ -21,11 +21,11 @@ test.after(async (t) => {
 	mockServer.close();
 });
 
-test.only("openai error vector search 401 due to missing or wrong openai api key", async (t) => {
+test.only("llm error vector search 401 due to missing or wrong llm api key", async (t) => {
 	const opts: InjectOptions = {
 		method: "POST",
 		headers: {
-			"x-test-error": "OPENAI_API_KEY_ERROR" as XTestErrorTypes,
+			"x-test-error": "LLM_API_KEY_ERROR" as XTestErrorTypes,
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({ query: "errrr" }),
@@ -43,7 +43,7 @@ test.only("openai error vector search 401 due to missing or wrong openai api key
 		response.body,
 		JSON.stringify({
 			endpoint: "embeddings",
-			statusText: testOpenAIApiKeyError,
+			statusText: testLLMApiKeyError,
 		}),
 	);
 });
