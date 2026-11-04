@@ -15,7 +15,7 @@ This is a the api and database for the explorational project _Parla_. This is no
 - docker
 - vercel.com account
 - supabase.com account
-- openai.com account
+- account with an OpenAI-compatible API provider (e.g. Mistral or OpenAI) for chat completions and embeddings. The embedding model must be the same one the [document processor](https://github.com/technologiestiftung/parla-document-processor) used to populate the database
 - running instance of the related frontend https://github.com/technologiestiftung/parla-frontend
 - running instance of the database, defined in [./supabase](./supabase)
 - populated database. Using these tools https://github.com/technologiestiftung/parla-document-processor
@@ -23,6 +23,8 @@ This is a the api and database for the explorational project _Parla_. This is no
 ## Required Environment Variables
 
 See `.envrc.sample` for the required environment variables.
+
+`LLM_CHAT_REASONING_EFFORT` is optional. Only set it if `LLM_CHAT_MODEL` is a reasoning model, other models reject the parameter. Leave it empty otherwise, then it is not sent.
 
 Hint. We use `direnv` for development environment variables. See https://direnv.net/
 

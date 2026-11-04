@@ -62,7 +62,7 @@ export interface DocumentSearchResponse {
 }
 
 export interface GenerateAnswerResponse {
-	answer: OpenAIChatCompletionRequest;
+	answer: ChatCompletionRequest;
 }
 
 export interface GenerateAnswerBody {
@@ -102,14 +102,15 @@ export enum AvailableSearchAlgorithms {
 	SummaryThenChunks = "summaries-then-chunks",
 }
 
-export interface OpenAIMessage {
+export interface ChatMessage {
 	role: string;
 	content: string;
 }
 
-export interface OpenAIChatCompletionRequest {
+export interface ChatCompletionRequest {
 	model: string;
-	messages: Array<OpenAIMessage>;
+	reasoning_effort?: string;
+	messages: Array<ChatMessage>;
 	max_tokens: number;
 	temperature: number;
 	stream: boolean;
@@ -117,7 +118,7 @@ export interface OpenAIChatCompletionRequest {
 }
 
 export interface GeneratedPrompt {
-	openAIChatCompletionRequest: OpenAIChatCompletionRequest;
+	chatCompletionRequest: ChatCompletionRequest;
 	summaryIdsInContext: number[];
 	chunkIdsInContext: number[];
 }

@@ -1,22 +1,17 @@
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
-import {
-	ApplicationError,
-	EnvError,
-	OpenAIError,
-	UserError,
-} from "./errors.js";
+import { ApplicationError, EnvError, LLMError, UserError } from "./errors.js";
 import { supabase } from "./supabase.js";
 
 /**
  * Custom Error Handler
- * Currently handles OpenAIErrors for us
+ * Currently handles LLMErrors for us
  */
 export async function customErrorHandler(
 	error: FastifyError,
 	_: FastifyRequest,
 	reply: FastifyReply,
 ) {
-	if (error instanceof OpenAIError) {
+	if (error instanceof LLMError) {
 		// test if the statusText is parseable as JSON
 		let statusText;
 		try {

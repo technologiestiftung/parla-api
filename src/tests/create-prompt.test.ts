@@ -2,7 +2,7 @@ import anyTest, { TestFn } from "ava";
 import { FastifyInstance } from "fastify";
 const test = anyTest as TestFn<{ server: FastifyInstance }>;
 import { createPrompt, CreatePromptOptions } from "../lib/create-prompt.js";
-import { testSearchQuery } from "./util/fixtures.js";
+import { testParlaConfig, testSearchQuery } from "./util/fixtures.js";
 import { supabase } from "../lib/supabase.js";
 test("create prompt", async (t) => {
 	const { data: regDoc } = await supabase
@@ -49,25 +49,17 @@ test("create prompt", async (t) => {
 		sanitizedQuery: testSearchQuery,
 		includeSummary: true,
 	};
-	const prompt = await createPrompt(options, {
-		OPENAI_KEY: "",
-		OPENAI_MODEL: "gpt-4o-mini",
-		OPENAI_EMBEDDING_MODEL: "text-embedding-ada-002",
-		CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT: 30000,
-		CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT: 2048,
-		BEST_GUESS_ESTIMATION_TOKEN_FACTOR: 4.5,
-		CHAT_COMPLETION_TEMPERATURE: 0,
-	});
+	const prompt = await createPrompt(options, testParlaConfig);
 	t.snapshot(prompt);
-	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "model"));
-	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "stream"));
-	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "temperature"));
-	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "max_tokens"));
-	t.truthy(Object.hasOwn(prompt.openAIChatCompletionRequest, "messages"));
-	t.truthy(Array.isArray(prompt.openAIChatCompletionRequest.messages));
-	t.truthy(prompt.openAIChatCompletionRequest.messages.length > 0);
-	t.truthy(prompt.openAIChatCompletionRequest.messages.length === 2);
-	t.is(prompt.openAIChatCompletionRequest.messages[0].role, "system");
-	t.is(prompt.openAIChatCompletionRequest.messages[1].role, "user");
-	t.is(prompt.openAIChatCompletionRequest.messages[1].content, testSearchQuery);
+	t.truthy(Object.hasOwn(prompt.chatCompletionRequest, "model"));
+	t.truthy(Object.hasOwn(prompt.chatCompletionRequest, "stream"));
+	t.truthy(Object.hasOwn(prompt.chatCompletionRequest, "temperature"));
+	t.truthy(Object.hasOwn(prompt.chatCompletionRequest, "max_tokens"));
+	t.truthy(Object.hasOwn(prompt.chatCompletionRequest, "messages"));
+	t.truthy(Array.isArray(prompt.chatCompletionRequest.messages));
+	t.truthy(prompt.chatCompletionRequest.messages.length > 0);
+	t.truthy(prompt.chatCompletionRequest.messages.length === 2);
+	t.is(prompt.chatCompletionRequest.messages[0].role, "system");
+	t.is(prompt.chatCompletionRequest.messages[1].role, "user");
+	t.is(prompt.chatCompletionRequest.messages[1].content, testSearchQuery);
 });

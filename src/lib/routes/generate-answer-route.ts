@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 import { ParlaConfig } from "../../index.js";
 import { GenerateAnswerBody } from "../common.js";
 import { createPrompt } from "../create-prompt.js";
-import { DatabaseError, OpenAIError } from "../errors.js";
+import { DatabaseError, LLMError } from "../errors.js";
 import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
@@ -37,13 +37,16 @@ export function generateAnswerRoute(
 
 			const generatedPrompt = createPrompt(createPromptOptions, parlaConfig);
 
-			const llm = new OpenAIClient(parlaConfig.OPENAI_KEY);
+			const llm = new OpenAIClient(
+				parlaConfig.LLM_API_KEY,
+				parlaConfig.LLM_BASE_URL,
+			);
 			let generatedAnswer: string = "";
 
 			const then = new Date();
 			try {
 				const stream = await llm.requestResponseStream(
-					generatedPrompt.openAIChatCompletionRequest,
+					generatedPrompt.chatCompletionRequest,
 					(delta) => {
 						generatedAnswer += delta;
 					},
@@ -51,7 +54,7 @@ export function generateAnswerRoute(
 				await reply.status(201).send(stream);
 			} catch (error: unknown) {
 				if (error instanceof Error) {
-					throw new OpenAIError("Failed to create completion", {
+					throw new LLMError("Failed to create completion", {
 						endpoint: "chat/completions",
 						status: 500,
 						statusText: error.message,

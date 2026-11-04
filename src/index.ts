@@ -5,9 +5,11 @@ import { buildServer } from "./lib/build-server.js";
 import { EnvError } from "./lib/errors.js";
 
 export interface ParlaConfig extends FastifyPluginOptions {
-	OPENAI_MODEL: string;
-	OPENAI_KEY: string;
-	OPENAI_EMBEDDING_MODEL: string;
+	LLM_API_KEY: string;
+	LLM_BASE_URL: string;
+	LLM_CHAT_MODEL: string;
+	LLM_CHAT_REASONING_EFFORT?: string;
+	LLM_EMBEDDING_MODEL: string;
 	CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT: number;
 	CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT: number;
 	BEST_GUESS_ESTIMATION_TOKEN_FACTOR: number;
@@ -17,9 +19,12 @@ export interface ParlaConfig extends FastifyPluginOptions {
 async function main() {
 	try {
 		const PORT = parseInt(process.env.PORT ?? "8080");
-		const OPENAI_MODEL = process.env.OPENAI_MODEL;
-		const OPENAI_KEY = process.env.OPENAI_KEY;
-		const OPENAI_EMBEDDING_MODEL = process.env.OPENAI_EMBEDDING_MODEL;
+		const LLM_API_KEY = process.env.LLM_API_KEY;
+		const LLM_BASE_URL = process.env.LLM_BASE_URL;
+		const LLM_CHAT_MODEL = process.env.LLM_CHAT_MODEL;
+		// Optional: only set it for reasoning models, other models reject the parameter
+		const LLM_CHAT_REASONING_EFFORT = process.env.LLM_CHAT_REASONING_EFFORT;
+		const LLM_EMBEDDING_MODEL = process.env.LLM_EMBEDDING_MODEL;
 		const CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT =
 			process.env.CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT;
 		const CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT =
@@ -31,20 +36,23 @@ async function main() {
 		if (!PORT) {
 			throw new EnvError("PORT");
 		}
-		if (!OPENAI_MODEL) {
-			throw new EnvError("OPENAI_MODEL");
+		if (!LLM_API_KEY) {
+			throw new EnvError("LLM_API_KEY");
 		}
-		if (!OPENAI_EMBEDDING_MODEL) {
-			throw new EnvError("OPENAI_EMBEDDING_MODEL");
+		if (!LLM_BASE_URL) {
+			throw new EnvError("LLM_BASE_URL");
 		}
-		if (!OPENAI_KEY) {
-			throw new EnvError("OPENAI_KEY");
+		if (!LLM_CHAT_MODEL) {
+			throw new EnvError("LLM_CHAT_MODEL");
+		}
+		if (!LLM_EMBEDDING_MODEL) {
+			throw new EnvError("LLM_EMBEDDING_MODEL");
 		}
 		if (!CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT) {
-			throw new EnvError("OPENAI_EMBEDDING_MODEL");
+			throw new EnvError("CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT");
 		}
 		if (!CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT) {
-			throw new EnvError("OPENAI_EMBEDDING_MODEL");
+			throw new EnvError("CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT");
 		}
 		if (
 			!CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT ||
@@ -72,9 +80,11 @@ async function main() {
 		}
 
 		const parlaConfig = {
-			OPENAI_MODEL: OPENAI_MODEL,
-			OPENAI_KEY: OPENAI_KEY,
-			OPENAI_EMBEDDING_MODEL: OPENAI_EMBEDDING_MODEL,
+			LLM_API_KEY: LLM_API_KEY,
+			LLM_BASE_URL: LLM_BASE_URL,
+			LLM_CHAT_MODEL: LLM_CHAT_MODEL,
+			LLM_CHAT_REASONING_EFFORT: LLM_CHAT_REASONING_EFFORT,
+			LLM_EMBEDDING_MODEL: LLM_EMBEDDING_MODEL,
 			CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT: parseInt(
 				CHAT_COMPLETION_CONTEXT_TOKEN_LIMIT,
 			),
