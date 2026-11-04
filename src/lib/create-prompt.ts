@@ -129,11 +129,6 @@ ${questionAnswerFacts}
 		max_tokens: parlaConfig.CHAT_COMPLETION_GENERATED_ANSWER_TOKEN_LIMIT,
 		temperature: parlaConfig.CHAT_COMPLETION_TEMPERATURE,
 		stream: true,
-		// https://platform.openai.com/docs/api-reference/chat
-		// seed feature is in Beta. If specified, our system will make a best effort to
-		// sample deterministically, such that repeated requests with the same seed and
-		// parameters should return the same result. Determinism is not guaranteed.
-		seed: 1024,
 	};
 
 	const generatedPrompt = {
