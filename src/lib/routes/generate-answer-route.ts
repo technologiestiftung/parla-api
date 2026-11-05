@@ -27,8 +27,35 @@ export function generateAnswerRoute(
 			},
 		},
 		async (request, reply) => {
-			const { query, include_summary_in_response_generation, documentMatches } =
-				request.body;
+			const {
+				query,
+				include_summary_in_response_generation,
+				documentMatches,
+				userRequestId,
+			} = request.body;
+
+			// Never replace a stored answer (shared links show it as-is).
+			// Check before the LLM call to avoid paying for a discarded answer.
+			if (userRequestId) {
+				const { data: existingRequest, error: existingRequestError } =
+					await supabase
+						.from("user_requests")
+						.select("generated_answer")
+						.eq("short_id", userRequestId)
+						.maybeSingle();
+
+				if (existingRequestError) {
+					throw new DatabaseError(
+						`Could not load user request: ${existingRequestError.message}`,
+					);
+				}
+
+				if (existingRequest?.generated_answer) {
+					return reply.status(409).send({
+						message: "An answer for this request has already been generated",
+					});
+				}
+			}
 
 			const createPromptOptions = {
 				documentMatches,
@@ -87,7 +114,12 @@ export function generateAnswerRoute(
 				"chat completion stats",
 			);
 
-			const { error } = await supabase
+			if (!userRequestId) {
+				return reply;
+			}
+
+			// `is null` guard: on concurrent calls, only the first write wins.
+			const { data: updatedRequests, error } = await supabase
 				.from("user_requests")
 				.update({
 					generated_answer: generatedAnswer,
@@ -105,12 +137,20 @@ export function generateAnswerRoute(
 					chat_completion_reasoning_tokens:
 						streamStats?.reasoningTokens ?? null,
 				})
-				.eq("short_id", request.body.userRequestId)
-				.select("*");
+				.eq("short_id", userRequestId)
+				.is("generated_answer", null)
+				.select("short_id");
 
 			if (error) {
 				throw new DatabaseError(
 					`Could not save generated answer to database: ${error.message}`,
+				);
+			}
+
+			if (updatedRequests.length === 0) {
+				request.log.warn(
+					{ userRequestId },
+					"Generated answer not saved: request not found or answer already exists",
 				);
 			}
 
