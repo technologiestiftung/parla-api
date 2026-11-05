@@ -1,6 +1,6 @@
-import testEmbeddingResponse from "./embeddings.json" assert { type: "json" };
-import testGenAnswerReqBody from "./generate-answer-req-body.json" assert { type: "json" };
-import testAnswer from "./answer.json" assert { type: "json" };
+import testEmbeddingResponse from "./embeddings.json" with { type: "json" };
+import testGenAnswerReqBody from "./generate-answer-req-body.json" with { type: "json" };
+import testAnswer from "./answer.json" with { type: "json" };
 import type { ParlaConfig } from "../../index.js";
 const testEmbedding: number[] = testEmbeddingResponse.data[0].embedding;
 
