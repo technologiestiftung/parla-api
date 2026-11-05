@@ -207,7 +207,11 @@ test("feedbacks route POST should return 400 due to wrong property user_request_
 		headers: {
 			"content-type": "application/json",
 		},
-		body: JSON.stringify({ feedback_id: 1, user_request_id: 100000 }),
+		body: JSON.stringify({
+			feedback_id: 1,
+			user_request_id: 100000,
+			session_id: "abcdefg",
+		}),
 	};
 	const response = await t.context.server.inject(opts);
 	// FIXME: This will change with PR https://github.com/technologiestiftung/parla-api/pull/87
@@ -234,6 +238,7 @@ test("feedbacks route POST should return 400 due to wrong property feedback_id i
 		body: JSON.stringify({
 			feedback_id: 999999,
 			user_request_id: seededUserRequestShortId,
+			session_id: "abcdefg",
 		}),
 	};
 	const response = await t.context.server.inject(opts);
