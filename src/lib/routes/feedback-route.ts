@@ -58,8 +58,9 @@ export function feedbackRoute(
 				properties: {
 					feedback_id: { type: "number" },
 					user_request_id: { type: "string" },
+					session_id: { type: "string", minLength: 1 },
 				},
-				required: ["feedback_id", "user_request_id"],
+				required: ["feedback_id", "user_request_id", "session_id"],
 			},
 		},
 		url: "/",
@@ -90,7 +91,8 @@ export function feedbackRoute(
 					const { data: selectData, error: selectError } = await supabase
 						.from("user_request_feedbacks")
 						.select("*")
-						.eq("session_id", session_id);
+						.eq("session_id", session_id)
+						.eq("user_request_id", requestData[0].id);
 
 					if (selectError) {
 						throw new DatabaseError("Error finding feedback for session_id");
@@ -120,6 +122,7 @@ export function feedbackRoute(
 								session_id,
 							})
 							.eq("session_id", session_id)
+							.eq("user_request_id", requestData[0].id)
 							.select("*");
 
 						if (updateError) {
