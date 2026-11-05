@@ -19,7 +19,9 @@ test("create prompt", async (t) => {
 		.single();
 	const { data: procDocChunks } = await supabase
 		.from("processed_document_chunks")
-		.select("*");
+		.select("*")
+		// All chunks share the same similarity, so the snapshot depends on this order
+		.order("id");
 
 	if (
 		!procDoc ||
