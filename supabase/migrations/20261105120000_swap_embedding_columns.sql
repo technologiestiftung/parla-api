@@ -38,5 +38,16 @@ $$;
 -- The index functions use vector_ip_ops unqualified, so the extensions schema must be on the search_path.
 -- Plain SET (not SET LOCAL) also works if the migration runner does not wrap the file in a transaction.
 SET search_path = public, extensions;
-SELECT public.regenerate_embedding_indices_for_chunks();
-SELECT public.regenerate_embedding_indices_for_summaries();
+
+-- The index functions compute lists = COUNT(*) / 1000 (integer division), which is 0 and rejected by ivfflat
+-- for fewer than 1000 rows (e.g. the CI database). Staging and prod have enough rows; elsewhere this is skipped.
+DO $$
+BEGIN
+  IF (SELECT COUNT(*) FROM public.processed_document_chunks) >= 1000 THEN
+    PERFORM public.regenerate_embedding_indices_for_chunks();
+  END IF;
+  IF (SELECT COUNT(*) FROM public.processed_document_summaries) >= 1000 THEN
+    PERFORM public.regenerate_embedding_indices_for_summaries();
+  END IF;
+END;
+$$;
