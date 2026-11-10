@@ -1,8 +1,11 @@
 import { S } from "fluent-json-schema";
 import { AvailableSearchAlgorithms } from "./common.js";
 
+// Real questions are far shorter; caps embedding and prompt cost of oversized input.
+const MAX_QUERY_LENGTH = 2000;
+
 export const documentSearchBodySchema = S.object()
-	.prop("query", S.string())
+	.prop("query", S.string().maxLength(MAX_QUERY_LENGTH))
 	.prop("match_threshold", S.number().minimum(0).maximum(1).default(0.85))
 	.prop("num_probes_chunks", S.number().minimum(1).maximum(85).default(9))
 	.prop("num_probes_summaries", S.number().minimum(1).maximum(9).default(3))
@@ -139,7 +142,7 @@ export const generatedAnswerResponseSchema = {
 };
 
 export const generateAnswerBodySchema = S.object()
-	.prop("query", S.string().minLength(1))
+	.prop("query", S.string().minLength(1).maxLength(MAX_QUERY_LENGTH))
 	.prop("include_summary_in_response_generation", S.boolean().default(true))
 	.prop("temperature", S.number().minimum(0).maximum(2).default(0))
 	.prop("userRequestId", S.string())
