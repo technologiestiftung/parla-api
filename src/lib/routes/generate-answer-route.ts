@@ -7,6 +7,7 @@ import {
 	generateAnswerBodySchema,
 	generatedAnswerResponseSchema,
 } from "../json-schemas.js";
+import { CompletionStreamStats } from "../llm/llm-client.js";
 import { OpenAIClient } from "../llm/openai-client.js";
 import { supabase } from "../supabase.js";
 
@@ -42,6 +43,11 @@ export function generateAnswerRoute(
 				parlaConfig.LLM_BASE_URL,
 			);
 			let generatedAnswer: string = "";
+			// Assigned in the callback, the cast keeps TS from narrowing it to undefined
+			let streamStats = undefined as CompletionStreamStats | undefined;
+			// What was actually sent, to verify the env value reaches the provider
+			const sentReasoningEffort =
+				generatedPrompt.chatCompletionRequest.reasoning_effort ?? null;
 
 			const then = new Date();
 			try {
@@ -49,6 +55,9 @@ export function generateAnswerRoute(
 					generatedPrompt.chatCompletionRequest,
 					(delta) => {
 						generatedAnswer += delta;
+					},
+					(stats) => {
+						streamStats = stats;
 					},
 				);
 				await reply.status(201).send(stream);
@@ -67,6 +76,17 @@ export function generateAnswerRoute(
 			const now = new Date();
 			const elapsedMs = now.getTime() - then.getTime();
 
+			request.log.info(
+				{
+					userRequestId: request.body.userRequestId,
+					model: generatedPrompt.chatCompletionRequest.model,
+					reasoningEffort: sentReasoningEffort,
+					totalMs: elapsedMs,
+					...streamStats,
+				},
+				"chat completion stats",
+			);
+
 			const { error } = await supabase
 				.from("user_requests")
 				.update({
@@ -74,6 +94,16 @@ export function generateAnswerRoute(
 					chat_completion_time_ms: elapsedMs,
 					summary_ids_in_context: generatedPrompt.summaryIdsInContext,
 					chunk_ids_in_context: generatedPrompt.chunkIdsInContext,
+					llm_reasoning_effort: sentReasoningEffort,
+					chat_completion_first_chunk_ms: streamStats?.firstChunkMs ?? null,
+					chat_completion_first_thinking_ms:
+						streamStats?.firstThinkingMs ?? null,
+					chat_completion_first_text_ms: streamStats?.firstTextMs ?? null,
+					chat_completion_thinking_chars: streamStats?.thinkingChars ?? null,
+					chat_completion_input_tokens: streamStats?.inputTokens ?? null,
+					chat_completion_output_tokens: streamStats?.outputTokens ?? null,
+					chat_completion_reasoning_tokens:
+						streamStats?.reasoningTokens ?? null,
 				})
 				.eq("short_id", request.body.userRequestId)
 				.select("*");
