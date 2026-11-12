@@ -57,4 +57,4 @@ jobs:
           npm ci
           npx semantic-release --ci
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
