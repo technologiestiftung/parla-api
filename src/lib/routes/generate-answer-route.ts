@@ -11,6 +11,65 @@ import { CompletionStreamStats } from "../llm/llm-client.js";
 import { OpenAIClient } from "../llm/openai-client.js";
 import { supabase } from "../supabase.js";
 
+async function hasStoredAnswer(userRequestId: string): Promise<boolean> {
+	const { data, error } = await supabase
+		.from("user_requests")
+		.select("generated_answer")
+		.eq("short_id", userRequestId)
+		.maybeSingle();
+
+	if (error) {
+		throw new DatabaseError(`Could not load user request: ${error.message}`);
+	}
+
+	return Boolean(data?.generated_answer);
+}
+
+// Returns false if nothing was updated (request missing or answer already stored)
+async function saveGeneratedAnswer(
+	userRequestId: string,
+	columns: Record<string, unknown>,
+): Promise<boolean> {
+	// `is null` guard: on concurrent calls, only the first write wins.
+	const { data, error } = await supabase
+		.from("user_requests")
+		.update(columns)
+		.eq("short_id", userRequestId)
+		.is("generated_answer", null)
+		.select("short_id");
+
+	if (error) {
+		throw new DatabaseError(
+			`Could not save generated answer to database: ${error.message}`,
+		);
+	}
+
+	return data.length > 0;
+}
+
+function toStreamStatsColumns(stats: CompletionStreamStats | undefined) {
+	if (!stats) {
+		return {
+			chat_completion_first_chunk_ms: null,
+			chat_completion_first_thinking_ms: null,
+			chat_completion_first_text_ms: null,
+			chat_completion_thinking_chars: null,
+			chat_completion_input_tokens: null,
+			chat_completion_output_tokens: null,
+			chat_completion_reasoning_tokens: null,
+		};
+	}
+	return {
+		chat_completion_first_chunk_ms: stats.firstChunkMs,
+		chat_completion_first_thinking_ms: stats.firstThinkingMs,
+		chat_completion_first_text_ms: stats.firstTextMs,
+		chat_completion_thinking_chars: stats.thinkingChars,
+		chat_completion_input_tokens: stats.inputTokens,
+		chat_completion_output_tokens: stats.outputTokens,
+		chat_completion_reasoning_tokens: stats.reasoningTokens,
+	};
+}
+
 export function generateAnswerRoute(
 	app: FastifyInstance,
 	parlaConfig: ParlaConfig,
@@ -27,8 +86,20 @@ export function generateAnswerRoute(
 			},
 		},
 		async (request, reply) => {
-			const { query, include_summary_in_response_generation, documentMatches } =
-				request.body;
+			const {
+				query,
+				include_summary_in_response_generation,
+				documentMatches,
+				userRequestId,
+			} = request.body;
+
+			// Never replace a stored answer (shared links show it as-is).
+			// Check before the LLM call to avoid paying for a discarded answer.
+			if (userRequestId && (await hasStoredAnswer(userRequestId))) {
+				return reply.status(409).send({
+					message: "An answer for this request has already been generated",
+				});
+			}
 
 			const createPromptOptions = {
 				documentMatches,
@@ -78,7 +149,7 @@ export function generateAnswerRoute(
 
 			request.log.info(
 				{
-					userRequestId: request.body.userRequestId,
+					userRequestId,
 					model: generatedPrompt.chatCompletionRequest.model,
 					reasoningEffort: sentReasoningEffort,
 					totalMs: elapsedMs,
@@ -87,30 +158,23 @@ export function generateAnswerRoute(
 				"chat completion stats",
 			);
 
-			const { error } = await supabase
-				.from("user_requests")
-				.update({
-					generated_answer: generatedAnswer,
-					chat_completion_time_ms: elapsedMs,
-					summary_ids_in_context: generatedPrompt.summaryIdsInContext,
-					chunk_ids_in_context: generatedPrompt.chunkIdsInContext,
-					llm_reasoning_effort: sentReasoningEffort,
-					chat_completion_first_chunk_ms: streamStats?.firstChunkMs ?? null,
-					chat_completion_first_thinking_ms:
-						streamStats?.firstThinkingMs ?? null,
-					chat_completion_first_text_ms: streamStats?.firstTextMs ?? null,
-					chat_completion_thinking_chars: streamStats?.thinkingChars ?? null,
-					chat_completion_input_tokens: streamStats?.inputTokens ?? null,
-					chat_completion_output_tokens: streamStats?.outputTokens ?? null,
-					chat_completion_reasoning_tokens:
-						streamStats?.reasoningTokens ?? null,
-				})
-				.eq("short_id", request.body.userRequestId)
-				.select("*");
+			if (!userRequestId) {
+				return reply;
+			}
 
-			if (error) {
-				throw new DatabaseError(
-					`Could not save generated answer to database: ${error.message}`,
+			const saved = await saveGeneratedAnswer(userRequestId, {
+				generated_answer: generatedAnswer,
+				chat_completion_time_ms: elapsedMs,
+				summary_ids_in_context: generatedPrompt.summaryIdsInContext,
+				chunk_ids_in_context: generatedPrompt.chunkIdsInContext,
+				llm_reasoning_effort: sentReasoningEffort,
+				...toStreamStatsColumns(streamStats),
+			});
+
+			if (!saved) {
+				request.log.warn(
+					{ userRequestId },
+					"Generated answer not saved: request not found or answer already exists",
 				);
 			}
 
