@@ -32,7 +32,7 @@ jobs:
           node-version-file: ".nvmrc"
       - uses: supabase/setup-cli@v1
         with:
-          version: 1.115.4
+          version: 2.122.0
       - run: supabase start
       - run: npm ci
       - name: lint
